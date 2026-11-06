@@ -1,3 +1,7 @@
+> **Sado build.** This repository is the Uzbek adaptation of VoiceStudio: the
+> Navoiy-TTS Uzbek engine, a `uz` interface and Sado branding. O'zbekcha
+> qo'llanma: [README.uz.md](README.uz.md).
+
 <div align="center">
   <img src="docs/logo.png" alt="VoiceStudio" width="88" />
   <h1>VoiceStudio</h1>
