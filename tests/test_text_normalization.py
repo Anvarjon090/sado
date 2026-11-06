@@ -93,6 +93,26 @@ _CHANGE_CASES = [
     ("Malayalam", "[pause 300ms] 42 [voice:Anu]", "[pause 300ms] നാൽപത്തിരണ്ട് [voice:Anu]"),
     # Native Malayalam digits are digits too.
     ("Malayalam", "൪൨ പേർ", "നാൽപത്തിരണ്ട് പേർ"),
+    # Uzbek goes through the native verbalizer too (num2words has no uz).
+    # Hyphenated ordinals are the common written form ("2025-yil").
+    ("Uzbek", "Bugun 21 talaba keldi", "Bugun yigirma bir talaba keldi"),
+    ("Uzbek", "1984 kitob", "bir ming to'qqiz yuz sakson to'rt kitob"),
+    ("Uzbek", "125 so'm", "yuz yigirma besh so'm"),
+    ("Uzbek", "2025-yil 5-sentabr", "ikki ming yigirma beshinchi yil beshinchi sentabr"),
+    ("Uzbek", "50-yillar, 2-sinf, 1-may", "elliginchi yillar, ikkinchi sinf, birinchi may"),
+    ("Uzbek", "5-chi sinf, 3-chisi", "beshinchi sinf, uchinchisi"),
+    ("Uzbek", "1 500 000 so'm", "bir million besh yuz ming so'm"),
+    ("Uzbek", "narx 25% oshdi", "narx yigirma besh foiz oshdi"),
+    ("Uzbek", "3.5 km, 0.25 kg", "uch butun o'ndan besh kilometr, nol butun yuzdan yigirma besh kilogramm"),
+    ("Uzbek", "100 mln, 2 mlrd va h.k.", "yuz million, ikki milliard va hokazo"),
+    ("uz", "2-sinf", "ikkinchi sinf"),
+    ("uzn", "2-sinf", "ikkinchi sinf"),
+    ("Northern Uzbek", "2-sinf", "ikkinchi sinf"),
+    # Every o‘/g‘/tutuq apostrophe variant folds to ASCII between letters;
+    # quotation marks around a word are left alone.
+    ("Uzbek", "Oʻzbekiston, g‘alaba, ma’no, o`qish, toʼg´ri", "O'zbekiston, g'alaba, ma'no, o'qish, to'g'ri"),
+    ("Uzbek", "U ‘salom’ dedi", "U ‘salom’ dedi"),
+    ("Uzbek", "[pause 300ms] 42 [voice:Ali]", "[pause 300ms] qirq ikki [voice:Ali]"),
     # Digit ranges: the tilde has to be SPOKEN or the engine mashes the two
     # numbers into one ("20~30초" was read as "이십삼"). Spacing is part of the
     # per-language form — a Korean postposition binds to its numeral, Japanese
@@ -186,6 +206,16 @@ _UNCHANGED_CASES = [
     ("Malayalam", "ക്ലാസ്10 ജയിച്ചു"),
     ("Malayalam", "കോടി150"),
     ("Malayalam", "കോഡ് ൦൦൭"),                    # native leading-zero code
+    # Uzbek: case endings fuse with the cardinal ("3-ta" = "uchta"), so a
+    # hyphen followed only by endings keeps its digits; ranges, chains,
+    # codes and thousands groups stay too.
+    ("Uzbek", "3-ta olma, 5-ga, 1990-larda"),
+    ("Uzbek", "3-5 kun"),
+    ("Uzbek", "2024-2025-yillar"),
+    ("Uzbek", "kod 007"),
+    ("Uzbek", "10.000 so'm"),
+    ("Uzbek", "1234567 raqami"),
+    ("English", "Oʻzbekiston"),                   # apostrophe folding is uz-only
     ("ar", "الرمز ٠٠٧"),                         # same class on the num2words path
     # Digit ranges: only the tilde family is a range mark. Everything else that
     # sits between digits means something other than "to".
@@ -278,6 +308,23 @@ def test_native_language_is_outside_num2words_gate():
     assert _native_lang("Malayalam") == "ml"
     assert _native_lang("ml-IN") == "ml"
     assert _native_lang("English") is None
+    assert _num2words_lang("Uzbek") is None
+    assert _native_lang("Uzbek") == "uz"
+
+
+def test_uzbek_verbalizer_covers_full_range():
+    """Cardinals and ordinals render without digits across the space-grouped
+    range, and ordinal suffixes follow vowel harmony on the last word."""
+    from services import number_words_uz as uz
+    for n in list(range(100_000)) + [10**6, 10**9 + 7, uz.MAX_CARDINAL]:
+        for word in (uz.cardinal(n), uz.ordinal(n)):
+            assert word and not any(ch.isdigit() for ch in word), n
+    assert [uz.ordinal(n) for n in (1, 2, 4, 7, 20, 40, 50, 90, 100, 1000)] == [
+        "birinchi", "ikkinchi", "to'rtinchi", "yettinchi", "yigirmanchi",
+        "qirqinchi", "elliginchi", "to'qsoninchi", "yuzinchi", "bir minginchi",
+    ]
+    with pytest.raises(ValueError):
+        uz.cardinal(uz.MAX_CARDINAL + 1)
 
 
 # ── Idempotency: f(f(x)) == f(x) for every table case ───────────────────────

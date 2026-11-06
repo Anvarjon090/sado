@@ -22,7 +22,8 @@ Design rules (load-bearing):
     display name from electron/src/shared/languages.json or an ISO-ish code — both
     resolve via :func:`_num2words_lang`), or through a hand-written native
     verbalizer for languages num2words lacks (``_NATIVE_VERBALIZERS``, e.g.
-    Malayalam). Everything else keeps its digits.
+    Malayalam, Uzbek). Everything else keeps its digits. Uzbek also folds its
+    apostrophe variants (``oʻ``/``o‘``/``o’``) to ASCII ``'``.
     Clock times / ordinals / currency are English-only (their spoken form is
     language-specific); decimals only for locales whose num2words rendering
     was vetted. CJK scripts pass through the safety filters untouched — no
@@ -81,6 +82,8 @@ ENV_VAR = "OMNIVOICE_TEXT_NORMALIZATION"
 _FULL_NAME_TO_CODE = {
     "english": "en",
     "malayalam": "ml",
+    "uzbek": "uz",
+    "northern uzbek": "uz",
     "german": "de",
     "spanish": "es",
     "french": "fr",
@@ -124,7 +127,7 @@ _FULL_NAME_TO_CODE = {
 }
 
 # ISO codes whose num2words locale name differs.
-_ISO_ALIASES = {"kk": "kz"}
+_ISO_ALIASES = {"kk": "kz", "uzn": "uz"}
 
 # Locales verified against the pinned num2words (cardinal + basic rendering).
 # zh/ja/ko/th are deliberately absent: unsegmented scripts where injecting
@@ -417,6 +420,14 @@ _ABBREVIATIONS: dict[str, list[tuple[str, str, Optional[str]]]] = {
         ("n°", "numéro", "digit"),
         ("N°", "Numéro", "digit"),
     ],
+    "uz": [
+        # Unit and list abbreviations that are unambiguous in Uzbek prose.
+        ("h.k.", "hokazo", None),
+        ("mln", "million", None),
+        ("mlrd", "milliard", None),
+        ("km", "kilometr", None),
+        ("kg", "kilogramm", None),
+    ],
 }
 
 _GUARD_LOOKAHEAD = {
@@ -610,10 +621,25 @@ def _numbers_to_words(text: str, lang: str) -> str:
 # Same conservative regexes and bracket masking as the num2words path, but the
 # rendering is a hand-written module. Malayalam (ml) is the first: num2words
 # ships bn/kn/te but no ml, so Malayalam dubs reached the engine with raw
-# digits. Each module exposes ``cardinal(int)``, ``decimal(int, str)`` and
-# ``percent(str)``; any exception leaves that occurrence untouched.
+# digits. Uzbek (uz) is the second. Each module exposes ``cardinal(int)``,
+# ``decimal(int, str)`` and ``percent(str)``, and optionally
+# ``ordinal_phrase(int, str)`` (hyphenated ordinals, "5-sinf") and
+# ``grouped(str)`` (space-grouped thousands, "1 500 000"); any exception
+# leaves that occurrence untouched.
 
-_NATIVE_VERBALIZERS = {"ml": "services.number_words_ml"}
+_NATIVE_VERBALIZERS = {"ml": "services.number_words_ml", "uz": "services.number_words_uz"}
+
+# "5-sinf", "2025-yil": a number glued by a hyphen to a following word. The
+# lookbehind rejects ranges and chains ("2024-2025-yil" keeps its digits).
+_HYPHEN_ORDINAL_RE = re.compile(
+    r"(?<![\w.,:/$%+'-])(\d{1,6})-((?:[^\W\d_]|')+)"
+)
+
+# "1 500 000": thousands grouped by spaces. Neighbouring digit groups are
+# rejected on both sides so phone numbers ("+998 90 123 45 67") stay intact.
+_SPACE_GROUPED_RE = re.compile(
+    r"(?<![\w.,:/$%+-])(?<!\d )(\d{1,3}(?: \d{3})+)(?![\w:/%-])(?![.,]\d)(?! \d)"
+)
 
 
 def _native_lang(language: Optional[str]) -> Optional[str]:
@@ -641,6 +667,12 @@ def _numbers_to_words_native(text: str, lang: str) -> str:
         except Exception:  # noqa: BLE001 — conservative: never mangle
             return m.group(0)
 
+    if hasattr(mod, "ordinal_phrase"):
+        text = _HYPHEN_ORDINAL_RE.sub(
+            lambda m: _safe(m, lambda m: mod.ordinal_phrase(int(m.group(1)), m.group(2))), text
+        )
+    if hasattr(mod, "grouped"):
+        text = _SPACE_GROUPED_RE.sub(lambda m: _safe(m, lambda m: mod.grouped(m.group(1))), text)
     text = _PERCENT_RE.sub(lambda m: _safe(m, lambda m: mod.percent(m.group(1))), text)
     text = _DECIMAL_RE.sub(
         lambda m: _safe(m, lambda m: mod.decimal(int(m.group(1)), m.group(2))), text
@@ -650,6 +682,23 @@ def _numbers_to_words_native(text: str, lang: str) -> str:
         return m.group(0) if _leading_zero(raw) else mod.cardinal(int(raw))
 
     return _INTEGER_RE.sub(lambda m: _safe(m, _integer), text)
+
+
+# ── Uzbek apostrophes ────────────────────────────────────────────────────────
+#
+# Uzbek Latin spells o‘/g‘ and the tutuq belgisi (ma’no) with whichever
+# apostrophe the keyboard produced: U+02BB (official), U+02BC, curly quotes,
+# a backtick or an acute accent. The engine sees each as a different token,
+# so the same word reads differently from sentence to sentence. Fold every
+# variant between two Latin letters to ASCII ``'`` — quotes around a word
+# have a space or punctuation on one side and are left alone.
+_UZ_APOSTROPHE_RE = re.compile(
+    "(?<=[A-Za-z])[ʻʼʿʾ‘’`´](?=[A-Za-z])"
+)
+
+
+def _fold_uzbek_apostrophes(text: str) -> str:
+    return _UZ_APOSTROPHE_RE.sub("'", text)
 
 
 # ── Public API ───────────────────────────────────────────────────────────────
@@ -672,6 +721,10 @@ def normalize_text(text: str, language: Optional[str] = None) -> str:
         out = _outside_brackets(out, lambda t: _numbers_to_words(t, lang))
     else:
         native = _native_lang(language)
+        if native == "uz":
+            out = _outside_brackets(out, _fold_uzbek_apostrophes)
+        if native in _ABBREV_COMPILED:
+            out = _outside_brackets(out, lambda t: _expand_abbreviations(t, native))
         if native:
             out = _outside_brackets(out, lambda t: _numbers_to_words_native(t, native))
     return out
