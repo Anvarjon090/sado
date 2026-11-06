@@ -14,6 +14,7 @@ from services.video_retime import expand_retime_chunks
 
 RATE = 48000
 FADE_S = .01
+MIN_TEMPO_S = .1
 _locks: dict[str, asyncio.Lock] = {}
 
 
@@ -105,15 +106,19 @@ async def surgical_background(source: str, separated: str, cache_dir: str, segme
                     for i, (a, b, ratio) in enumerate(batch):
                         rate = 1 / ratio
                         tempos = []
-                        while rate < .5:
-                            tempos.append('atempo=0.5')
-                            rate /= .5
-                        while rate > 2:
-                            tempos.append('atempo=2')
-                            rate /= 2
-                        tempos.append(f'atempo={rate:.9f}')
+                        # atempo emits no timestamped frames for input shorter
+                        # than its analysis window, failing the whole graph;
+                        # unit-rate and tiny chunks only need the pad/trim.
+                        if abs(rate - 1) > 1e-6 and b - a >= MIN_TEMPO_S:
+                            while rate < .5:
+                                tempos.append('atempo=0.5')
+                                rate /= .5
+                            while rate > 2:
+                                tempos.append('atempo=2')
+                                rate /= 2
+                            tempos.append(f'atempo={rate:.9f}')
                         length = (b-a)*ratio
-                        filters.append(f'[0:a]atrim=start={a-origin:.9f}:end={b-origin:.9f},asetpts=PTS-STARTPTS,' + ','.join(tempos) + f',apad,atrim=duration={length:.9f}[c{i}]')
+                        filters.append(f'[0:a]atrim=start={a-origin:.9f}:end={b-origin:.9f},asetpts=PTS-STARTPTS,' + ''.join(t + ',' for t in tempos) + f'apad,atrim=duration={length:.9f}[c{i}]')
                     filters.append(''.join(f'[c{i}]' for i in range(len(batch))) + f'concat=n={len(batch)}:v=0:a=1[out]')
                     script = Path(tmp)/'retime.txt'
                     script.write_text(';'.join(filters))

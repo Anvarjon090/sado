@@ -67,3 +67,20 @@ def test_missing_separation_blocks_preserved_export(monkeypatch):
     with pytest.raises(HTTPException) as error:
         asyncio.run(de._preserved_background({}, 'job', 'bn'))
     assert error.value.status_code == 409
+
+
+def test_tiny_gap_chunks_survive_retime(tmp_path):
+    """Smart Fit plans leave 20-50 ms native-rate gaps between segments.
+    atempo emits no timestamped frames for a chunk that short, which failed
+    the whole bed build and silently exported dubs with no background."""
+    sr = 48000
+    src, bg = [str(tmp_path/p) for p in ('src.wav', 'bg.wav')]
+    wave = np.ones((sr*3,2), dtype='float32')*.1
+    sf.write(src, wave, sr, subtype='FLOAT')
+    sf.write(bg, wave*.2, sr, subtype='FLOAT')
+    plan = [{'orig_start':.5,'orig_end':1.48,'stretch_ratio':1.189},
+            {'orig_start':1.5,'orig_end':2.5,'stretch_ratio':1.0}]
+    segments = [{'start':.5,'end':1.48},{'start':1.5,'end':2.5}]
+    retimed = asyncio.run(surgical_background(src,bg,str(tmp_path),segments,plan,3))
+    expected = .5 + .98*1.189 + .02 + 1 + .5
+    assert sf.info(retimed).duration == pytest.approx(expected, abs=.01)
