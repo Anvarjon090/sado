@@ -41,6 +41,10 @@ _REF_REQUIRED_SECTIONS = {"Added", "Fixed"}
 # work with no issue or PR to point at). Match is by substring; keep this list
 # short and delete entries once they ship in a tagged release.
 _REF_ALLOWLIST = (
+    # owner-directed Uzbek adaptation (2026-11-06), no issue
+    "Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune",
+    "Uzbek dubbing runs on Navoiy-TTS automatically",
+    "Uzbek interface: new `uz` locale",
     # owner commit 7036e101 — first-run consent prompt, committed straight to main
     "First-run consent question for the existing opt-in analytics",
     # owner commits ce842737 + dc766baf — Colab notebook, committed straight to main

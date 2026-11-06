@@ -17,7 +17,8 @@
   --card-foreground: var(--color-zinc-800);
   --popover: var(--color-white);
   --popover-foreground: var(--color-zinc-800);
-  --primary: oklch(0.488 0.217 264);
+  /* Sado brand accent: deep teal on light surfaces (white text keeps >4.5:1). */
+  --primary: oklch(0.55 0.11 175);
   --primary-foreground: var(--color-white);
   --secondary: var(--color-zinc-50);
   --secondary-foreground: var(--color-zinc-800);
@@ -81,7 +82,9 @@
     --card-foreground: var(--color-neutral-100);
     --popover: color-mix(in srgb, var(--background) 97%, var(--color-white));
     --popover-foreground: var(--color-neutral-100);
-    --primary: oklch(0.571 0.21 264);
+    --primary: oklch(0.84 0.15 175);
+    /* Dark ink on the neon teal: white would sit at ~1.9:1. */
+    --primary-foreground: var(--color-neutral-950);
     --secondary: --alpha(var(--color-white) / 3%);
     --secondary-foreground: var(--color-neutral-100);
     --muted: --alpha(var(--color-white) / 3%);

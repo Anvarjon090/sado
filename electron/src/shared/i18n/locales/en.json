@@ -398,7 +398,7 @@
     "paragraph_gap": "Gap between paragraphs",
     "trim_edges": "Trim engine silence",
     "trim_edges_help": "Cut the silence each engine pads onto a line before joining. Turn off to keep the raw renders.",
-    "emotion_help": "Graded emotion — applied by the IndexTTS2 engine only.",
+    "emotion_help": "Graded emotion - applied by the engines that support it (IndexTTS2, Navoiy-TTS).",
     "emotion_text": "Emotion description",
     "emotion_text_ph": "e.g. sounds exhausted and sad",
     "emotion_alpha": "Emotion strength"

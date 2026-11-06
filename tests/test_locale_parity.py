@@ -105,6 +105,9 @@ _MISSING_BASELINE = {
     "it": 464, "ja": 464, "ko": 0, "nl": 464, "pl": 464, "pt": 464,
     "ru": 464, "sv": 464, "th": 464, "tr": 464, "uk": 464, "vi": 464,
     "zh-CN": 0, "zh-TW": 464,
+    # Uzbek ships with the full key set (en's catalog copied, translated
+    # section by section), so it starts at zero missing keys.
+    "uz": 0,
 }
 
 #: Keys every locale must carry regardless of the aggregate ratchet above.

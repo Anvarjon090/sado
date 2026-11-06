@@ -25,6 +25,9 @@ export const SUPPORTED_LOCALES = [
   'uk',
   'ar',
   'zh-TW',
+  // Uzbek: the language this build is made for, so it leads the way the
+  // Telegram bot's picker does.
+  'uz',
 ] as const;
 
 export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -53,7 +56,9 @@ function initialLocale(): AppLocale {
       if (locale) return locale;
     }
   }
-  return 'en';
+  // Uzbek build: a machine whose system language is not one we ship opens in
+  // Uzbek rather than English. Missing keys still fall back to en per key.
+  return 'uz';
 }
 
 async function loadLocale(locale: AppLocale): Promise<void> {

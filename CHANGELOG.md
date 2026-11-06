@@ -8,6 +8,23 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
+**Highlights**
+
+- Uzbek voice engine: Navoiy-TTS with ten emotion presets
+- Quieter Home and top bar
+
+### Added
+
+- Uzbek interface: new `uz` locale — dubbing, voice cloning, batch, models and settings surfaces are translated, remaining sections fall back to English
+- Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune, Apache-2.0): zero-shot cloning, ten emotion presets (`xotirjam` … `kinoyali`), Uzbek-only; opt-in through `OMNIVOICE_NAVOIY_DIR`, running in its own sidecar venv because the checkpoint pins `transformers==4.51.3`
+
+### Changed
+
+- Sado app icon, favicon and installer icons: a teal tile with four waveform bars (PNG, ICO and ICNS regenerated from one mark)
+- Sado brand accent: the default palette's primary is teal (deep on light, neon on dark) with dark ink on filled controls
+- Uzbek dubbing runs on Navoiy-TTS automatically once it is installed; a mixed-language job, an explicit engine pick or an env pin keeps the configured engine
+- Home no longer shows the contributor avatar cluster, and the top bar drops the Get Pro and GitHub Star shortcuts (and their star-count request)
+
 ## [0.5.7] — 2026-10-05
 
 **VoiceStudio now runs on PCs without a GPU and recovers instead of giving up.** Voice cloning uses the speech-to-text model you installed from Model Catalogue, GPU-less computers get the small CPU PyTorch build, and slow or busy backends are no longer reported as failed.
