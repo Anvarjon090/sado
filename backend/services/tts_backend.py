@@ -3314,6 +3314,12 @@ _LAZY_REGISTRY: dict[str, tuple[str, str]] = {
     # same import-cycle reason as the entries above (engines.audiocpp
     # imports services.tts_backend for TTSBackend).
     "audiocpp": ("engines.audiocpp", "AudioCPPBackend"),
+    # Navoiy-TTS (aisha-org/navoiy-tts) — Uzbek CosyVoice2-0.5B fine-tune with
+    # ten emotion presets, Apache-2.0. Opt-in + subprocess-isolated with its own
+    # venv (transformers==4.51.3; under the parent's transformers 5 the LLM
+    # never ends its speech and the take degenerates). Gated behind
+    # OMNIVOICE_NAVOIY_DIR so it is inert until the install root is set.
+    "navoiy": ("engines.navoiy", "NavoiyBackend"),
 }
 
 
@@ -3419,6 +3425,7 @@ _INSTALL_HINTS: dict[str, str] = {
     "dots-tts":      "git clone rednote-hilab/dots.tts + set OMNIVOICE_DOTS_TTS_DIR  (own venv, transformers==4.57; 2B, ~9 GB weights; CUDA/CPU, Linux/macOS only — no Windows; Apache-2.0)",
     "confucius4-tts":"git clone netease-youdao/Confucius4-TTS + set OMNIVOICE_CONFUCIUS4_TTS_DIR  (own Python 3.10 venv; 14-lang cross-lingual zero-shot clone; ~5 GB weights auto-download; CUDA/ROCm/XPU/NPU/CPU, no MPS; Apache-2.0)",
     "audiocpp":     "download the matching audio.cpp v0.7.4 prebuilt + set OMNIVOICE_AUDIOCPP_BIN, then explicitly install Breeze-TTS-2 in Model Catalogue → Models  (native CPU/Vulkan/CUDA/Metal GGUF server, no Python; en+zh clone+design; ~4.73 GiB; weights research/non-commercial only)",
+    "navoiy":       "set OMNIVOICE_NAVOIY_DIR to your Navoiy-TTS install root (CosyVoice checkout + CosyVoice2-0.5B base + emotion_600h_joint.pt + its own venv with transformers==4.51.3)  (uz only, 10 emotion presets, zero-shot clone, Apache-2.0)",
 }
 
 
@@ -3434,6 +3441,7 @@ _SETUP_SNIPPETS: dict[str, str] = {
     "moss-tts-v15":   "export OMNIVOICE_MOSS_TTS_V15_DIR=/path/to/MOSS-TTS",
     "dots-tts":       "export OMNIVOICE_DOTS_TTS_DIR=/path/to/dots.tts",
     "confucius4-tts": "export OMNIVOICE_CONFUCIUS4_TTS_DIR=/path/to/Confucius4-TTS",
+    "navoiy":         "export OMNIVOICE_NAVOIY_DIR=/path/to/navoiy-tts",
     # #919: sherpa-onnx gates on a downloaded model dir (model.onnx + tokens.txt).
     "sherpa-onnx":    "export OMNIVOICE_SHERPA_MODEL=/path/to/sherpa-onnx-model",
 }
@@ -3466,6 +3474,7 @@ _ENGINE_DOCS: dict[str, str] = {
     "supertonic3":          "docs/engines/supertonic3.md",
     "pockettts":            "docs/engines/pockettts.md",
     "audiocpp":             "docs/engines/audio-cpp.md",
+    "navoiy":               "docs/engines/navoiy.md",
 }
 
 
@@ -4019,6 +4028,41 @@ def active_backend_id() -> str:
     return prefs.resolve("tts_backend", env="OMNIVOICE_TTS_BACKEND", default="omnivoice")
 
 
+#: Values that name Uzbek — ISO 639-1/2/3 codes and the picker's own names.
+_UZBEK_NAMES = frozenset({"uz", "uzb", "uzn", "uzbek", "uzbekistan", "northern uzbek"})
+
+
+def is_uzbek(language) -> bool:
+    """True for anything naming Uzbek ("uz", "uz-UZ", "Uzbek", …)."""
+    value = str(language or "").strip().lower().replace("_", "-")
+    if not value or value == "auto":
+        return False
+    return value.split("-", 1)[0] in _UZBEK_NAMES or value in _UZBEK_NAMES
+
+
+def uzbek_engine_id(language, *, configured: str | None = None) -> str:
+    """The engine an Uzbek job should run on: Navoiy-TTS when installed.
+
+    An explicit engine choice always wins — an env pin or a Settings pick is
+    the user talking. Only the *default* OmniVoice gives way, and only for an
+    Uzbek job: OmniVoice reads Uzbek through a neighbouring language, while
+    Navoiy-TTS was trained on it (and carries the emotion presets).
+
+    The caller owns the reference-clip precondition: dubbing clones from a
+    profile, so every segment has one; a TTS request without a recording
+    should not be routed here (Navoiy has no built-in speakers).
+    """
+    engine_id = configured or active_backend_id()
+    if engine_id != "omnivoice" or not is_uzbek(language):
+        return engine_id
+    try:
+        backend_cls = get_backend_class("navoiy")
+        ok, _reason = backend_cls.is_available()
+    except Exception:  # noqa: BLE001 — routing must never fail a request
+        return engine_id
+    return "navoiy" if ok else engine_id
+
+
 # Cached active backend instance + its id (MM2-01). Without this, every call
 # built a fresh instance and the previous engine's VRAM/sidecar leaked until GC
 # — measurable when switching engines on an 8 GB MPS Mac (root cause behind the
@@ -4315,12 +4359,17 @@ def release_idle_engines(
 
 async def resolve_generation_backend(
     *, require_cloning: bool = False, cloning_purpose: str = "dubbing",
+    engine_id: str | None = None,
 ) -> TTSBackend:
-    """Resolve + validate the active TTS engine for a generation call.
+    """Resolve + validate the TTS engine for a generation call.
 
-    Returns the live backend instance (:func:`get_active_tts_backend`) —
-    cached, and properly unload()ed on an engine switch. Raises ``ValueError``
-    with an actionable message (never silently falls back to OmniVoice) when:
+    ``engine_id`` overrides the configured engine for this one job — the dub
+    route uses it to send an all-Uzbek job to Navoiy-TTS without changing the
+    user's Settings. Omitted, the configured engine is used.
+
+    Returns the live backend instance — cached, and properly unload()ed on an
+    engine switch. Raises ``ValueError`` with an actionable message (never
+    silently falls back to OmniVoice) when:
 
       * the configured engine id is unknown (bad env var / stale pref),
       * the engine reports itself unavailable (``is_available()``),
@@ -4331,7 +4380,8 @@ async def resolve_generation_backend(
         live *instance*, not the class, so a model-dependent adapter like
         MLX-Audio (Kokoro vs. CSM) is judged by what's actually loaded.
     """
-    engine_id = active_backend_id()
+    configured = active_backend_id()
+    engine_id = engine_id or configured
     try:
         backend_cls = get_backend_class(engine_id)
     except ValueError as e:
@@ -4363,7 +4413,12 @@ async def resolve_generation_backend(
         # generation.py's /generate special-cases this backend.
         from services.model_manager import get_model
         _model = await get_model()
-    backend = get_active_tts_backend(model=_model)
+    if engine_id == configured:
+        backend = get_active_tts_backend(model=_model)
+    else:
+        # A per-job override must not disturb the configured engine's cache
+        # (the user still has OmniVoice selected in Settings).
+        backend = get_engine_instance_for(engine_id)
 
     if require_cloning and not getattr(backend, "supports_cloning", True):
         raise ValueError(cloning_unavailable_detail(engine_id, backend, cloning_purpose))

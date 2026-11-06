@@ -1,4 +1,4 @@
-"""A published dub must contain every requested spoken segment, without early clipping."""
+﻿"""A published dub must contain every requested spoken segment, without early clipping."""
 import asyncio
 import json
 from types import SimpleNamespace
@@ -18,7 +18,7 @@ def render_dub(monkeypatch, tmp_path):
     path.mkdir()
     events = []
     generated = []
-    async def resolve():
+    async def resolve(*_args, **_kwargs):
         return 'omnivoice', SimpleNamespace(target='local', remote=False), backend
     def generate(**kwargs):
         generated.append(kwargs)

@@ -16,7 +16,13 @@ from core.tasks import task_manager
 from schemas.requests import DubRequest
 from services.model_manager import _gpu_pool, run_on_gpu_pool_guarded
 from services.srt_parser import vouch_cue_source
-from services.tts_backend import TTSBackend, resolve_generation_backend, active_backend_id
+from services.tts_backend import (
+    TTSBackend,
+    active_backend_id,
+    is_uzbek,
+    resolve_generation_backend,
+    uzbek_engine_id,
+)
 from services.dub_batching import batch_timeout_s, native_batch_width
 from services import gpu_gateway
 from services.audio_dsp import apply_mastering, normalize_audio, apply_effects_chain, get_effect_chain
@@ -59,14 +65,34 @@ def _validate_render_languages(backend, req, seg_ids, regen_only):
         check(segment.target_lang or req.language)
 
 
-async def _resolve_dub_execution():
+def _dub_engine_id(req) -> str:
+    """The engine this dub runs on: Navoiy-TTS for an all-Uzbek job.
+
+    Every segment in such a job is cloned from a profile recording, so
+    Navoiy's reference-clip requirement holds by construction. A per-segment
+    language override that is not Uzbek keeps the job on the configured
+    engine: Navoiy would refuse those segments anyway, and a half-routed job
+    helps nobody.
+    """
+    configured = active_backend_id()
+    if not uzbek_engine_id(req.language, configured=configured) == "navoiy":
+        return configured
+    for segment in req.segments:
+        if segment.target_lang and not is_uzbek(segment.target_lang):
+            return configured
+    return "navoiy"
+
+
+async def _resolve_dub_execution(req):
     """Resolve routing without loading local weights for a remote dub."""
-    engine_id = active_backend_id()
+    engine_id = _dub_engine_id(req)
     decision = gpu_gateway.decide("dub_segments")
     if decision.remote:
         await gpu_gateway.preflight(engine_id, decision, operation="dub_segments")
         return engine_id, decision, _RemoteDubBackend()
-    return engine_id, decision, await resolve_generation_backend(require_cloning=True)
+    return engine_id, decision, await resolve_generation_backend(
+        require_cloning=True, engine_id=engine_id,
+    )
 
 
 def _prepare_oom_retry(error: Exception, *, execution_target: str) -> bool:
@@ -531,7 +557,7 @@ async def dub_generate(job_id: str, req: DubRequest):
     # validates the selected worker here without loading duplicate local weights;
     # its local backend is prepared only if gateway fallback actually selects it.
     try:
-        engine_id, decision, backend = await _resolve_dub_execution()
+        engine_id, decision, backend = await _resolve_dub_execution(req)
     except gpu_gateway.ModelNotDownloaded as e:
         raise HTTPException(
             status_code=409,
