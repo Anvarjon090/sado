@@ -89,17 +89,21 @@
     "copied": "Скопійовано"
   },
   "homeUi": {
-    "subtitle": "Ваша відкрита й повністю локальна альтернатива ElevenLabs — клонуйте та створюйте голоси, озвучуйте відео, диктуйте, транскрибуйте й створюйте аудіокниги 646 мовами.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} від",
     "all": "Усі",
-    "title": "Sado.sh Відкритий код",
+    "title": "What are we voicing today?",
     "design": "Створіть голос за описом.",
     "dub": "Перекладайте й озвучуйте аудіо або відео.",
     "stories": "Створюйте сцени з кількома голосами.",
     "audiobook": "Створюйте аудіокниги з розділами.",
     "transcribe": "Перетворюйте записи на текст.",
-    "collapseFooter": "Згорнути нижню панель",
-    "expandFooter": "Розгорнути нижню панель"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Увімкнення відкриває окремий локальний порт, який ваш тунель публікує в інтернеті. Приймаються лише запити, підписані вашим Auth Token Twilio; решта Sado залишається приватною.",
@@ -2281,7 +2285,10 @@
     "clone": "Клонування голосу",
     "primary": "Основна навігація",
     "dictation": "Диктування",
-    "calls": "Дзвінки"
+    "calls": "Дзвінки",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "Голос заблоковано! Тепер ідентичність є однаковою для всіх поколінь.",

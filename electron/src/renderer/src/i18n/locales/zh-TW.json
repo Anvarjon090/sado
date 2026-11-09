@@ -89,17 +89,21 @@
     "copied": "已複製"
   },
   "homeUi": {
-    "subtitle": "你的開源、完全本機執行的 ElevenLabs 替代方案——複製與設計聲音、影片配音、語音輸入、轉錄和有聲書製作，支援 646 種語言。",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} 作者",
     "all": "全部",
-    "title": "Sado.sh 開源",
+    "title": "What are we voicing today?",
     "design": "根據描述設計聲音。",
     "dub": "翻譯並配音音訊或影片。",
     "stories": "用多種聲音創作場景。",
     "audiobook": "製作分章節的有聲書。",
     "transcribe": "將錄音轉成文字。",
-    "collapseFooter": "收合底欄",
-    "expandFooter": "展開底欄"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "開啟後會開啟一個獨立的本機連接埠，由你的通道發布到網際網路。只接受以你的 Twilio Auth Token 簽署的請求；Sado 的其餘部分維持私密。",
@@ -2277,7 +2281,10 @@
     "clone": "聲音複製",
     "primary": "主要導覽",
     "dictation": "聽寫",
-    "calls": "通話"
+    "calls": "通話",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "語音鎖定！現在，各代的身份都是一致的。",

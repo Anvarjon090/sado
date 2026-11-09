@@ -89,17 +89,21 @@
     "copied": "Copiado"
   },
   "homeUi": {
-    "subtitle": "Tu alternativa a ElevenLabs de código abierto y totalmente local: clona y diseña voces, dobla vídeos, dicta, transcribe y crea audiolibros en 646 idiomas.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} por",
     "all": "Todos",
-    "title": "Sado.sh Código abierto",
+    "title": "What are we voicing today?",
     "design": "Diseña una voz a partir de una descripción.",
     "dub": "Traduce y dobla audio o vídeo.",
     "stories": "Crea escenas con varias voces.",
     "audiobook": "Crea audiolibros con capítulos.",
     "transcribe": "Convierte grabaciones en texto.",
-    "collapseFooter": "Contraer pie de página",
-    "expandFooter": "Expandir pie de página"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Al activarlo se abre un puerto local independiente que tu túnel publica en internet. Solo se aceptan solicitudes firmadas con tu Auth Token de Twilio; el resto de Sado sigue siendo privado.",
@@ -2279,7 +2283,10 @@
     "design": "Diseño de voz",
     "clone": "Clonación de voz",
     "primary": "Navegación principal",
-    "calls": "Llamadas"
+    "calls": "Llamadas",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "¡Voz bloqueada! La identidad ahora es consistente en todas las generaciones.",

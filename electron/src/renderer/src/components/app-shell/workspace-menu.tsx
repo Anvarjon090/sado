@@ -16,6 +16,8 @@ import {
   ChevronRightIcon,
   BlocksIcon,
   WorkflowIcon,
+  EllipsisIcon,
+  HouseIcon,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -25,6 +27,7 @@ import './workspace-menu.css';
 
 type Destination = readonly [
   to:
+    | '/'
     | '/clone'
     | '/stories'
     | '/audiobook'
@@ -45,48 +48,32 @@ type Destination = readonly [
 
 const openSaved = () => setWorkspace({ libraryOpen: true, libraryTab: 'voices' });
 
-const voiceDestinations: Destination[] = [
-  ['/clone', 'nav.clone_short', FingerprintIcon, openSaved],
+// One place per destination: the things people make first, then their library,
+// then the rarer tools folded under "More".
+const homeDestination: Destination = ['/', 'nav.home', HouseIcon];
+const createDestinations: Destination[] = [
+  ['/clone', 'nav.clone', FingerprintIcon, openSaved],
   ['/design', 'designWorkspace.title', WandSparklesIcon],
-  ['/personas', 'nav.saved', UsersRoundIcon, openSaved],
-  ['/gallery', 'nav.gallery', LibraryIcon],
-];
-const storyDestinations: Destination[] = [
+  ['/dub', 'dubWorkspace.title', FilmIcon],
   ['/stories', 'nav.stories', AudioLinesIcon],
   ['/audiobook', 'audiobook.title', BookOpenIcon],
-];
-const dubDestinations: Destination[] = [
-  ['/dub', 'dubWorkspace.title', FilmIcon],
-  ['/batch', 'nav.batch_dub', LayersIcon],
-];
-const laterDestinations: Destination[] = [
   ['/transcriptions', 'nav.transcribe', MicIcon],
-  ['/calls', 'workflows.title', WorkflowIcon],
+];
+const libraryDestinations: Destination[] = [
+  ['/personas', 'nav.saved', UsersRoundIcon, openSaved],
+  ['/gallery', 'nav.gallery', LibraryIcon],
   ['/projects', 'projects.title', FolderIcon],
+];
+const moreDestinations: Destination[] = [
+  ['/batch', 'nav.batch_dub', LayersIcon],
+  ['/calls', 'workflows.title', WorkflowIcon],
   ['/tools', 'tools.title', WrenchIcon],
   ['/integrations', 'integrationCatalog.title', BlocksIcon],
 ];
 
 const itemClass =
-  'workspace-nav-item group relative isolate flex h-8 min-w-0 items-center overflow-hidden rounded-md text-sm text-sidebar-foreground/80 outline-none transition-[color,background-color,box-shadow,backdrop-filter] duration-150 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-gradient-to-r before:from-white/[0.07] before:via-white/[0.025] before:to-transparent before:opacity-0 before:transition-opacity before:duration-150 hover:bg-sidebar-accent/65 hover:text-sidebar-foreground hover:backdrop-blur-xl hover:shadow-[inset_0_1px_0_rgb(255_255_255/9%),0_6px_18px_rgb(0_0_0/10%)] hover:ring-1 hover:ring-inset hover:ring-sidebar-border/60 hover:before:opacity-100 focus-visible:ring-2 focus-visible:ring-ring';
-const iconClass =
-  'workspace-nav-icon size-4 shrink-0 text-muted-foreground transition-[color,filter] duration-150';
-
-const iconMotion: Record<Destination[0], string> = {
-  '/clone': 'pulse',
-  '/design': 'tilt',
-  '/personas': 'nudge',
-  '/gallery': 'lift',
-  '/stories': 'wave',
-  '/audiobook': 'tilt',
-  '/dub': 'tilt',
-  '/batch': 'lift',
-  '/transcriptions': 'nudge',
-  '/calls': 'pulse',
-  '/projects': 'lift',
-  '/tools': 'tilt',
-  '/integrations': 'turn',
-};
+  'workspace-nav-item group relative flex h-8 min-w-0 items-center rounded-lg text-sm text-sidebar-foreground/75 outline-none transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-ring';
+const iconClass = 'workspace-nav-icon size-4 shrink-0 transition-colors duration-150';
 
 function NavigationLink({
   destination: [to, label, Icon, activate],
@@ -120,16 +107,11 @@ function NavigationLink({
               ? 'h-7 gap-2 px-2 text-xs'
               : 'gap-2.5 px-2.5',
       )}
-      activeProps={{
-        className:
-          'bg-sidebar-accent/80 text-sidebar-foreground shadow-sm ring-1 ring-inset ring-sidebar-border/60',
-        'aria-current': 'page',
-      }}
+      activeOptions={{ exact: to === '/' }}
+      activeProps={{ 'aria-current': 'page' }}
     >
       <Icon
         className={cn(iconClass, nested && 'size-3.5')}
-        data-tone={to.slice(1)}
-        data-motion={iconMotion[to]}
         aria-hidden="true"
       />
       {!compact && <span className="truncate">{t(label)}</span>}
@@ -159,12 +141,6 @@ function NavigationGroup({
 }) {
   const { t } = useTranslation();
   const active = children.some(([to]) => pathname === to || pathname.startsWith(to + '/'));
-  const groupTone =
-    label === 'nav.stories'
-      ? 'stories-group'
-      : label === 'nav.dub'
-        ? 'dubbing-group'
-        : label.slice(4);
   const [expanded, setExpanded] = useState(active);
   const [popupOpen, setPopupOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -201,8 +177,7 @@ function NavigationGroup({
     itemClass,
     'w-full',
     compact ? 'h-10 justify-center' : 'gap-2.5 px-2.5 font-medium',
-    active &&
-      'bg-sidebar-accent/65 text-sidebar-foreground ring-1 ring-inset ring-sidebar-border/50',
+    active && 'text-sidebar-foreground',
   );
   if (compact)
     return (
@@ -248,8 +223,6 @@ function NavigationGroup({
         >
           <Icon
             className={iconClass}
-            data-tone={groupTone}
-            data-motion={label === 'nav.stories' ? 'wave' : 'pulse'}
             aria-hidden="true"
           />
         </PopoverTrigger>
@@ -297,8 +270,6 @@ function NavigationGroup({
       >
         <Icon
           className={iconClass}
-          data-tone={groupTone}
-          data-motion={label === 'nav.stories' ? 'wave' : 'pulse'}
           aria-hidden="true"
         />
         <span className="truncate">{t(label)}</span>
@@ -320,9 +291,9 @@ function NavigationGroup({
         )}
       >
         <div className="overflow-hidden">
-          <div className="ml-[1.08rem] mt-0.5 space-y-0.5 border-l border-sidebar-border/60 pl-2">
+          <div className="mt-0.5 space-y-0.5">
             {children.map((destination) => (
-              <NavigationLink key={destination[0]} destination={destination} nested />
+              <NavigationLink key={destination[0]} destination={destination} />
             ))}
           </div>
         </div>
@@ -341,34 +312,30 @@ export function WorkspaceNavigation({ compact = false }: { compact?: boolean }) 
       data-slot="workspace-navigation"
       aria-label={t('nav.workspaces')}
       className={cn(
-        'min-h-0 overflow-y-auto overscroll-contain py-2 [scrollbar-width:none]',
-        compact ? 'space-y-0.5 px-1.5' : 'shrink-0 space-y-0.5 px-3',
+        'min-h-0 overflow-y-auto overscroll-contain py-2',
+        compact ? 'space-y-0.5 px-1.5' : 'shrink-0 space-y-px px-3 pt-0',
       )}
     >
-      <NavigationGroup
-        label="nav.voice"
-        icon={FingerprintIcon}
-        children={voiceDestinations}
-        compact={compact}
-        pathname={pathname}
-      />
-      <NavigationGroup
-        label="nav.stories"
-        icon={AudioLinesIcon}
-        children={storyDestinations}
-        compact={compact}
-        pathname={pathname}
-      />
-      <NavigationGroup
-        label="nav.dub"
-        icon={FilmIcon}
-        children={dubDestinations}
-        compact={compact}
-        pathname={pathname}
-      />
-      {laterDestinations.map((destination) => (
+      <NavigationLink destination={homeDestination} compact={compact} />
+      {!compact && <div className="workspace-nav-section">{t('nav.section_create')}</div>}
+      {createDestinations.map((destination) => (
         <NavigationLink key={destination[0]} destination={destination} compact={compact} />
       ))}
+      {compact ? (
+        <div aria-hidden="true" className="mx-2 my-2 h-px bg-sidebar-border" />
+      ) : (
+        <div className="workspace-nav-section">{t('nav.section_library')}</div>
+      )}
+      {libraryDestinations.map((destination) => (
+        <NavigationLink key={destination[0]} destination={destination} compact={compact} />
+      ))}
+      <NavigationGroup
+        label="nav.more"
+        icon={EllipsisIcon}
+        children={moreDestinations}
+        compact={compact}
+        pathname={pathname}
+      />
     </nav>
   );
 }

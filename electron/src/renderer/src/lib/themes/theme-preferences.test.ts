@@ -25,6 +25,11 @@ describe('theme preferences', () => {
       light: 'default',
       dark: 'default',
     });
+    expect(parseThemePreferences(null)).toEqual({
+      mode: 'system',
+      light: 'default',
+      dark: 'default',
+    });
   });
   it('resolves independent halves when the operating system changes', () => {
     const preferences = parseThemePreferences(

@@ -9,11 +9,11 @@ export function parseAppearance(raw: string | null): Appearance {
     const value = JSON.parse(raw ?? '{}');
     return {
       font: value?.font === 'system' ? 'system' : 'inter',
-      glass: value?.glass !== false,
+      glass: value?.glass === true,
       scale: appearanceScales.includes(value?.scale) ? value.scale : 100,
     };
   } catch {
-    return { font: 'inter', scale: 100, glass: true };
+    return { font: 'inter', scale: 100, glass: false };
   }
 }
 let current: Appearance;
@@ -27,7 +27,7 @@ function apply() {
   document.documentElement.style.fontSize = `${current.scale}%`;
   document.documentElement.style.setProperty(
     '--font-sans',
-    `${current.font === 'inter' ? '"Inter Variable", ' : ''}-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif`,
+    `${current.font === 'inter' ? '"Onest", "Inter Variable", ' : ''}-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif`,
   );
 }
 apply();

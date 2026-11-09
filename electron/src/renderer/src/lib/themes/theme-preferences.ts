@@ -40,7 +40,11 @@ export function parseThemePreferences(
       ? value.mode!
       : legacy === 'light'
         ? 'light'
-        : 'dark',
+        : raw === null && legacy === null
+          ? // A fresh install follows the operating system; anyone who
+            // already saved an appearance keeps the dark default they had.
+            'system'
+          : 'dark',
     light: palette(value.light),
     dark: palette(value.dark),
   };

@@ -89,17 +89,21 @@
     "copied": "Đã sao chép"
   },
   "homeUi": {
-    "subtitle": "Giải pháp thay thế ElevenLabs mã nguồn mở, chạy hoàn toàn trên máy — nhân bản và thiết kế giọng nói, lồng tiếng video, nhập liệu bằng giọng nói, phiên âm và tạo sách nói bằng 646 ngôn ngữ.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} bởi",
     "all": "Tất cả",
-    "title": "Sado.sh Mã nguồn mở",
+    "title": "What are we voicing today?",
     "design": "Thiết kế giọng nói từ mô tả.",
     "dub": "Dịch và lồng tiếng âm thanh hoặc video.",
     "stories": "Tạo cảnh với nhiều giọng nói.",
     "audiobook": "Tạo sách nói có chương.",
     "transcribe": "Chuyển bản ghi âm thành văn bản.",
-    "collapseFooter": "Thu gọn chân trang",
-    "expandFooter": "Mở rộng chân trang"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Bật tính năng này sẽ mở một cổng cục bộ riêng mà đường hầm của bạn công bố ra internet. Chỉ các yêu cầu được ký bằng Auth Token Twilio của bạn mới được chấp nhận; phần còn lại của Sado vẫn riêng tư.",
@@ -2277,7 +2281,10 @@
     "clone": "Nhân bản giọng nói",
     "primary": "Điều hướng chính",
     "dictation": "Nhập liệu bằng giọng nói",
-    "calls": "Cuộc gọi"
+    "calls": "Cuộc gọi",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "Giọng nói bị khóa! Bản sắc bây giờ nhất quán qua tất cả các thế hệ.",

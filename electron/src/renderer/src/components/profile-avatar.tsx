@@ -3,7 +3,10 @@ import { cn } from '@/lib/utils';
 import { apiPath } from '@/lib/api/client';
 
 export function profileInitials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
+  // Initials come from letters only: "Aisha (o'zbekcha)" is "AO", not "A(".
+  const words = name
+    .split(/[^\p{L}\p{N}'ʻʼ‘’]+/u)
+    .filter(Boolean);
   return words.length
     ? [words[0], ...(words.length > 1 ? [words.at(-1)!] : [])]
         .map((word) => Array.from(word)[0])
@@ -27,7 +30,7 @@ export function ProfileAvatar({
     <span
       aria-hidden="true"
       className={cn(
-        'relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/12 text-xs font-semibold text-primary ring-1 ring-foreground/15',
+        'relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-xs font-semibold text-foreground/75 ring-1 ring-border',
         className,
       )}
     >

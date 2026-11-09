@@ -89,17 +89,21 @@
     "copied": "Kopyalandı"
   },
   "homeUi": {
-    "subtitle": "ElevenLabs’a açık kaynaklı, tamamen yerel alternatifiniz — 646 dilde ses klonlayıp tasarlayın, videolara dublaj yapın, dikte edin, yazıya dökün ve sesli kitaplar oluşturun.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} geliştiricisi",
     "all": "Tümü",
-    "title": "Sado.sh Açık Kaynak",
+    "title": "What are we voicing today?",
     "design": "Bir açıklamadan ses tasarlayın.",
     "dub": "Ses veya videoyu çevirip dublaj yapın.",
     "stories": "Birden fazla sesle sahneler oluşturun.",
     "audiobook": "Bölümlü sesli kitaplar oluşturun.",
     "transcribe": "Kayıtları metne dönüştürün.",
-    "collapseFooter": "Alt çubuğu daralt",
-    "expandFooter": "Alt çubuğu genişlet"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Bunu açmak, tünelinizin internette yayımladığı ayrı bir yerel bağlantı noktası açar. Yalnızca Twilio Auth Token'ınızla imzalanan istekler kabul edilir; Sado'nun geri kalanı gizli kalır.",
@@ -2277,7 +2281,10 @@
     "design": "Ses Tasarımı",
     "clone": "Ses klonlama",
     "primary": "Ana gezinme",
-    "calls": "Aramalar"
+    "calls": "Aramalar",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "Ses kilitli! Kimlik artık tüm nesiller arasında tutarlıdır.",

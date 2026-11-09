@@ -89,17 +89,21 @@
     "copied": "कॉपी हो गया"
   },
   "homeUi": {
-    "subtitle": "ElevenLabs का आपका ओपन-सोर्स, पूरी तरह स्थानीय विकल्प — आवाज़ें क्लोन और डिज़ाइन करें, वीडियो डब करें, बोलकर लिखें, ट्रांसक्राइब करें और 646 भाषाओं में ऑडियोबुक बनाएँ।",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} के निर्माता",
     "all": "सभी",
-    "title": "Sado.sh ओपन सोर्स",
+    "title": "What are we voicing today?",
     "design": "विवरण से एक आवाज़ बनाएँ।",
     "dub": "ऑडियो या वीडियो का अनुवाद और डबिंग करें।",
     "stories": "कई आवाज़ों वाले दृश्य बनाएँ।",
     "audiobook": "अध्यायों वाली ऑडियोबुक बनाएँ।",
     "transcribe": "रिकॉर्डिंग को टेक्स्ट में बदलें।",
-    "collapseFooter": "फ़ुटर समेटें",
-    "expandFooter": "फ़ुटर फैलाएँ"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "इसे चालू करने पर एक अलग लोकल पोर्ट खुलता है जिसे आपकी टनल इंटरनेट पर प्रकाशित करती है। केवल आपके Twilio Auth Token से हस्ताक्षरित अनुरोध स्वीकार किए जाते हैं; Sado का बाकी हिस्सा निजी रहता है।",
@@ -2277,7 +2281,10 @@
     "clone": "आवाज़ की क्लोनिंग",
     "primary": "मुख्य नेविगेशन",
     "dictation": "श्रुतलेखन",
-    "calls": "कॉल"
+    "calls": "कॉल",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "आवाज लॉक! पहचान अब सभी पीढ़ियों में एक समान है।",

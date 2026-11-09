@@ -11,11 +11,12 @@ metadata and the backend fallback mirror it.
 **Highlights**
 
 - Uzbek voice engine: Navoiy-TTS with ten emotion presets
-- Quieter Home and top bar
+- Redesigned studio look: graphite and turquoise, Onest type, light and dark
+- A Home that starts with your script, and a sidebar that lists each place once
 
 ### Added
 
-- Uzbek interface: new `uz` locale — dubbing, voice cloning, batch, models and settings surfaces are translated, remaining sections fall back to English
+- Uzbek interface: new `uz` locale covering the whole app (brand names, formats and units stay as written)
 - Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune, Apache-2.0): zero-shot cloning, ten emotion presets (`xotirjam` … `kinoyali`), Uzbek-only; opt-in through `OMNIVOICE_NAVOIY_DIR`, running in its own sidecar venv because the checkpoint pins `transformers==4.51.3`
 
 ### Changed
@@ -25,6 +26,12 @@ metadata and the backend fallback mirror it.
 - Sado brand accent: the default palette's primary is teal (deep on light, neon on dark) with dark ink on filled controls
 - Uzbek dubbing runs on Navoiy-TTS automatically once it is installed; a mixed-language job, an explicit engine pick or an env pin keeps the configured engine
 - Home no longer shows the contributor avatar cluster, and the top bar drops the Get Pro and GitHub Star shortcuts (and their star-count request)
+- New Sado look from the Neon studiya concept: graphite canvas with a turquoise accent in dark, cool paper in light, bundled Onest and Unbounded fonts, themed selection and scrollbars
+- Home leads with a script box shared with the voice studio, then one strip of other workflows and lists of recent projects and voices; the nine feature cards and their illustrations are gone
+- Sidebar navigation lists each destination once under Create, Library and More, with monochrome icons
+- The sponsor footer (Become a Sponsor, social links) is removed from workspaces
+- Fresh installs follow the system light/dark setting, and the glass background effect is off by default
+- Voice avatars take initials from letters only (no more "A(")
 
 ## [0.5.7] — 2026-10-05
 

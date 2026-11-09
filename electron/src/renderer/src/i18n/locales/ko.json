@@ -89,17 +89,21 @@
     "copied": "복사됨"
   },
   "homeUi": {
-    "subtitle": "오픈 소스로 완전히 로컬에서 실행되는 ElevenLabs의 대안 — 646개 언어로 목소리를 복제하고 디자인하며, 영상 더빙, 받아쓰기, 전사, 오디오북 제작까지.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} 제작자",
     "all": "전체",
-    "title": "Sado.sh 오픈 소스",
+    "title": "What are we voicing today?",
     "design": "설명으로 목소리를 디자인하세요.",
     "dub": "오디오나 영상을 번역하고 더빙하세요.",
     "stories": "여러 목소리로 장면을 만드세요.",
     "audiobook": "챕터가 있는 오디오북을 만드세요.",
     "transcribe": "녹음을 텍스트로 변환하세요.",
-    "collapseFooter": "바닥글 접기",
-    "expandFooter": "바닥글 펼치기"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "켜면 터널이 인터넷에 공개하는 별도의 로컬 포트가 열립니다. Twilio Auth Token으로 서명된 요청만 허용되며 Sado의 나머지 부분은 비공개로 유지됩니다.",
@@ -2277,7 +2281,10 @@
     "settings": "설정",
     "design": "음성 디자인",
     "primary": "기본 탐색",
-    "calls": "통화"
+    "calls": "통화",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "음성이 잠겼습니다! 이제 모든 생성 결과에서 음성 정체성이 일관되게 유지됩니다.",

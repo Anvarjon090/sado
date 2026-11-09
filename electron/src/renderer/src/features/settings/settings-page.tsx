@@ -543,12 +543,12 @@ export function SettingsPage() {
                 appearance.update({
                   font: 'inter',
                   scale: 100,
-                  glass: true,
+                  glass: false,
                 });
                 updateTheme({
-                  mode: 'dark',
-                  light: 'signal',
-                  dark: 'signal',
+                  mode: 'system',
+                  light: 'default',
+                  dark: 'default',
                 });
               }}
             >

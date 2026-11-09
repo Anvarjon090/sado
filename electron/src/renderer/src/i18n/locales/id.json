@@ -89,17 +89,21 @@
     "copied": "Disalin"
   },
   "homeUi": {
-    "subtitle": "Alternatif ElevenLabs Anda yang sumber terbuka dan sepenuhnya lokal — kloning dan rancang suara, sulihsuarakan video, dikte, transkripsikan, dan buat buku audio dalam 646 bahasa.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} oleh",
     "all": "Semua",
-    "title": "Sado.sh Sumber Terbuka",
+    "title": "What are we voicing today?",
     "design": "Rancang suara dari deskripsi.",
     "dub": "Terjemahkan dan sulihsuarakan audio atau video.",
     "stories": "Buat adegan dengan beberapa suara.",
     "audiobook": "Buat buku audio dengan bab.",
     "transcribe": "Ubah rekaman menjadi teks.",
-    "collapseFooter": "Ciutkan footer",
-    "expandFooter": "Perluas footer"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Mengaktifkan ini membuka port lokal terpisah yang dipublikasikan tunnel Anda ke internet. Hanya permintaan yang ditandatangani dengan Auth Token Twilio Anda yang diterima; bagian lain Sado tetap privat.",
@@ -2277,7 +2281,10 @@
     "design": "Desain Suara",
     "clone": "Kloning suara",
     "primary": "Navigasi utama",
-    "calls": "Panggilan"
+    "calls": "Panggilan",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "Suara terkunci! Identitas sekarang konsisten di semua generasi.",

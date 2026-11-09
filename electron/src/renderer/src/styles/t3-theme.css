@@ -2,8 +2,9 @@
  * See electron/T3CODE-LICENSE.txt. */
 :root {
   color-scheme: light;
-  --radius: 0.625rem;
-  --background: var(--color-zinc-25);
+  --radius: 0.75rem;
+  /* Sado light: cool studio paper, graphite ink, deep turquoise. */
+  --background: oklch(0.982 0.004 215);
   --app-chrome-background: var(--background);
   --toolbar-background: var(--app-chrome-background);
   --toolbar-foreground: var(--foreground);
@@ -12,18 +13,18 @@
   --toolbar-control-foreground: var(--foreground);
   --toolbar-control-hover: var(--accent);
   --surface-raised: color-mix(in srgb, var(--card) 20%, transparent);
-  --foreground: var(--color-zinc-800);
+  --foreground: oklch(0.2 0.015 250);
   --card: var(--color-white);
-  --card-foreground: var(--color-zinc-800);
+  --card-foreground: oklch(0.2 0.015 250);
   --popover: var(--color-white);
-  --popover-foreground: var(--color-zinc-800);
+  --popover-foreground: oklch(0.2 0.015 250);
   /* Sado brand accent: deep teal on light surfaces (white text keeps >4.5:1). */
   --primary: oklch(0.55 0.11 175);
   --primary-foreground: var(--color-white);
-  --secondary: var(--color-zinc-50);
-  --secondary-foreground: var(--color-zinc-800);
-  --muted: var(--color-zinc-50);
-  --muted-foreground: var(--color-zinc-500);
+  --secondary: oklch(0.96 0.006 215);
+  --secondary-foreground: oklch(0.2 0.015 250);
+  --muted: oklch(0.96 0.006 215);
+  --muted-foreground: oklch(0.48 0.02 250);
   --placeholder: var(--muted-foreground);
   --secondary-label: var(--muted-foreground);
   --icon-muted: var(--muted-foreground);
@@ -32,15 +33,15 @@
   --message-action: var(--primary);
   --message-action-foreground: var(--primary-foreground);
   --message-action-hover: color-mix(in srgb, var(--primary) 90%, var(--background));
-  --accent: var(--color-zinc-100);
-  --accent-foreground: var(--color-zinc-900);
+  --accent: oklch(0.945 0.012 200);
+  --accent-foreground: oklch(0.18 0.015 250);
   --error: var(--color-red-500);
   --error-foreground: var(--color-red-700);
   --tool-error-icon: var(--error);
   --error-surface: color-mix(in srgb, var(--error) 8%, transparent);
   --destructive: var(--error);
-  --border: var(--color-zinc-200);
-  --input: var(--color-zinc-300);
+  --border: oklch(0.9 0.008 230);
+  --input: oklch(0.86 0.01 230);
   --ring: var(--primary);
   --destructive-foreground: var(--error-foreground);
   --info: var(--color-blue-500);
@@ -55,11 +56,11 @@
   --update-surface: color-mix(in srgb, var(--update) 12%, transparent);
   /* Keep every sidebar primitive on the same light surface hierarchy, including
      portaled mobile sheets and settings navigation outside the app sidebar. */
-  --sidebar: var(--color-zinc-50);
+  --sidebar: oklch(0.962 0.006 215);
   --sidebar-foreground: var(--foreground);
   --sidebar-muted-foreground: var(--muted-foreground);
-  --sidebar-control-surface: var(--color-zinc-100);
-  --sidebar-row-hover: var(--color-zinc-25);
+  --sidebar-control-surface: oklch(0.935 0.008 215);
+  --sidebar-row-hover: oklch(0.935 0.008 215);
   --sidebar-row-active: var(--color-white);
   --sidebar-row-selected: var(--color-white);
   --sidebar-border: var(--border);
@@ -75,40 +76,41 @@
     color-scheme: dark;
     /* Keep controls and floating surfaces close to the neutral-black canvas.
        Borders and hover states provide separation without milky gray fills. */
-    --background: var(--color-neutral-950);
-    --surface-raised: color-mix(in srgb, var(--background) 97%, var(--color-white));
-    --foreground: var(--color-neutral-100);
-    --card: color-mix(in srgb, var(--background) 97%, var(--color-white));
-    --card-foreground: var(--color-neutral-100);
-    --popover: color-mix(in srgb, var(--background) 97%, var(--color-white));
-    --popover-foreground: var(--color-neutral-100);
-    --primary: oklch(0.84 0.15 175);
+    /* Sado dark: graphite studio, neon turquoise (docs/design "Neon studiya"). */
+    --background: #07090c;
+    --surface-raised: #111721;
+    --foreground: #e9f0f9;
+    --card: #0d1117;
+    --card-foreground: #e9f0f9;
+    --popover: #111721;
+    --popover-foreground: #e9f0f9;
+    --primary: #35f0c6;
     /* Dark ink on the neon teal: white would sit at ~1.9:1. */
-    --primary-foreground: var(--color-neutral-950);
+    --primary-foreground: #03211b;
     --secondary: --alpha(var(--color-white) / 3%);
     --secondary-foreground: var(--color-neutral-100);
     --muted: --alpha(var(--color-white) / 3%);
-    --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white));
-    --accent: --alpha(var(--color-white) / 4%);
-    --accent-foreground: var(--color-neutral-100);
+    --muted-foreground: #93a1b5;
+    --accent: rgb(233 240 249 / 6%);
+    --accent-foreground: #e9f0f9;
     --error: color-mix(in srgb, var(--color-red-500) 90%, var(--color-white));
     --error-foreground: var(--color-red-400);
     --tool-error-icon: #fca5a5;
     --error-surface: color-mix(in srgb, var(--error) 16%, transparent);
-    --border: --alpha(var(--color-white) / 6%);
-    --input: --alpha(var(--color-white) / 8%);
+    --border: rgb(233 240 249 / 8%);
+    --input: rgb(233 240 249 / 14%);
     --info-foreground: var(--color-blue-400);
     --success-foreground: var(--color-emerald-400);
     --warning-foreground: var(--color-amber-400);
     --warning-surface: color-mix(in srgb, var(--warning) 16%, transparent);
     --update-foreground: var(--color-blue-400);
     --update-surface: color-mix(in srgb, var(--update) 18%, transparent);
-    --sidebar: var(--card);
-    --sidebar-control-surface: var(--muted);
-    --sidebar-row-hover: var(--accent);
-    --sidebar-row-active: var(--accent);
-    --sidebar-row-selected: var(--muted);
-    --sidebar-stage-fade: var(--card);
+    --sidebar: #0b0e13;
+    --sidebar-control-surface: rgb(233 240 249 / 5%);
+    --sidebar-row-hover: rgb(233 240 249 / 5%);
+    --sidebar-row-active: rgb(233 240 249 / 8%);
+    --sidebar-row-selected: rgb(233 240 249 / 6%);
+    --sidebar-stage-fade: #0b0e13;
     --terminal-cursor: rgb(180 203 255);
     --terminal-selection-background: rgb(180 203 255 / 25%);
   }

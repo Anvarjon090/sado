@@ -89,17 +89,21 @@
     "copied": "Gekopieerd"
   },
   "homeUi": {
-    "subtitle": "Jouw open-source, volledig lokale alternatief voor ElevenLabs — kloon en ontwerp stemmen, dub video’s, dicteer, transcribeer en maak luisterboeken in 646 talen.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} door",
     "all": "Allen",
-    "title": "Sado.sh Open source",
+    "title": "What are we voicing today?",
     "design": "Ontwerp een stem op basis van een beschrijving.",
     "dub": "Vertaal en dub audio of video.",
     "stories": "Maak scènes met meerdere stemmen.",
     "audiobook": "Maak luisterboeken met hoofdstukken.",
     "transcribe": "Zet opnamen om in tekst.",
-    "collapseFooter": "Voettekst inklappen",
-    "expandFooter": "Voettekst uitklappen"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Inschakelen opent een aparte lokale poort die je tunnel op internet publiceert. Alleen verzoeken die met je Twilio Auth Token zijn ondertekend worden geaccepteerd; de rest van Sado blijft privé.",
@@ -2277,7 +2281,10 @@
     "clone": "Stemklonen",
     "primary": "Hoofdnavigatie",
     "dictation": "Dicteren",
-    "calls": "Oproepen"
+    "calls": "Oproepen",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "Stem vergrendeld! Identiteit is nu consistent voor alle generaties.",

@@ -89,17 +89,21 @@
     "copied": "已复制"
   },
   "homeUi": {
-    "subtitle": "你的开源、完全本地运行的 ElevenLabs 替代方案——克隆与设计声音、视频配音、语音输入、转录和有声书制作，支持 646 种语言。",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} 作者",
     "all": "全部",
-    "title": "Sado.sh 开源",
+    "title": "What are we voicing today?",
     "design": "根据描述设计声音。",
     "dub": "翻译并配音音频或视频。",
     "stories": "用多种声音创作场景。",
     "audiobook": "制作分章节的有声书。",
     "transcribe": "将录音转成文字。",
-    "collapseFooter": "收起底栏",
-    "expandFooter": "展开底栏"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "开启后会打开一个单独的本地端口，由你的隧道发布到互联网。只接受使用你的 Twilio Auth Token 签名的请求；Sado 的其余部分保持私密。",
@@ -2277,7 +2281,10 @@
     "design": "声音设计",
     "primary": "主导航",
     "dictation": "听写",
-    "calls": "通话"
+    "calls": "通话",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "声音已锁定！现在每次生成的身份都一致。",

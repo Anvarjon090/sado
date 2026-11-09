@@ -8,6 +8,8 @@ describe('profile portraits', () => {
     expect(profileInitials('Scarlet')).toBe('S');
     expect(profileInitials('')).toBe('♪');
     expect(profileInitials('Émilie Rose')).toBe('ÉR');
+    expect(profileInitials("Aisha (o'zbekcha)")).toBe('AO');
+    expect(profileInitials('Sinov — 1-so‘zlovchi')).toBe('SS');
   });
   it('falls back to initials when the saved image cannot load', () => {
     const view = render(<ProfileAvatar name="Scarlet Rose" imageUrl="/profiles/one/image" />);

@@ -89,17 +89,21 @@
     "copied": "コピーしました"
   },
   "homeUi": {
-    "subtitle": "オープンソースで完全ローカルなElevenLabsの代替 — 声のクローンとデザイン、動画の吹き替え、音声入力、文字起こし、オーディオブック制作を646言語で。",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} 開発者",
     "all": "全員",
-    "title": "Sado.sh オープンソース",
+    "title": "What are we voicing today?",
     "design": "説明から声をデザイン。",
     "dub": "音声や動画を翻訳・吹き替え。",
     "stories": "複数の声でシーンを作成。",
     "audiobook": "章立てのオーディオブックを作成。",
     "transcribe": "録音を文字に起こす。",
-    "collapseFooter": "フッターを折りたたむ",
-    "expandFooter": "フッターを展開"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "オンにすると、トンネルがインターネットに公開する別のローカルポートが開きます。Twilio Auth Token で署名されたリクエストのみ受け付け、Sado のその他の部分は非公開のままです。",
@@ -2277,7 +2281,10 @@
     "clone": "音声クローン",
     "primary": "メインナビゲーション",
     "dictation": "音声入力",
-    "calls": "通話"
+    "calls": "通話",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "音声ロックされてる！アイデンティティはすべての世代にわたって一貫しています。",

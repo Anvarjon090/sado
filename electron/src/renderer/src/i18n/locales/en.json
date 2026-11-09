@@ -89,17 +89,21 @@
     "copied": "Copied"
   },
   "homeUi": {
-    "subtitle": "Your open-source, fully local alternative to ElevenLabs — clone and design voices, dub videos, dictate, transcribe, and create audiobooks in 646 languages.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} by",
     "all": "All",
-    "title": "Sado.sh Open Source",
+    "title": "What are we voicing today?",
     "design": "Design a voice from a description.",
     "dub": "Translate and dub audio or video.",
     "stories": "Create scenes with multiple voices.",
     "audiobook": "Build audiobooks with chapters.",
     "transcribe": "Turn recordings into text.",
-    "collapseFooter": "Collapse footer",
-    "expandFooter": "Expand footer"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "Turning this on opens a separate local port that your tunnel publishes to the internet. Only requests signed with your Twilio Auth Token are accepted; the rest of Sado stays private.",
@@ -300,7 +304,10 @@
     "gallery": "Gallery",
     "batch_dub": "Batch Dubbing",
     "transcribe": "Transcribe",
-    "calls": "Calls"
+    "calls": "Calls",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "backend": {
     "starting": "Starting the local engine…",

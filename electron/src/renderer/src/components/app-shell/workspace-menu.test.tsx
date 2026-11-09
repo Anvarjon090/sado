@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest';
 const route = vi.hoisted(() => ({ pathname: '/gallery' }));
 vi.mock('@tanstack/react-router', () => ({
   useRouterState: ({ select }: any) => select({ location: route }),
-  Link: ({ to, activeProps: _activeProps, children, ...props }: any) => (
+  Link: ({ to, activeProps: _activeProps, activeOptions: _activeOptions, children, ...props }: any) => (
     <a href={to} {...props}>
       {children}
     </a>
@@ -14,62 +14,68 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => k
 vi.mock('@/lib/store/workspace', () => ({ setWorkspace: vi.fn() }));
 import { WorkspaceNavigation } from './workspace-menu';
 
-it('opens the current workflow, lets users collapse it, and follows route changes', () => {
+it('lists each destination once: home, creation, then the library', () => {
+  route.pathname = '/gallery';
+  render(<WorkspaceNavigation />);
+  const hrefs = Array.from(document.querySelectorAll('nav a'), (a) => a.getAttribute('href'));
+  expect(hrefs.slice(0, 10)).toEqual([
+    '/',
+    '/clone',
+    '/design',
+    '/dub',
+    '/stories',
+    '/audiobook',
+    '/transcriptions',
+    '/personas',
+    '/gallery',
+    '/projects',
+  ]);
+  expect(new Set(hrefs).size).toBe(hrefs.length);
+  expect(screen.getByText('nav.section_create')).toBeInTheDocument();
+  expect(screen.getByText('nav.section_library')).toBeInTheDocument();
+});
+
+it('folds the rarer tools under More and opens it on their routes', () => {
+  route.pathname = '/gallery';
   const { rerender } = render(<WorkspaceNavigation />);
-  const voice = screen.getByRole('button', { name: 'nav.voice' });
-  expect(voice).toHaveAttribute('aria-expanded', 'true');
-  expect(screen.getByRole('link', { name: 'nav.gallery' })).toHaveAttribute('href', '/gallery');
+  const more = screen.getByRole('button', { name: 'nav.more' });
+  expect(more).toHaveAttribute('aria-expanded', 'false');
+  fireEvent.click(more);
+  expect(more).toHaveAttribute('aria-expanded', 'true');
   expect(screen.getByRole('link', { name: 'workflows.title' })).toHaveAttribute('href', '/calls');
-  fireEvent.click(voice);
-  expect(voice).toHaveAttribute('aria-expanded', 'false');
-  route.pathname = '/audiobook';
+  route.pathname = '/tools';
   rerender(<WorkspaceNavigation />);
-  expect(screen.getByRole('button', { name: 'nav.stories' })).toHaveAttribute(
+  expect(screen.getByRole('button', { name: 'nav.more' })).toHaveAttribute(
     'aria-expanded',
     'true',
   );
-  expect(screen.getByRole('link', { name: 'audiobook.title' })).toHaveAttribute(
-    'href',
-    '/audiobook',
-  );
 });
 
-it('keeps grouped destinations reachable from the compact rail', async () => {
+it('keeps folded destinations reachable from the compact rail', async () => {
+  route.pathname = '/gallery';
   render(<WorkspaceNavigation compact />);
-  fireEvent.click(screen.getByRole('button', { name: 'nav.voice' }));
-  expect(await screen.findByRole('link', { name: 'nav.clone_short' })).toHaveAttribute(
+  expect(screen.getByRole('link', { name: 'nav.clone' })).toHaveAttribute('href', '/clone');
+  fireEvent.click(screen.getByRole('button', { name: 'nav.more' }));
+  expect(await screen.findByRole('link', { name: 'nav.batch_dub' })).toHaveAttribute(
     'href',
-    '/clone',
+    '/batch',
   );
-  expect(screen.getByRole('link', { name: 'nav.gallery' })).toHaveAttribute('href', '/gallery');
 });
 
 it('opens a compact group for a mouse hover while ignoring touch hover', async () => {
   render(<WorkspaceNavigation compact />);
-  const voice = screen.getByRole('button', { name: 'nav.voice' });
-  fireEvent.pointerEnter(voice, { pointerType: 'touch' });
-  expect(screen.queryByRole('link', { name: 'nav.clone_short' })).toBeNull();
-  fireEvent.pointerEnter(voice, { pointerType: 'mouse' });
-  expect(await screen.findByRole('link', { name: 'nav.clone_short' })).toBeInTheDocument();
-  expect(voice).toHaveAttribute('aria-expanded', 'true');
-});
-
-it('keeps the compact flyout mounted until navigation changes the route', async () => {
-  route.pathname = '/gallery';
-  const { rerender } = render(<WorkspaceNavigation compact />);
-  fireEvent.click(screen.getByRole('button', { name: 'nav.voice' }));
-  const clone = await screen.findByRole('link', { name: 'nav.clone_short' });
-  fireEvent.click(clone);
-  expect(clone).toBeInTheDocument();
-  route.pathname = '/clone';
-  rerender(<WorkspaceNavigation compact />);
-  await waitFor(() => expect(screen.queryByRole('link', { name: 'nav.clone_short' })).toBeNull());
+  const more = screen.getByRole('button', { name: 'nav.more' });
+  fireEvent.pointerEnter(more, { pointerType: 'touch' });
+  expect(screen.queryByRole('link', { name: 'tools.title' })).toBeNull();
+  fireEvent.pointerEnter(more, { pointerType: 'mouse' });
+  expect(await screen.findByRole('link', { name: 'tools.title' })).toBeInTheDocument();
+  expect(more).toHaveAttribute('aria-expanded', 'true');
 });
 
 it('closes the compact flyout when choosing the current route again', async () => {
-  route.pathname = '/gallery';
+  route.pathname = '/tools';
   render(<WorkspaceNavigation compact />);
-  fireEvent.click(screen.getByRole('button', { name: 'nav.voice' }));
-  fireEvent.click(await screen.findByRole('link', { name: 'nav.gallery' }));
-  await waitFor(() => expect(screen.queryByRole('link', { name: 'nav.gallery' })).toBeNull());
+  fireEvent.click(screen.getByRole('button', { name: 'nav.more' }));
+  fireEvent.click(await screen.findByRole('link', { name: 'tools.title' }));
+  await waitFor(() => expect(screen.queryByRole('link', { name: 'tools.title' })).toBeNull());
 });

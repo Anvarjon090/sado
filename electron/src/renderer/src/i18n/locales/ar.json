@@ -89,17 +89,21 @@
     "copied": "تم النسخ"
   },
   "homeUi": {
-    "subtitle": "بديلك مفتوح المصدر والمحلي بالكامل لـ ElevenLabs — استنسخ الأصوات وصمّمها، ودبلج الفيديو، وأملِ النصوص وفرّغ التسجيلات، وأنشئ كتبًا صوتية بـ 646 لغة.",
+    "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
     "brand_by": "{{brand}} من تطوير",
     "all": "الكل",
-    "title": "Sado.sh مفتوح المصدر",
+    "title": "What are we voicing today?",
     "design": "صمّم صوتًا من وصف.",
     "dub": "ترجم ودبلج الصوت أو الفيديو.",
     "stories": "أنشئ مشاهد بأصوات متعددة.",
     "audiobook": "أنشئ كتبًا صوتية بفصول.",
     "transcribe": "حوّل التسجيلات إلى نص.",
-    "collapseFooter": "طي التذييل",
-    "expandFooter": "توسيع التذييل"
+    "scriptLabel": "Script",
+    "scriptPlaceholder": "Type or paste the text to voice…",
+    "chooseVoice": "Choose a voice",
+    "continue": "Open in studio",
+    "recent": "Recent projects",
+    "noProjects": "No projects yet. Start one from"
   },
   "twilioIntegration": {
     "exposureWarning": "يؤدي التشغيل إلى فتح منفذ محلي منفصل ينشره النفق على الإنترنت. لا تُقبل إلا الطلبات الموقعة برمز Auth Token الخاص بك في Twilio، ويبقى باقي Sado خاصًا.",
@@ -2285,7 +2289,10 @@
     "design": "التصميم الصوتي",
     "clone": "استنساخ الصوت",
     "primary": "التنقل الرئيسي",
-    "calls": "المكالمات"
+    "calls": "المكالمات",
+    "section_create": "Create",
+    "section_library": "Library",
+    "more": "More"
   },
   "profiles": {
     "locked": "صوت مغلق! أصبحت الهوية الآن متسقة عبر جميع الأجيال.",

@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-09T00:00:00Z",
+  "title": "Design System: Sado",
+  "extensions": {
+    "colorMeta": {
+      "turquoise-neon": {
+        "role": "primary",
+        "displayName": "Neon Turquoise",
+        "canonical": "#35f0c6",
+        "tonalRamp": [
+          "oklch(0.15 0.05 172)",
+          "oklch(0.26 0.08 172)",
+          "oklch(0.38 0.11 172)",
+          "oklch(0.5 0.13 172)",
+          "oklch(0.62 0.15 172)",
+          "oklch(0.74 0.16 172)",
+          "oklch(0.86 0.15 172)",
+          "oklch(0.95 0.06 172)"
+        ]
+      },
+      "turquoise-ink": {
+        "role": "primary",
+        "displayName": "Turquoise Ink",
+        "canonical": "#03211b"
+      },
+      "turquoise-deep": {
+        "role": "primary",
+        "displayName": "Deep Turquoise",
+        "canonical": "oklch(0.55 0.11 175)",
+        "tonalRamp": [
+          "oklch(0.15 0.04 175)",
+          "oklch(0.27 0.07 175)",
+          "oklch(0.4 0.09 175)",
+          "oklch(0.55 0.11 175)",
+          "oklch(0.66 0.11 175)",
+          "oklch(0.77 0.09 175)",
+          "oklch(0.87 0.06 175)",
+          "oklch(0.95 0.03 175)"
+        ]
+      },
+      "graphite-canvas": {
+        "role": "neutral",
+        "displayName": "Graphite Canvas",
+        "canonical": "#07090c",
+        "tonalRamp": [
+          "#07090c",
+          "#0b0e13",
+          "#0d1117",
+          "#111721",
+          "#1a2230",
+          "#2a3444",
+          "#7b899c",
+          "#e9f0f9"
+        ]
+      },
+      "graphite-sidebar": {
+        "role": "neutral",
+        "displayName": "Graphite Sidebar",
+        "canonical": "#0b0e13"
+      },
+      "graphite-panel": {
+        "role": "neutral",
+        "displayName": "Graphite Panel",
+        "canonical": "#0d1117"
+      },
+      "graphite-overlay": {
+        "role": "neutral",
+        "displayName": "Graphite Overlay",
+        "canonical": "#111721"
+      },
+      "frost-ink": {
+        "role": "neutral",
+        "displayName": "Frost Ink",
+        "canonical": "#e9f0f9"
+      },
+      "slate-mute": {
+        "role": "neutral",
+        "displayName": "Slate Mute",
+        "canonical": "#93a1b5"
+      },
+      "hairline-dark": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgb(233 240 249 / 8%)"
+      },
+      "hairline-strong-dark": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "rgb(233 240 249 / 14%)"
+      },
+      "wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash",
+        "canonical": "rgb(233 240 249 / 6%)"
+      },
+      "studio-paper": {
+        "role": "neutral",
+        "displayName": "Studio Paper",
+        "canonical": "oklch(0.982 0.004 215)",
+        "tonalRamp": [
+          "oklch(0.2 0.015 250)",
+          "oklch(0.35 0.018 250)",
+          "oklch(0.48 0.02 250)",
+          "oklch(0.86 0.01 230)",
+          "oklch(0.9 0.008 230)",
+          "oklch(0.945 0.012 200)",
+          "oklch(0.962 0.006 215)",
+          "oklch(0.982 0.004 215)"
+        ]
+      },
+      "paper-sidebar": {
+        "role": "neutral",
+        "displayName": "Paper Sidebar",
+        "canonical": "oklch(0.962 0.006 215)"
+      },
+      "paper-card": {
+        "role": "neutral",
+        "displayName": "Paper Card",
+        "canonical": "#ffffff"
+      },
+      "graphite-ink": {
+        "role": "neutral",
+        "displayName": "Graphite Ink",
+        "canonical": "oklch(0.2 0.015 250)"
+      },
+      "slate-mute-light": {
+        "role": "neutral",
+        "displayName": "Slate Mute Light",
+        "canonical": "oklch(0.48 0.02 250)"
+      },
+      "hairline-light": {
+        "role": "neutral",
+        "displayName": "Hairline Light",
+        "canonical": "oklch(0.9 0.008 230)"
+      },
+      "hairline-strong-light": {
+        "role": "neutral",
+        "displayName": "Strong Hairline Light",
+        "canonical": "oklch(0.86 0.01 230)"
+      },
+      "wash-light": {
+        "role": "neutral",
+        "displayName": "Wash Light",
+        "canonical": "oklch(0.945 0.012 200)"
+      }
+    },
+    "reservedColors": {
+      "purpose": "Navoiy-TTS emotion control only; not in use on Home or the shell.",
+      "tones": {
+        "calm": "#35f0c6",
+        "happy": "#ffd166",
+        "sad": "#6aa8ff",
+        "angry": "#ff5d6c",
+        "fearful": "#c084fc",
+        "surprised": "#f472b6",
+        "whisper": "#7dd3fc",
+        "tender": "#ff9f7a",
+        "tired": "#94a3b8",
+        "ironic": "#a3e635"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Wordmark",
+        "purpose": "SADO wordmark only; uppercase."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The single page question on Home; balanced wrap."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "List and section heads."
+      },
+      "body-editor": {
+        "displayName": "Body Editor",
+        "purpose": "Script text people voice."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "One muted sentence under the headline, max 62ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Interface default, nav, rows."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips and compact controls."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Metadata and counts; tabular numerals."
+      },
+      "nav-group": {
+        "displayName": "Nav Group",
+        "purpose": "Sidebar group names, sentence case, muted."
+      }
+    },
+    "shadows": [
+      {
+        "name": "paper-lift",
+        "value": "0 1px 2px rgb(8 12 18 / 5%)",
+        "purpose": "Light composer at rest."
+      },
+      {
+        "name": "graphite-edge",
+        "value": "inset 0 1px 0 rgb(233 240 249 / 4%)",
+        "purpose": "Dark composer at rest."
+      },
+      {
+        "name": "active-paper-tab",
+        "value": "0 1px 2px rgb(15 23 42 / 6%), inset 0 0 0 1px var(--border)",
+        "purpose": "Current nav item, light theme."
+      },
+      {
+        "name": "focus-halo",
+        "value": "0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent)",
+        "purpose": "Composer focus-within."
+      },
+      {
+        "name": "focus-ring-offset",
+        "value": "0 0 0 2px var(--background), 0 0 0 4px var(--ring)",
+        "purpose": "Primary button focus-visible."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "150ms ease-out",
+        "purpose": "Hover fills, icon colour, button brightness."
+      },
+      {
+        "name": "focus-container",
+        "value": "160ms ease-out",
+        "purpose": "Composer border and halo."
+      },
+      {
+        "name": "press",
+        "value": "translateY(1px)",
+        "purpose": "Primary button :active."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "composer-compact",
+        "value": "40rem (container query)"
+      },
+      {
+        "name": "content-max",
+        "value": "60rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action on a surface; turquoise fill, ink text, trailing arrow.",
+      "html": "<button class=\"ds-btn-primary\">Studiyada ochish <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; height: 2.25rem; padding: 0 1rem; border: 0; border-radius: 0.625rem; background: var(--primary, #35f0c6); color: var(--primary-foreground, #03211b); font: 600 0.875rem/1 Onest, system-ui, sans-serif; cursor: pointer; outline: none; transition: filter 150ms ease-out, transform 150ms ease-out; } .ds-btn-primary:hover { filter: brightness(1.06); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--background, #07090c), 0 0 0 4px var(--ring, #35f0c6); }"
+    },
+    {
+      "name": "Voice Chip",
+      "kind": "chip",
+      "refersTo": "chip-voice",
+      "description": "Pill showing the chosen voice; turquoise dot when none is chosen.",
+      "html": "<a class=\"ds-chip-voice\" href=\"#\"><span class=\"ds-chip-dot\"></span><span>Ovoz tanlang</span></a>",
+      "css": ".ds-chip-voice { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border, rgb(233 240 249 / 8%)); border-radius: 999px; padding: 0.25rem 0.75rem 0.25rem 0.3125rem; font: 500 0.8125rem/1.25rem Onest, system-ui, sans-serif; color: var(--foreground, #e9f0f9); text-decoration: none; outline: none; transition: background-color 150ms ease-out; } .ds-chip-voice:hover { background: var(--accent, rgb(233 240 249 / 6%)); } .ds-chip-voice:focus-visible { box-shadow: 0 0 0 2px var(--ring, #35f0c6); } .ds-chip-dot { margin-left: 0.25rem; width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--primary, #35f0c6); }"
+    },
+    {
+      "name": "Script Composer",
+      "kind": "card",
+      "refersTo": "composer",
+      "description": "Signature container: the text being voiced, with voice, meta, count and action in its bar.",
+      "html": "<form class=\"ds-composer\"><textarea class=\"ds-composer-text\" placeholder=\"Ovozlashtiriladigan matnni yozing yoki joylang...\"></textarea><div class=\"ds-composer-bar\"><span class=\"ds-composer-meta\">Avtomatik &middot; Sado</span><span class=\"ds-composer-count\">0 belgi</span></div></form>",
+      "css": ".ds-composer { border: 1px solid var(--border, rgb(233 240 249 / 8%)); border-radius: 1rem; background: var(--card, #0d1117); box-shadow: inset 0 1px 0 rgb(233 240 249 / 4%); transition: border-color 160ms ease-out, box-shadow 160ms ease-out; } .ds-composer:focus-within { border-color: color-mix(in srgb, var(--primary, #35f0c6) 55%, var(--border, rgb(233 240 249 / 8%))); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #35f0c6) 12%, transparent); } .ds-composer-text { display: block; width: 100%; min-height: 7.5rem; resize: none; border: 0; background: transparent; padding: 1.125rem 1.25rem 0.5rem; font: 400 1rem/1.75rem Onest, system-ui, sans-serif; color: var(--foreground, #e9f0f9); caret-color: var(--primary, #35f0c6); outline: none; } .ds-composer-text::placeholder { color: var(--muted-foreground, #93a1b5); } .ds-composer-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem 0.75rem 1rem; } .ds-composer-meta, .ds-composer-count { font: 400 0.75rem/1rem Onest, system-ui, sans-serif; color: var(--muted-foreground, #93a1b5); } .ds-composer-count { margin-left: auto; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Monochrome icon row; current page gets a raised fill and the only turquoise icon.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-nav-group\">Yaratish</div><a class=\"ds-nav-item\" aria-current=\"page\" href=\"#\"><svg class=\"ds-nav-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg><span>Bosh sahifa</span></a><a class=\"ds-nav-item\" href=\"#\"><svg class=\"ds-nav-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M7 3v18\"/><path d=\"M17 3v18\"/><path d=\"M3 12h18\"/></svg><span>Dublyaj</span></a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 2px; width: 15rem; padding: 0.5rem; background: var(--sidebar, #0b0e13); } .ds-nav-group { padding: 0.875rem 0.625rem 0.375rem; font: 500 0.6875rem/1 Onest, system-ui, sans-serif; letter-spacing: 0.02em; color: var(--muted-foreground, #93a1b5); } .ds-nav-item { display: flex; align-items: center; gap: 0.625rem; height: 2rem; padding: 0 0.625rem; border-radius: 0.75rem; font: 400 0.875rem/1.25rem Onest, system-ui, sans-serif; color: color-mix(in srgb, var(--sidebar-foreground, #e9f0f9) 75%, transparent); text-decoration: none; outline: none; transition: background-color 150ms, color 150ms; } .ds-nav-icon { color: var(--muted-foreground, #93a1b5); transition: color 150ms; } .ds-nav-item:hover { background: var(--sidebar-row-hover, rgb(233 240 249 / 5%)); color: var(--sidebar-foreground, #e9f0f9); } .ds-nav-item:hover .ds-nav-icon { color: var(--sidebar-foreground, #e9f0f9); } .ds-nav-item:focus-visible { box-shadow: 0 0 0 2px var(--ring, #35f0c6); } .ds-nav-item[aria-current='page'] { background: var(--sidebar-row-active, rgb(233 240 249 / 8%)); color: var(--sidebar-foreground, #e9f0f9); font-weight: 500; } .ds-nav-item[aria-current='page'] .ds-nav-icon { color: var(--primary, #35f0c6); }"
+    },
+    {
+      "name": "Recent-work Row",
+      "kind": "custom",
+      "refersTo": "list-row",
+      "description": "Hairline list row for the user's projects: kind icon, name, meta.",
+      "html": "<ul class=\"ds-list\"><li><button class=\"ds-row\"><svg class=\"ds-row-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 7v14\"/><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/></svg><span class=\"ds-row-name\">Project name</span><span class=\"ds-row-meta\">Audiokitob</span></button></li></ul>",
+      "css": ".ds-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border, rgb(233 240 249 / 8%)); } .ds-row { display: flex; align-items: center; gap: 0.75rem; width: 100%; min-height: 2.75rem; padding: 0.375rem 0.5rem; border: 0; border-bottom: 1px solid var(--border, rgb(233 240 249 / 8%)); background: transparent; color: var(--foreground, #e9f0f9); font: 400 0.875rem/1.25rem Onest, system-ui, sans-serif; text-align: left; cursor: pointer; outline: none; transition: background-color 150ms ease-out; } .ds-row:hover { background: var(--accent, rgb(233 240 249 / 6%)); } .ds-row:focus-visible { box-shadow: inset 0 0 0 2px var(--ring, #35f0c6); } .ds-row-icon { flex: none; color: var(--muted-foreground, #93a1b5); } .ds-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; } .ds-row-meta { flex: none; font-size: 0.75rem; color: var(--muted-foreground, #93a1b5); } .ds-row:hover .ds-row-meta { color: var(--foreground, #e9f0f9); }"
+    },
+    {
+      "name": "Inline Text Link",
+      "kind": "custom",
+      "refersTo": "link-inline",
+      "description": "Underlined text link in empty states; underline turns turquoise on hover.",
+      "html": "<p class=\"ds-empty\">Hali loyihalar yo'q. Yangisini boshlang: <a href=\"#\">Dublyaj</a></p>",
+      "css": ".ds-empty { font: 400 0.875rem/1.25rem Onest, system-ui, sans-serif; color: var(--muted-foreground, #93a1b5); } .ds-empty a { color: var(--foreground, #e9f0f9); font-weight: 500; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--foreground, #e9f0f9) 30%, transparent); text-underline-offset: 3px; outline: none; } .ds-empty a:hover, .ds-empty a:focus-visible { text-decoration-color: var(--primary, #35f0c6); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Graphite Studio",
+    "overview": "Sado is a working voice studio, not a feature catalogue. The text a person is about to voice and their own voices and projects are the stage; chrome recedes into graphite (dark) or cool studio paper (light). One turquoise signal marks exactly two things: the action you can take and the place you are. Everything else is ink, muted ink, and hairlines.\n\nThe world descends from the owner-pinned \"Neon studiya\" concept (`docs/design/README.md`): graphite canvas, turquoise accent, Onest interface type, Unbounded wordmark. The build cleaned that concept of decoration rather than replacing it. Light and dark are equal citizens; each token has a twin, and the light accent is a deeper turquoise so white text holds contrast.\n\nDensity is calm working density: 14px interface text, 16px editor text on a 28px line, 44px list rows, a single content column capped at 60rem beside a persistent sidebar. Surfaces are flat; separation comes from hairlines and one-step tonal shifts, never from glass, glow, or gradient.",
+    "keyCharacteristics": [
+      "One accent, used only for action and current place.",
+      "Graphite tonal stack in dark (canvas, sidebar, panel, overlay); paper stack in light.",
+      "Hairline borders at 8% ink carry structure.",
+      "Monochrome line icons; the active icon alone turns turquoise.",
+      "Onest everywhere; Unbounded only in the SADO wordmark."
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Turquoise marks only an available action or the current place. If an element is neither, it is ink, muted ink, or hairline.",
+        "section": "colors"
+      },
+      {
+        "name": "The Twin Rule",
+        "body": "Every colour role ships a dark and a light value. Never add a role in one theme only.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Wordmark Rule",
+        "body": "Unbounded appears only in the SADO wordmark. Headings, numerals and counts use Onest.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Place Rule",
+        "body": "Each destination and each saved voice lives in exactly one place (the sidebar). Pages do not repeat navigation as card grids or shortcut strips.",
+        "section": "layout"
+      },
+      {
+        "name": "The No-Glow Rule",
+        "body": "No coloured glows, gradients or glass at rest. The only coloured shadow is the focus halo.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep turquoise to actions and the current place (The One Signal Rule).",
+      "**Do** ship every colour role as a dark/light pair; use turquoise-ink, never white, on neon turquoise.",
+      "**Do** separate surfaces with 1px hairlines and one tonal step before reaching for shadow.",
+      "**Do** use monochrome line icons in muted ink; only the active icon takes the accent.",
+      "**Do** give the text being voiced the largest reading size (16px / 28px).",
+      "**Do** route every string through i18n; Uzbek is the default copy."
+    ],
+    "donts": [
+      "**Don't** use the ten emotion tone colours outside the Navoiy emotion control.",
+      "**Don't** colour icons per item or per destination.",
+      "**Don't** add gradients, glass or coloured glows to default surfaces.",
+      "**Don't** repeat sidebar destinations or saved voices as card grids on a page.",
+      "**Don't** use Unbounded for headings or numerals; it is the wordmark face only.",
+      "**Don't** show decorative or placeholder statistics; numbers come from real measurements."
+    ]
+  }
+}
