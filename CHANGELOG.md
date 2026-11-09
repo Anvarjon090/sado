@@ -33,6 +33,10 @@ metadata and the backend fallback mirror it.
 - Fresh installs follow the system light/dark setting, and the glass background effect is off by default
 - Voice avatars take initials from letters only (no more "A(")
 
+### Fixed
+
+- Long words and file paths wrap instead of spilling out of setup steps, the tools list, donation amounts and settings rows (Russian, German and other languages)
+
 ## [0.5.7] — 2026-10-05
 
 **Sado now runs on PCs without a GPU and recovers instead of giving up.** Voice cloning uses the speech-to-text model you installed from Model Catalogue, GPU-less computers get the small CPU PyTorch build, and slow or busy backends are no longer reported as failed.

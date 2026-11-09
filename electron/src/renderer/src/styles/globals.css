@@ -163,6 +163,8 @@
     @apply bg-background text-foreground text-ui antialiased;
     caret-color: var(--primary);
     overscroll-behavior: none;
+    /* Long words and paths (ru, de, file paths) break before they overflow. */
+    overflow-wrap: break-word;
     font-optical-sizing: auto;
   }
   html {

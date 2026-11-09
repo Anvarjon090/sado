@@ -58,7 +58,7 @@ export function ToolsPage() {
           {tools.map((tool) => (
             <Button
               key={tool.id}
-              className="h-9 w-full justify-start gap-2.5 rounded-lg px-2.5 font-normal [&_svg]:text-muted-foreground"
+              className="h-auto min-h-9 w-full justify-start gap-2.5 rounded-lg px-2.5 py-1.5 text-left font-normal whitespace-normal [overflow-wrap:anywhere] [&_svg]:text-muted-foreground"
               variant={!converting && !comparing && selected.id === tool.id ? 'secondary' : 'ghost'}
               aria-pressed={!converting && !comparing && selected.id === tool.id}
               onClick={() => {
@@ -72,7 +72,7 @@ export function ToolsPage() {
             </Button>
           ))}
           <Button
-            className="h-9 w-full justify-start gap-2.5 rounded-lg px-2.5 font-normal [&_svg]:text-muted-foreground"
+            className="h-auto min-h-9 w-full justify-start gap-2.5 rounded-lg px-2.5 py-1.5 text-left font-normal whitespace-normal [overflow-wrap:anywhere] [&_svg]:text-muted-foreground"
             variant={!converting && comparing ? 'secondary' : 'ghost'}
             aria-pressed={!converting && comparing}
             onClick={() => {
@@ -84,7 +84,7 @@ export function ToolsPage() {
             {t('compare.title')}
           </Button>
           <Button
-            className="h-9 w-full justify-start gap-2.5 rounded-lg px-2.5 font-normal [&_svg]:text-muted-foreground"
+            className="h-auto min-h-9 w-full justify-start gap-2.5 rounded-lg px-2.5 py-1.5 text-left font-normal whitespace-normal [overflow-wrap:anywhere] [&_svg]:text-muted-foreground"
             variant={converting ? 'secondary' : 'ghost'}
             aria-pressed={converting}
             onClick={() => setConverting(true)}

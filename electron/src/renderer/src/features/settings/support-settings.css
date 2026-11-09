@@ -67,11 +67,14 @@
   margin-bottom: 14px;
 }
 .support-amounts {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Equal buttons, but a long label (de "Benutzerdefiniert") widens its own
+     button instead of spilling past the border. */
+  display: flex;
   gap: 7px;
 }
 .support-amounts button {
+  flex: 1 1 0;
+  min-width: max-content;
   position: relative;
   cursor: pointer;
   min-height: 50px;

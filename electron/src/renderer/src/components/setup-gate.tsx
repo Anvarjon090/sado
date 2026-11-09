@@ -128,7 +128,7 @@ export function SetupGate({ children }: { children: ReactNode }) {
         )}
       </header>
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <nav className="grid shrink-0 grid-cols-2 gap-1 border-b border-border/50 bg-sidebar p-3 md:flex md:w-48 md:flex-col md:border-r md:border-b-0">
+        <nav className="grid shrink-0 grid-cols-2 gap-1 border-b border-border/50 bg-sidebar p-3 md:flex md:w-56 md:flex-col md:border-r md:border-b-0">
           {steps.map(({ label, icon: Icon }, index) => (
             <Button
               key={label}
@@ -140,7 +140,11 @@ export function SetupGate({ children }: { children: ReactNode }) {
             >
               <Icon />
               <span className="tabular-nums text-muted-foreground">{index + 1}.</span>
-              {t(label)}
+              {/* Long single words (ru "Конфиденциальность", de compounds) must wrap
+                  inside the rail instead of spilling into the page. */}
+              <span className="min-w-0 flex-1 hyphens-auto [overflow-wrap:anywhere]">
+                {t(label)}
+              </span>
             </Button>
           ))}
         </nav>
