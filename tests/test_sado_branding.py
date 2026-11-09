@@ -39,8 +39,10 @@ def test_visible_brand_surfaces_say_sado() -> None:
         assert "OmniVoice Gallery" not in text, path
 
     readme = (ROOT / "README.md").read_text()
-    assert "**Sado** (default, powered by k2-fsa/OmniVoice)" in readme
-    assert "**OmniVoice** (default)" not in readme
+    assert readme.startswith("<div align=\"center\">")
+    assert "O'zbekcha ovoz studiyasi" in readme
+    assert "Navoiy-TTS" in readme
+    assert "docs/install/" in readme
 
 
 def test_brand_mark_is_shared_and_fills_the_icon() -> None:
