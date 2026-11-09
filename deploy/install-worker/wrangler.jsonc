@@ -1,0 +1,16 @@
+{
+  "name": "sado-install",
+  "account_id": "312a0af0ff35f6e2d1c77df2925d17dd",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-08-01",
+  "workers_dev": true,
+  "preview_urls": true,
+  "keep_vars": true,
+  "routes": [
+    { "pattern": "sado.sh/install*", "zone_name": "sado.sh" },
+    { "pattern": "www.sado.sh/install*", "zone_name": "sado.sh" }
+  ],
+  "rules": [
+    { "type": "Text", "globs": ["**/*.sh", "**/*.ps1"], "fallthrough": true }
+  ]
+}

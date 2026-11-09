@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sado">
+  <defs>
+    <linearGradient id="sado-tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2FF0C4"/>
+      <stop offset="1" stop-color="#0E7F68"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sado-tile)"/>
+  <g fill="#03120E">
+    <rect x="16.81" y="24.81" width="6" height="14.38" rx="1.75"/>
+    <rect x="24.94" y="17.31" width="6" height="29.38" rx="1.75"/>
+    <rect x="33.06" y="21.38" width="6" height="21.25" rx="1.75"/>
+    <rect x="41.19" y="26.84" width="6" height="10.31" rx="1.75"/>
+  </g>
+</svg>
