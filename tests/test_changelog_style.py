@@ -44,6 +44,7 @@ _REF_ALLOWLIST = (
     # owner-directed Uzbek adaptation (2026-11-06), no issue
     "Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune",
     "Uzbek dubbing runs on Navoiy-TTS automatically",
+    "Uzbek numbers over six digits reach the engine as words",
     "Uzbek interface: new `uz` locale",
     # owner commit 7036e101 — first-run consent prompt, committed straight to main
     "First-run consent question for the existing opt-in analytics",
@@ -55,6 +56,9 @@ _REF_ALLOWLIST = (
     "Model Catalogue** — a workspace of its own",
     # owner-reported wrap bug in the setup steps (2026-11-09), no issue
     "Long words and file paths wrap instead of spilling out",
+    # owner-reported mixed-language number reading (2026-11-09), no issue
+    "Numbers inside English or Russian sentences of an Uzbek script",
+    "Uzbek number reading covers phone numbers",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

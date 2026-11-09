@@ -389,6 +389,24 @@ _FFMPEG_FORMATS = {
 }
 
 
+def _spoken_language(backend, profile_language: str | None) -> str | None:
+    """The language to verbalize numbers in when the request names none.
+
+    The voice profile's own language comes first (an "Uzbek" profile reads
+    numbers in Uzbek), then a single-language engine: Navoiy-TTS speaks only
+    Uzbek, so every request on it is Uzbek even when a client omits
+    ``language``. Multi-language engines stay language-neutral.
+    """
+    if profile_language:
+        return profile_language
+    try:
+        from services.tts_backend import is_uzbek
+    except Exception:  # noqa: BLE001 — normalization must never break a request
+        return None
+    languages = list(getattr(backend, "supported_languages", None) or [])
+    return "uz" if any(is_uzbek(lang) for lang in languages) else None
+
+
 def _cpu_float(wav_tensor):
     import torch
     t = wav_tensor
@@ -632,6 +650,7 @@ async def create_speech(req: SpeechRequest):
     # Voice handling: if it's a known OpenAI alias, use defaults.
     # If it's a UUID-like string, treat it as a profile_id and resolve ref_audio.
     voice = req.voice
+    profile_language: str | None = None
     if voice not in _OPENAI_VOICE_ALIASES and voice != "default":
         # Try to resolve as a voice profile ID
         try:
@@ -642,6 +661,8 @@ async def create_speech(req: SpeechRequest):
                     "SELECT * FROM voice_profiles WHERE id=?", (voice,)
                 ).fetchone()
             if row:
+                if "language" in row.keys() and row["language"]:
+                    profile_language = row["language"]
                 if row["is_locked"] and row["locked_audio_path"]:
                     kw["ref_audio"] = os.path.join(VOICES_DIR, row["locked_audio_path"])
                 elif row["ref_audio_path"]:
@@ -662,10 +683,14 @@ async def create_speech(req: SpeechRequest):
     # Engine-agnostic text normalization (junk strip, numbers→words,
     # abbreviations) at this route's text→engine choke point — the same
     # pre-pass as /generate, applied exactly once per request. `req.language`
-    # is everything this route knows about the language (None → universal
-    # safety filters only). Pref-gated (default ON), idempotent, never raises.
+    # wins; without it, the voice profile's language and then the engine's own
+    # language decide, because an Uzbek profile on an Uzbek-only engine must
+    # still get Uzbek number words (raw digits make Navoiy-TTS babble).
+    # Pref-gated (default ON), idempotent, never raises.
     from services.text_normalization import normalize_for_tts
-    text = normalize_for_tts(req.input, req.language)
+    text = normalize_for_tts(
+        req.input, req.language or _spoken_language(backend, profile_language)
+    )
 
     # VRAM eviction runs in get_model()'s warm-return path now, covering every
     # native TTS generate (this route, WS TTS, dub, batch, audiobook).

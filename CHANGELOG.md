@@ -18,6 +18,7 @@ metadata and the backend fallback mirror it.
 
 - Uzbek interface: new `uz` locale covering the whole app (brand names, formats and units stay as written)
 - Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune, Apache-2.0): zero-shot cloning, ten emotion presets (`xotirjam` … `kinoyali`), Uzbek-only; opt-in through `OMNIVOICE_NAVOIY_DIR`, running in its own sidecar venv because the checkpoint pins `transformers==4.51.3`
+- Uzbek number reading covers phone numbers, dates, clock times, prices, temperatures, fractions, ranges, "3-ta" counts and Roman-numbered centuries; Russian adds times, percents and ordinals
 
 ### Changed
 
@@ -35,6 +36,8 @@ metadata and the backend fallback mirror it.
 
 ### Fixed
 
+- Uzbek numbers over six digits reach the engine as words: 7-12 digit runs read as cardinals, 13+ digit runs digit by digit, and `/v1/audio/speech` infers the voice's language when the request omits it
+- Numbers inside English or Russian sentences of an Uzbek script are read in that sentence's language, not in Uzbek
 - Long words and file paths wrap instead of spilling out of setup steps, the tools list, donation amounts and settings rows (Russian, German and other languages)
 
 ## [0.5.7] — 2026-10-05

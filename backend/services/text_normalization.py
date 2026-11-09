@@ -24,9 +24,14 @@ Design rules (load-bearing):
     verbalizer for languages num2words lacks (``_NATIVE_VERBALIZERS``, e.g.
     Malayalam, Uzbek). Everything else keeps its digits. Uzbek also folds its
     apostrophe variants (``oʻ``/``o‘``/``o’``) to ASCII ``'``.
-    Clock times / ordinals / currency are English-only (their spoken form is
-    language-specific); decimals only for locales whose num2words rendering
-    was vetted. CJK scripts pass through the safety filters untouched — no
+    Clock times / ordinals / currency are English-only on the num2words path
+    (their spoken form is language-specific), plus Russian times, percents and
+    ordinals; Uzbek's native module also reads phones, dates, prices,
+    temperatures, fractions, ranges and Roman centuries. Decimals only for
+    locales whose num2words rendering was vetted.
+  * **Per-clause language.** For en/ru/uz requests each number is read in the
+    language of its own clause (``services/number_language.py``), so an
+    English line inside an Uzbek script keeps English numbers. CJK scripts pass through the safety filters untouched — no
     CJK punctuation is stripped and no words are injected into unsegmented
     text.
   * **Markup-safe.** The single-bracket grammar (``[voice:…]``, ``[pause …]``,
@@ -530,6 +535,69 @@ def _correct_ordinal_suffix(n: int) -> str:
     return _ORDINAL_SUFFIX.get(n % 10, "th")
 
 
+# ── Russian: forms the generic rules leave as digits ────────────────────────
+#
+# Russian is verbalized for Russian requests and, since mixed-language text is
+# judged per clause, for Russian sentences inside Uzbek scripts — where any
+# digit left over would be read in Uzbek by the Navoiy engine.
+
+_RU_ORDINAL_RE = re.compile(
+    r"(?<![\w.,:/$%+-])(\d{1,4})-(й|ый|ий|ой|я|ая|е|ое|го|ого|му|ому)(?![\w-])"
+)
+_RU_COMMA_DECIMAL_RE = re.compile(r"(?<![\w.,:/$%-])(\d{1,6}),(\d{1,2})(?![\w:/-])(?![.,]\d)")
+
+
+def _ru_percent_word(raw: str) -> str:
+    if "." in raw:
+        return "процента"
+    n = int(raw)
+    if n % 10 == 1 and n % 100 != 11:
+        return "процент"
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return "процента"
+    return "процентов"
+
+
+def _ru_inflect_ordinal(words: str, ending: str) -> str:
+    """'пятый' + 'го' → 'пятого'; only the last word of a compound inflects."""
+    head, _, last = words.rpartition(" ")
+    if last.endswith("ий"):  # третий
+        stem = last[:-2] + "ь"
+        forms = {"я": stem + "я", "е": stem + "е", "го": stem + "его", "му": stem + "ему"}
+    else:
+        stem = last[:-2]
+        forms = {"я": stem + "ая", "е": stem + "ое", "го": stem + "ого", "му": stem + "ому"}
+    key = {"ая": "я", "ое": "е", "ого": "го", "ому": "му"}.get(ending, ending)
+    if key in ("й", "ый", "ий", "ой"):
+        return words
+    last = forms[key]
+    return f"{head} {last}" if head else last
+
+
+def _russian_forms(text: str, num2words, safe) -> str:
+    def clock(m: re.Match) -> str:
+        h, mm = int(m.group(1)), int(m.group(2))
+        tail = "ноль ноль" if mm == 0 else (
+            f"ноль {num2words(mm, lang='ru')}" if mm < 10 else num2words(mm, lang="ru")
+        )
+        return f"{num2words(h, lang='ru')} {tail}"
+
+    def ordinal(m: re.Match) -> str:
+        words = num2words(int(m.group(1)), lang="ru", to="ordinal")
+        return _ru_inflect_ordinal(words, m.group(2))
+
+    def percent(m: re.Match) -> str:
+        raw = m.group(1)
+        value: object = float(raw) if "." in raw else int(raw)
+        return f"{num2words(value, lang='ru')} {_ru_percent_word(raw)}"
+
+    text = _TIME_RE.sub(lambda m: safe(m, clock, clock=True), text)
+    text = _RU_ORDINAL_RE.sub(lambda m: safe(m, ordinal), text)
+    text = _RU_COMMA_DECIMAL_RE.sub(lambda m: f"{m.group(1)}.{m.group(2)}", text)
+    text = _PERCENT_RE.sub(lambda m: safe(m, percent), text)
+    return text
+
+
 def _numbers_to_words(text: str, lang: str) -> str:
     try:
         from num2words import num2words
@@ -574,6 +642,9 @@ def _numbers_to_words(text: str, lang: str) -> str:
             return f"{num2words(dollars, lang='en')} {unit}"
 
         text = _CURRENCY_RE.sub(lambda m: _safe(m, _currency), text)
+
+    if lang == "ru":
+        text = _russian_forms(text, num2words, _safe)
 
     percent_word = _PERCENT_WORD.get(lang)
     if percent_word:
@@ -667,10 +738,19 @@ def _numbers_to_words_native(text: str, lang: str) -> str:
         except Exception:  # noqa: BLE001 — conservative: never mangle
             return m.group(0)
 
+    if lang == "uz":
+        text = _uzbek_extended_forms(text, mod)
     if hasattr(mod, "ordinal_phrase"):
-        text = _HYPHEN_ORDINAL_RE.sub(
-            lambda m: _safe(m, lambda m: mod.ordinal_phrase(int(m.group(1)), m.group(2))), text
-        )
+        def _hyphenated(m: re.Match) -> str:
+            n, word = int(m.group(1)), m.group(2)
+            try:
+                return mod.ordinal_phrase(n, word)
+            except ValueError:
+                if not hasattr(mod, "fused"):
+                    raise
+                return mod.fused(n, word)  # "3-ta" → uchta, "5-ga" → beshga
+
+        text = _HYPHEN_ORDINAL_RE.sub(lambda m: _safe(m, _hyphenated), text)
     if hasattr(mod, "grouped"):
         text = _SPACE_GROUPED_RE.sub(lambda m: _safe(m, lambda m: mod.grouped(m.group(1))), text)
     text = _PERCENT_RE.sub(lambda m: _safe(m, lambda m: mod.percent(m.group(1))), text)
@@ -682,6 +762,126 @@ def _numbers_to_words_native(text: str, lang: str) -> str:
         return m.group(0) if _leading_zero(raw) else mod.cardinal(int(raw))
 
     return _INTEGER_RE.sub(lambda m: _safe(m, _integer), text)
+
+
+# ── Uzbek: forms beyond plain numbers ────────────────────────────────────────
+#
+# Written Uzbek puts digits in phone numbers, dates, clock times, prices,
+# temperatures, fractions, ranges and Roman-numbered centuries. Each rule
+# below is anchored on the shape that makes it unambiguous and runs before
+# the generic integer rule would split it apart.
+
+_UZ_PHONE_RE = re.compile(
+    r"(?<![\w+])(\+)?(998)[\s-]?\(?(\d{2})\)?[\s-]?(\d{3})[\s-]?(\d{2})[\s-]?(\d{2})(?![\w-])"
+    r"|(?<![\w+])(?<!\d )\(?(\d{2})\)?[\s-](\d{3})[\s-](\d{2})[\s-](\d{2})(?![\w-])(?! \d)"
+)
+_UZ_DATE_RE = re.compile(
+    r"(?<![\w.,:/-])(\d{1,2})\.(\d{1,2})\.(\d{4})(?![\w-])(?!\.\d)"
+    r"|(?<![\w.,:/-])(\d{4})-(\d{2})-(\d{2})(?![\w-])"
+)
+_UZ_RANGE_RE = re.compile(
+    r"(?<![\w.,:/$%+-])(\d{1,4})[-–](\d{1,4})(?:-((?:[^\W\d_]|')+)|(?=\s+[^\W\d_]))"
+)
+_UZ_MONEY_RE = re.compile(
+    r"(?<![\w.,])([$€£₽₸¥])\s?(\d{1,9})(?:[.,](\d{2}))?(?![\w:/%-])(?![.,]\d)"
+    r"|(?<![\w.,:/$%+-])(\d{1,9})(?:[.,](\d{2}))?\s?([$€£₽₸¥])(?!\w)"
+)
+_UZ_DEGREE_RE = re.compile(
+    r"(?<![\w.,:/$%])([+\-−])?(\d{1,3})(?:[.,](\d))?\s?°\s?(?:[CFС]\b)?"
+)
+_UZ_SIGNED_RE = re.compile(r"(?:(?<=^)|(?<=[\s(]))([−-])(\d{1,6})(?![\w:/%.,-])(?![.,]\d)")
+_UZ_FRACTION_RE = re.compile(r"(?<![\w./-])(\d{1,2})/(\d{1,3})(?![\w./-])")
+_UZ_COMMA_DECIMAL_RE = re.compile(r"(?<![\w.,:/$%-])(\d{1,6}),(\d{1,2})(?![\w:/-])(?![.,]\d)")
+_UZ_GLUED_TA_RE = re.compile(r"(?<![\w.,:/$%+-])(\d{1,6}) ?(ta(?:si|sini|sida|sidan|siga|lab|dan|ga|da|ni|gacha)?)(?![\w'])")
+_UZ_ROMAN_RE = re.compile(
+    r"(?<![\w'-])([IVXLC]{1,8})[- ]((?:asr|bob|qism|bo'lim|sinf|kurs|chorak|ming yillik|"
+    r"jild|tom|bosqich|daraja|guruh)(?:[^\W\d_]|')*)"
+)
+# 7–12 digit amounts are read only in front of a word that counts something;
+# anything else that long is an ID, an account or a card number.
+_UZ_LONG_AMOUNT_RE = re.compile(
+    r"(?<![\w.,:/$%+#№-])([1-9]\d{6,11})(?=\s+(?:so'm|sum|dollar|rubl|yevro|tenge|"
+    r"kishi|nafar|ta\b|dona|tonna|gektar|kilometr|km\b|metr|litr|kilogramm|kg\b|marta|"
+    r"yil|aholi|tomoshabin|foydalanuvchi))"
+)
+# A bare 7–12 digit run (a price, a population, a year span) reads as a
+# cardinal; 13+ digits is a card/account number and reads digit by digit.
+# Raw digits are not an option for Uzbek: Navoiy-TTS babbles instead of
+# speaking them, so every long run must leave this module as words.
+_UZ_LONG_NUMBER_RE = re.compile(
+    r"(?<![\w.,:/$%+#№-])(\d{7,12})(?![\w:/%.,-])(?![.,]\d)"
+)
+_UZ_ID_RUN_RE = re.compile(
+    r"(?<![\w.,:/$%+#№-])(\d{13,})(?![\w:/%.,-])(?![.,]\d)"
+)
+
+
+def _uzbek_extended_forms(text: str, mod) -> str:
+    def phone(m: re.Match) -> str:
+        if m.group(2):
+            return mod.phone([m.group(i) for i in range(2, 7)], plus=bool(m.group(1)))
+        return mod.phone([m.group(i) for i in range(7, 11)], plus=False)
+
+    def date(m: re.Match) -> str:
+        if m.group(1):
+            return mod.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        return mod.date(int(m.group(6)), int(m.group(5)), int(m.group(4)))
+
+    def range_(m: re.Match) -> str:
+        a, b, word = int(m.group(1)), int(m.group(2)), m.group(3)
+        if a >= b:
+            raise ValueError("not an ascending range")
+        if word:
+            return f"{mod.ordinal(a)} – {mod.ordinal_phrase(b, word)}"
+        return f"{mod.cardinal(a)}-{mod.cardinal(b)}"
+
+    def money(m: re.Match) -> str:
+        if m.group(1):
+            return mod.money(m.group(1), m.group(2), m.group(3))
+        return mod.money(m.group(6), m.group(4), m.group(5))
+
+    def degree(m: re.Match) -> str:
+        body = mod.cardinal(int(m.group(2)))
+        if m.group(3):
+            body = mod.decimal(int(m.group(2)), m.group(3))
+        if m.group(1):
+            body = mod.signed(m.group(1), body)
+        return f"{body} {mod.DEGREE_WORD}"
+
+    def roman(m: re.Match) -> str:
+        raw = m.group(1)
+        if len(raw) == 1 and raw not in "VX":
+            raise ValueError("a lone I/L/C is a letter")
+        return mod.ordinal_phrase(mod.roman(raw), m.group(2))
+
+    def keep_safe(pattern: re.Pattern, render) -> None:
+        nonlocal text
+        text = pattern.sub(lambda m: _safe_any(m, render), text)
+
+    def _safe_any(m: re.Match, render) -> str:
+        if _glued_to_mark(m):
+            return m.group(0)
+        try:
+            return render(m)
+        except Exception:  # noqa: BLE001 — conservative: never mangle
+            return m.group(0)
+
+    keep_safe(_UZ_PHONE_RE, phone)
+    keep_safe(_UZ_DATE_RE, date)
+    keep_safe(_TIME_RE, lambda m: mod.clock(int(m.group(1)), int(m.group(2))))
+    keep_safe(_UZ_MONEY_RE, money)
+    keep_safe(_UZ_DEGREE_RE, degree)
+    keep_safe(_UZ_RANGE_RE, range_)
+    keep_safe(_UZ_ROMAN_RE, roman)
+    keep_safe(_UZ_FRACTION_RE, lambda m: mod.fraction(int(m.group(1)), int(m.group(2))))
+    # "3,5" is the official Uzbek decimal; hand it to the decimal rule.
+    text = _UZ_COMMA_DECIMAL_RE.sub(lambda m: f"{m.group(1)}.{m.group(2)}", text)
+    keep_safe(_UZ_GLUED_TA_RE, lambda m: mod.fused(int(m.group(1)), m.group(2)))
+    keep_safe(_UZ_SIGNED_RE, lambda m: mod.signed(m.group(1), mod.cardinal(int(m.group(2)))))
+    keep_safe(_UZ_LONG_AMOUNT_RE, lambda m: mod.cardinal(int(m.group(1))))
+    keep_safe(_UZ_LONG_NUMBER_RE, lambda m: mod.cardinal(int(m.group(1))))
+    keep_safe(_UZ_ID_RUN_RE, lambda m: mod.digits(m.group(1)))
+    return text
 
 
 # ── Uzbek apostrophes ────────────────────────────────────────────────────────
@@ -703,16 +903,15 @@ def _fold_uzbek_apostrophes(text: str) -> str:
 
 # ── Public API ───────────────────────────────────────────────────────────────
 
-def normalize_text(text: str, language: Optional[str] = None) -> str:
-    """Pure, idempotent normalization pass (no pref gate — see
-    :func:`normalize_for_tts` for the gated entry point pipelines call)."""
-    if not text:
-        return text or ""
-    out = _safety_filters(text)
-    # Runs outside the num2words gate below: ko/ja/zh keep their digits (that
-    # gate returns None for them) but still need the range mark spoken.
+def _normalize_language(text: str, language: Optional[str]) -> str:
+    """The language passes (ranges, abbreviations, numbers) for one language."""
+    if language == "uzc":
+        return _normalize_uzbek_cyrillic(text)
+    out = text
     plain = _plain_lang_code(language)
     if plain:
+        # Runs outside the num2words gate below: ko/ja/zh keep their digits
+        # (that gate returns None for them) but still need the range mark.
         out = _outside_brackets(out, lambda t: _speak_number_ranges(t, plain))
     lang = _num2words_lang(language)
     if lang:
@@ -728,6 +927,43 @@ def normalize_text(text: str, language: Optional[str] = None) -> str:
         if native:
             out = _outside_brackets(out, lambda t: _numbers_to_words_native(t, native))
     return out
+
+
+# ── Mixed-language text ──────────────────────────────────────────────────────
+#
+# Requests in these languages often quote the others (an Uzbek script with an
+# English line, a Russian price). Each number is verbalized in the language of
+# its own clause (services/number_language.py), not the request's.
+_CONTEXT_REQUEST_LANGS = frozenset({"en", "ru", "uz"})
+
+
+def _normalize_uzbek_cyrillic(text: str) -> str:
+    """A number group written in Cyrillic Uzbek ("2025-йил", "5 та"): read it
+    with the Latin Uzbek rules and write the words back in Cyrillic."""
+    from services.number_words_uz import to_cyrillic, to_latin
+
+    spoken = _numbers_to_words_native(_fold_uzbek_apostrophes(to_latin(text)), "uz")
+    return to_cyrillic(spoken)
+
+
+def normalize_text(text: str, language: Optional[str] = None) -> str:
+    """Pure, idempotent normalization pass (no pref gate — see
+    :func:`normalize_for_tts` for the gated entry point pipelines call)."""
+    if not text:
+        return text or ""
+    out = _safety_filters(text)
+    plain = _plain_lang_code(language)
+    if plain not in _CONTEXT_REQUEST_LANGS:
+        return _normalize_language(out, language)
+    from services.number_language import split_by_number_language
+
+    parts = split_by_number_language(out, plain)
+    if len(parts) == 1:
+        return _normalize_language(out, language)
+    return "".join(
+        _normalize_language(piece, language if lang == plain else lang)
+        for piece, lang in parts
+    )
 
 
 def normalization_enabled() -> bool:

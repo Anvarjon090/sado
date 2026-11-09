@@ -206,15 +206,12 @@ _UNCHANGED_CASES = [
     ("Malayalam", "ക്ലാസ്10 ജയിച്ചു"),
     ("Malayalam", "കോടി150"),
     ("Malayalam", "കോഡ് ൦൦൭"),                    # native leading-zero code
-    # Uzbek: case endings fuse with the cardinal ("3-ta" = "uchta"), so a
-    # hyphen followed only by endings keeps its digits; ranges, chains,
-    # codes and thousands groups stay too.
-    ("Uzbek", "3-ta olma, 5-ga, 1990-larda"),
-    ("Uzbek", "3-5 kun"),
-    ("Uzbek", "2024-2025-yillar"),
+    # Uzbek: a plural ending is a decade ("to'qsoninchi yillarda"), not a
+    # fused cardinal, so it keeps its digits; codes, thousands groups and
+    # long IDs stay too. (Fused endings and ranges: tests/test_number_language.py.)
+    ("Uzbek", "1990-larda"),
     ("Uzbek", "kod 007"),
     ("Uzbek", "10.000 so'm"),
-    ("Uzbek", "1234567 raqami"),
     ("English", "Oʻzbekiston"),                   # apostrophe folding is uz-only
     ("ar", "الرمز ٠٠٧"),                         # same class on the num2words path
     # Digit ranges: only the tilde family is a range mark. Everything else that
