@@ -8,8 +8,8 @@
     "hint32": "Mempertahankan presisi penuh. Berkas lebih besar, bukan suara lebih baik.",
     "effort": "Penyempurnaan suara",
     "effortHint": "Lebih banyak tahap perlu waktu lebih lama; suara belum tentu lebih baik.",
-    "mastering": "Ratakan volume",
-    "masteringHint": "Membuat suara lebih seimbang dan konsisten.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "Untuk rekaman berikutnya.",
     "bits16": "PCM 16-bit",
     "bits24": "PCM 24-bit",
@@ -3434,7 +3434,8 @@
     "balance": "Keseimbangan kasar ke halus",
     "denoise": "Bersihkan derau referensi",
     "polish": "Sempurnakan audio yang dihasilkan",
-    "basics": "1× adalah kecepatan normal. Kosongkan durasi untuk irama alami.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Biasanya biarkan nilai bawaan. Panduan mengatur pengaruh instruksi; kontrol lain mengubah cara model membentuk suara. Ubah satu per satu."
   },
   "languagePicker": {

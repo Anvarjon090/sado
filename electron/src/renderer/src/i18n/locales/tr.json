@@ -8,8 +8,8 @@
     "hint32": "Tam hassasiyeti korur. Dosyalar büyür, sesin kendisi iyileşmez.",
     "effort": "Sesi iyileştirme",
     "effortHint": "Daha fazla geçiş daha uzun sürer; ses daha iyi olmayabilir.",
-    "mastering": "Ses düzeyini dengele",
-    "masteringHint": "Sesi daha dengeli ve tutarlı hale getirir.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "Bir sonraki kaydınız için.",
     "bits16": "16 bit PCM",
     "bits24": "24 bit PCM",
@@ -3434,7 +3434,8 @@
     "balance": "Kaba-ince denge",
     "denoise": "Referans gürültüsünü temizle",
     "polish": "Üretilen sesi iyileştir",
-    "basics": "1× normal hızdır. Doğal zamanlama için süreyi boş bırakın.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Genellikle varsayılanları koruyun. Yönlendirme istemin etkisini ayarlar; diğer kontroller modelin sesi oluşturma şeklini değiştirir. Her seferinde birini değiştirin."
   },
   "languagePicker": {

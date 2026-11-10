@@ -8,8 +8,8 @@
     "hint32": "Giữ nguyên độ chính xác tối đa. Tệp lớn hơn, giọng nói không hay hơn.",
     "effort": "Tinh chỉnh giọng nói",
     "effortHint": "Nhiều lượt hơn sẽ mất thêm thời gian; giọng nói có thể không hay hơn.",
-    "mastering": "Cân bằng âm lượng",
-    "masteringHint": "Giúp âm thanh cân bằng và đồng đều hơn.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "Áp dụng cho bản thu tiếp theo.",
     "bits16": "PCM 16 bit",
     "bits24": "PCM 24 bit",
@@ -3434,7 +3434,8 @@
     "balance": "Cân bằng cấu trúc và chi tiết",
     "denoise": "Lọc nhiễu bản tham chiếu",
     "polish": "Trau chuốt âm thanh đã tạo",
-    "basics": "1× là tốc độ bình thường. Để trống thời lượng để có nhịp tự nhiên.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Thường nên giữ giá trị mặc định. Độ dẫn hướng điều chỉnh ảnh hưởng của lời nhắc; các nút khác thay đổi cách mô hình tạo âm thanh. Mỗi lần chỉ đổi một mục."
   },
   "languagePicker": {

@@ -8,8 +8,8 @@
     "hint32": "Mantiene la precisione completa. File più grandi, non una voce migliore.",
     "effort": "Rifinitura della voce",
     "effortHint": "Più passaggi richiedono più tempo; la voce potrebbe non migliorare.",
-    "mastering": "Bilancia il volume",
-    "masteringHint": "Rende il suono più equilibrato e uniforme.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "Per la prossima registrazione.",
     "bits16": "PCM a 16 bit",
     "bits24": "PCM a 24 bit",
@@ -3436,7 +3436,8 @@
     "balance": "Equilibrio tra struttura e dettaglio",
     "denoise": "Rimuovi rumore dal riferimento",
     "polish": "Rifinisci l’audio generato",
-    "basics": "1× è la velocità normale. Lascia vuota la durata per un ritmo naturale.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Di solito vanno bene i valori predefiniti. La guida regola l’influenza del prompt; gli altri controlli cambiano come il modello costruisce il suono. Modificane uno alla volta."
   },
   "languagePicker": {

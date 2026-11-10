@@ -348,7 +348,7 @@ async def _render_archetype_wav(a: dict, out_path: Path, *, allow_model_load: bo
             None,           # position_temperature
             None,           # class_temperature
             seed,           # seed
-            "broadcast",    # effect_preset
+            None,           # effect_preset → the natural default
         )
 
     # Bounded + pool-reset on hang so a wedged preview render can't starve the

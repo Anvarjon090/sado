@@ -5,6 +5,8 @@ import { debounce } from '@tanstack/react-pacer';
 export const CLONE_SETTINGS_STORAGE_KEY = 'sado.clone.settings.v1';
 const PERSIST_DEBOUNCE_MS = 250;
 
+export type EffectPreset = 'natural' | 'broadcast' | 'raw';
+
 export interface CloneSettings {
   text: string;
   /** Display name; 'Auto' is omitted on the wire. */
@@ -13,15 +15,18 @@ export interface CloneSettings {
   instruct: string;
   steps: number;
   wavBits: 16 | 24 | 32;
-  effectPreset: 'broadcast' | 'raw';
+  effectPreset: EffectPreset;
   cfg: number;
   speed: number;
   tShift: number;
   posTemp: number;
   classTemp: number;
   layerPenalty: number;
-  denoise: boolean;
+  /** null = the backend decides per reference: noisy → clean up, clean → keep its acoustics. */
+  denoise: boolean | null;
   postprocess: boolean;
+  /** Sentence pauses relative to the engine's own: 1 = as rendered, 1.6 ≈ a human reader. */
+  pauseScale: number;
   /** '' = auto. */
   duration: string;
   showOverrides: boolean;
@@ -34,17 +39,18 @@ export const DEFAULT_CLONE_SETTINGS: CloneSettings = {
   language: 'Auto',
   refText: '',
   instruct: '',
-  steps: 16, // ~16 avoids ODE destabilisation in the flow-matcher.
+  steps: 32, // the model's own default; 16 measurably flattens dynamics (LRA 1.2 vs 2.0 LU).
   wavBits: 16,
-  effectPreset: 'broadcast',
+  effectPreset: 'natural',
   cfg: 2.0,
   speed: 1.0,
   tShift: 0.1,
   posTemp: 5.0,
   classTemp: 0.0,
   layerPenalty: 5.0,
-  denoise: true,
+  denoise: null,
   postprocess: true,
+  pauseScale: 1.6,
   duration: '',
   showOverrides: false,
   selectedProfileId: null,
@@ -54,7 +60,9 @@ export const DEFAULT_CLONE_SETTINGS: CloneSettings = {
 /** Whether `value` is a valid stored value for the clone setting `key`. */
 export function acceptsCloneSetting(key: keyof CloneSettings, value: unknown): boolean {
   if (key === 'wavBits') return value === 16 || value === 24 || value === 32;
-  if (key === 'effectPreset') return value === 'broadcast' || value === 'raw';
+  if (key === 'effectPreset')
+    return value === 'natural' || value === 'broadcast' || value === 'raw';
+  if (key === 'denoise') return value === null || typeof value === 'boolean';
   if (key === 'selectedProfileId') return value === null || typeof value === 'string';
   const expected = typeof DEFAULT_CLONE_SETTINGS[key];
   if (typeof value !== expected) return false;
@@ -78,6 +86,14 @@ export function parsePersistedCloneSettings(raw: string | null | undefined): Clo
     return { ...DEFAULT_CLONE_SETTINGS };
   }
   const record = parsed as Record<string, unknown>;
+  // Settings saved before the natural output path (no `pauseScale` key yet)
+  // carry the old defaults verbatim: those three fall back to today's
+  // defaults while every deliberate choice (raw, other step counts) is kept.
+  if (!('pauseScale' in record)) {
+    if (record.effectPreset === 'broadcast') delete record.effectPreset;
+    if (record.steps === 16) delete record.steps;
+    if (record.denoise === true) delete record.denoise;
+  }
   const accepted: Partial<CloneSettings> = {};
   for (const key of Object.keys(DEFAULT_CLONE_SETTINGS) as Array<keyof CloneSettings>) {
     if (key in record && acceptsCloneSetting(key, record[key])) {
@@ -141,8 +157,18 @@ export function resetAudioQuality(): void {
 
 /** Restore voice controls without changing next-take quality or the draft. */
 export function resetVoiceControls(): void {
-  const { cfg, speed, tShift, posTemp, classTemp, layerPenalty, denoise, postprocess, duration } =
-    DEFAULT_CLONE_SETTINGS;
+  const {
+    cfg,
+    speed,
+    tShift,
+    posTemp,
+    classTemp,
+    layerPenalty,
+    denoise,
+    postprocess,
+    pauseScale,
+    duration,
+  } = DEFAULT_CLONE_SETTINGS;
   patchCloneSettings({
     cfg,
     speed,
@@ -152,14 +178,25 @@ export function resetVoiceControls(): void {
     layerPenalty,
     denoise,
     postprocess,
+    pauseScale,
     duration,
   });
 }
 
 /** Reset the production overrides (steps, cfg, …, duration) to their defaults. */
 export function resetOverrides(): void {
-  const { steps, cfg, speed, tShift, posTemp, classTemp, layerPenalty, denoise, postprocess } =
-    DEFAULT_CLONE_SETTINGS;
+  const {
+    steps,
+    cfg,
+    speed,
+    tShift,
+    posTemp,
+    classTemp,
+    layerPenalty,
+    denoise,
+    postprocess,
+    pauseScale,
+  } = DEFAULT_CLONE_SETTINGS;
   patchCloneSettings({
     wavBits: DEFAULT_CLONE_SETTINGS.wavBits,
     effectPreset: DEFAULT_CLONE_SETTINGS.effectPreset,
@@ -172,6 +209,7 @@ export function resetOverrides(): void {
     layerPenalty,
     denoise,
     postprocess,
+    pauseScale,
     duration: DEFAULT_CLONE_SETTINGS.duration,
   });
 }

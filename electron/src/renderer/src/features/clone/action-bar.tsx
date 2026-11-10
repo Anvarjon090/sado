@@ -11,6 +11,7 @@ import {
   LayersIcon,
   PlayIcon,
   LoaderCircleIcon,
+  PauseIcon,
   RotateCcwIcon,
   Settings2Icon,
   ShuffleIcon,
@@ -46,7 +47,15 @@ import { QualityControls } from './quality-controls';
 import { CloneDemoAction } from './clone-demo';
 import { useCloneDemo } from '@/hooks/use-clone-demo';
 
-type NumericKey = 'steps' | 'cfg' | 'speed' | 'tShift' | 'posTemp' | 'classTemp' | 'layerPenalty';
+type NumericKey =
+  | 'steps'
+  | 'cfg'
+  | 'speed'
+  | 'pauseScale'
+  | 'tShift'
+  | 'posTemp'
+  | 'classTemp'
+  | 'layerPenalty';
 
 interface SliderSpec {
   key: NumericKey;
@@ -81,6 +90,15 @@ const SLIDERS: SliderSpec[] = [
     icon: GaugeIcon,
     min: 0.5,
     max: 2,
+    step: 0.1,
+    suffix: '×',
+  },
+  {
+    key: 'pauseScale',
+    labelKey: 'voiceControls.pauses',
+    icon: PauseIcon,
+    min: 1,
+    max: 3,
     step: 0.1,
     suffix: '×',
   },
@@ -136,10 +154,7 @@ function SliderRow({ spec, value }: SliderRowProps) {
   return (
     <div className="flex min-w-0 flex-col gap-2 px-1 py-2">
       <div className="flex items-center justify-between gap-2">
-        <span
-          id={labelId}
-          className="inline-flex items-center gap-1.5 text-xs font-medium"
-        >
+        <span id={labelId} className="inline-flex items-center gap-1.5 text-xs font-medium">
           <Icon className="size-3.5 text-muted-foreground" aria-hidden="true" />
           {t(spec.labelKey)}
         </span>
@@ -164,7 +179,7 @@ function SliderRow({ spec, value }: SliderRowProps) {
 }
 
 interface SwitchRowProps {
-  settingKey: 'denoise' | 'postprocess';
+  settingKey: 'postprocess';
   labelKey: string;
   icon: LucideIcon;
   checked: boolean;
@@ -192,6 +207,52 @@ interface OverridesProps {
   settings: CloneSettings;
 }
 
+/** Auto / on / off for the model's reference-cleanup token: auto lets the
+ *  backend measure the reference's noise floor and decide. */
+function DenoiseRow({ value }: { value: boolean | null }) {
+  const { t } = useTranslation();
+  const id = useId();
+  const options: { value: boolean | null; label: string }[] = [
+    { value: null, label: t('clone.auto') },
+    { value: true, label: t('common.yes') },
+    { value: false, label: t('common.no') },
+  ];
+  return (
+    <div className="flex items-center justify-between gap-3 px-1 py-1.5">
+      <span id={id} className="inline-flex items-center gap-1.5 text-xs font-medium">
+        <AudioLinesIcon className="size-3.5 text-muted-foreground" aria-hidden="true" />
+        {t('voiceControls.denoise')}
+      </span>
+      <div
+        role="radiogroup"
+        aria-labelledby={id}
+        className="flex gap-0.5 rounded-md bg-muted/40 p-0.5 ring-1 ring-border/50"
+      >
+        {options.map((option) => {
+          const selected = option.value === value;
+          return (
+            <button
+              key={String(option.value)}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => setCloneSetting('denoise', option.value)}
+              className={cn(
+                'rounded px-2 py-0.5 text-[11px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring',
+                selected
+                  ? 'bg-background text-foreground shadow-sm ring-1 ring-border'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Overrides({ settings }: OverridesProps) {
   const { t } = useTranslation();
   const durationId = useId();
@@ -199,9 +260,11 @@ function Overrides({ settings }: OverridesProps) {
     <div className="flex flex-col">
       <div className="space-y-1 pb-3">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-x-4">
-          {SLIDERS.filter((spec) => spec.key === 'speed').map((spec) => (
-            <SliderRow key={spec.key} spec={spec} value={settings[spec.key]} />
-          ))}
+          {SLIDERS.filter((spec) => spec.key === 'speed' || spec.key === 'pauseScale').map(
+            (spec) => (
+              <SliderRow key={spec.key} spec={spec} value={settings[spec.key]} />
+            ),
+          )}
           <div className="flex min-w-0 flex-col gap-2 px-1 py-2">
             <Label htmlFor={durationId} className="gap-1.5 text-xs font-medium">
               <ClockIcon className="size-3.5 text-muted-foreground" aria-hidden="true" />
@@ -220,12 +283,7 @@ function Overrides({ settings }: OverridesProps) {
         <p className="px-1 text-[11px] text-muted-foreground">{t('voiceControls.basics')}</p>
       </div>
       <div className="border-t border-border/50 py-1.5">
-        <SwitchRow
-          settingKey="denoise"
-          labelKey="voiceControls.denoise"
-          icon={AudioLinesIcon}
-          checked={settings.denoise}
-        />
+        <DenoiseRow value={settings.denoise} />
         <SwitchRow
           settingKey="postprocess"
           labelKey="voiceControls.polish"
@@ -243,7 +301,9 @@ function Overrides({ settings }: OverridesProps) {
         </summary>
         <p className="mt-2 px-1 text-[11px] text-muted-foreground">{t('voiceControls.hint')}</p>
         <div className="mt-1 grid gap-x-4 sm:grid-cols-2">
-          {SLIDERS.filter((spec) => spec.key !== 'speed' && spec.key !== 'steps').map((spec) => (
+          {SLIDERS.filter(
+            (spec) => spec.key !== 'speed' && spec.key !== 'steps' && spec.key !== 'pauseScale',
+          ).map((spec) => (
             <SliderRow key={spec.key} spec={spec} value={settings[spec.key]} />
           ))}
         </div>
@@ -362,14 +422,14 @@ export function ActionBar() {
               blocker === 'cloning'
                 ? 'convert.cloning_required'
                 : blocker === 'engine'
-                ? demo
-                  ? 'demo.prerendered_chip'
-                  : 'engines.none_ready_title'
-                : blocker === 'reference'
-                  ? 'tts_errors.upload_or_select'
-                  : blocker === 'text'
-                    ? 'tts_errors.enter_text'
-                    : 'preferences.loading',
+                  ? demo
+                    ? 'demo.prerendered_chip'
+                    : 'engines.none_ready_title'
+                  : blocker === 'reference'
+                    ? 'tts_errors.upload_or_select'
+                    : blocker === 'text'
+                      ? 'tts_errors.enter_text'
+                      : 'preferences.loading',
             )}
           </span>
           {blocker === 'reference' && (

@@ -8,8 +8,8 @@
     "hint32": "เก็บความละเอียดเต็มที่ ไฟล์ใหญ่ขึ้น แต่ไม่ได้ทำให้เสียงพูดดีขึ้น",
     "effort": "ปรับแต่งเสียงพูด",
     "effortHint": "จำนวนรอบมากขึ้นใช้เวลานานขึ้น และอาจไม่ได้ทำให้เสียงดีขึ้น",
-    "mastering": "ปรับระดับเสียงให้สม่ำเสมอ",
-    "masteringHint": "ช่วยให้เสียงสมดุลและสม่ำเสมอขึ้น",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "สำหรับการบันทึกครั้งถัดไป",
     "bits16": "PCM 16 บิต",
     "bits24": "PCM 24 บิต",
@@ -3434,7 +3434,8 @@
     "balance": "สมดุลโครงสร้างและรายละเอียด",
     "denoise": "ลดเสียงรบกวนจากเสียงอ้างอิง",
     "polish": "ปรับแต่งเสียงที่สร้าง",
-    "basics": "1× คือความเร็วปกติ เว้นระยะเวลาไว้เพื่อใช้จังหวะที่เป็นธรรมชาติ",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "โดยทั่วไปควรใช้ค่าเริ่มต้น การชี้นำปรับอิทธิพลของคำสั่ง ส่วนตัวควบคุมอื่นเปลี่ยนวิธีที่โมเดลสร้างเสียง ให้เปลี่ยนทีละรายการ"
   },
   "languagePicker": {

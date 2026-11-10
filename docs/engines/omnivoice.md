@@ -52,8 +52,12 @@ The env var overrides the persisted UI choice.
   ROCm/HIP devices through its `cuda` API, while Sado's engine matrix
   reports the hardware as ROCm. An installed speech recognizer can supply
   missing reference transcripts for cloning.
-- Output is 24 kHz mono; the shared mastering chain (highpass + compressor)
-  is tuned for this rate and applied automatically.
+- Output is 24 kHz mono. By default Sado only matches its loudness (the
+  `natural` preset, see [audio-quality.md](../audio-quality.md)); the
+  broadcast chain (highpass + compressor + shelf) is an explicit choice.
+- A clean reference (speech-to-floor ratio of 28 dB or more) is cloned without
+  the model's `<|denoise|>` token so its own acoustics carry over; a noisy one
+  gets the token unless the request sets `denoise` itself.
 - Cloning takes a short reference clip (`ref_audio`); 3–10 seconds is the
   sweet spot. A transcript of the clip improves conditioning — if the profile
   has none, Sado uses an already-installed speech recognizer on first

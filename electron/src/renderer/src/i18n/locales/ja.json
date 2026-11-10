@@ -8,8 +8,8 @@
     "hint32": "最大精度を保持します。ファイルは大きくなりますが、声自体は改善されません。",
     "effort": "声の調整回数",
     "effortHint": "回数が多いほど時間がかかりますが、声が良くなるとは限りません。",
-    "mastering": "音量を整える",
-    "masteringHint": "音のバランスと音量を均一にします。",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "次の録音に適用します。",
     "bits16": "16ビットPCM",
     "bits24": "24ビットPCM",
@@ -3434,7 +3434,8 @@
     "balance": "構造と細部のバランス",
     "denoise": "参照音声のノイズ除去",
     "polish": "生成音声の仕上げ",
-    "basics": "1×が通常速度です。自然な長さにするには時間を空欄にします。",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "通常は既定値のままで構いません。ガイダンスはプロンプトの影響を、その他の設定はモデルの音の組み立て方を調整します。一度に一つずつ変更してください。"
   },
   "languagePicker": {

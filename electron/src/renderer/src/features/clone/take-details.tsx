@@ -27,6 +27,7 @@ const NUMERIC_SETTINGS = [
   ['steps', 'clone.steps'],
   ['cfg', 'clone.cfg'],
   ['speed', 'clone.speed'],
+  ['pauseScale', 'voiceControls.pauses'],
   ['tShift', 'clone.tshift'],
   ['posTemp', 'clone.pos_temp'],
   ['classTemp', 'clone.class_temp'],
@@ -142,7 +143,9 @@ export function TakeDetails({ item }: { item: HistoryItem }) {
                 <div key={key} className="min-w-0">
                   <dt className="truncate text-muted-foreground">{t(`clone.${key}`)}</dt>
                   <dd className="mt-0.5 truncate font-medium">
-                    {t(settings[key] ? 'common.yes' : 'common.no')}
+                    {settings[key] === null
+                      ? t('clone.auto')
+                      : t(settings[key] ? 'common.yes' : 'common.no')}
                   </dd>
                 </div>
               ) : null,
@@ -172,10 +175,7 @@ export function TakeDetails({ item }: { item: HistoryItem }) {
       )}
       <div className="flex flex-wrap items-center gap-2">
         {item.audio_path && (
-          <SaveAudioButton
-            url={audioUrl(item.audio_path)}
-            suggestedName={`sado-${item.id}.wav`}
-          />
+          <SaveAudioButton url={audioUrl(item.audio_path)} suggestedName={`sado-${item.id}.wav`} />
         )}
         <Button variant="outline" disabled={isGenerating} onClick={() => void reuse()}>
           {t('clone.history_reuse')}

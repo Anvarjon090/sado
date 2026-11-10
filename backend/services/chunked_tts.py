@@ -130,6 +130,35 @@ def split_paragraphs(text: str) -> List[str]:
     return [p.strip() for p in _PARAGRAPH_BREAK.split(text or "") if p and p.strip()]
 
 
+#: Silence stitched between paragraphs. A reader takes a longer breath at a
+#: paragraph than at a full stop; the engine sees whitespace and takes none.
+PARAGRAPH_PAUSE_MS = 650
+
+
+def paragraph_segments(text: str, pause_ms: int = PARAGRAPH_PAUSE_MS) -> List[tuple]:
+    """``[(paragraph, pause_ms_after), ...]`` in the shape ``parse_pause_markers``
+    returns, so paragraph breaks ride the same span stitcher as ``[pause]``
+    markers. A text without a blank line is one span with no pause."""
+    paragraphs = split_paragraphs(text)
+    if len(paragraphs) < 2:
+        return [((text or "").strip(), 0)]
+    last = len(paragraphs) - 1
+    return [(p, pause_ms if i < last else 0) for i, p in enumerate(paragraphs)]
+
+
+def text_segments(text: str) -> tuple:
+    """``(segments, stitched)``: explicit ``[pause]`` markers win; otherwise
+    paragraph breaks; otherwise one span. ``stitched`` says whether the caller
+    must render span by span and insert silence."""
+    from omnivoice.utils.text import parse_pause_markers
+
+    segments = parse_pause_markers(text)
+    if len(segments) > 1 or (segments and segments[0][1] > 0):
+        return segments, True
+    segments = paragraph_segments(text)
+    return segments, len(segments) > 1
+
+
 def split_text_into_chunks(text: str, max_chars: int = DEFAULT_MAX_CHUNK_CHARS) -> List[str]:
     """Split *text* at natural boundaries into chunks of at most *max_chars*.
 

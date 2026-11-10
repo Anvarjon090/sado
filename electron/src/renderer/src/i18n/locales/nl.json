@@ -8,8 +8,8 @@
     "hint32": "Behoudt de volledige precisie. Grotere bestanden, geen betere stem.",
     "effort": "Stem verfijnen",
     "effortHint": "Meer rondes duren langer; de stem klinkt niet altijd beter.",
-    "mastering": "Volume gelijkmaken",
-    "masteringHint": "Maakt het geluid evenwichtiger en gelijkmatiger.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "Voor je volgende opname.",
     "bits16": "16-bits PCM",
     "bits24": "24-bits PCM",
@@ -3434,7 +3434,8 @@
     "balance": "Balans tussen grof en fijn",
     "denoise": "Ruis uit referentie verwijderen",
     "polish": "Gegenereerde audio verfijnen",
-    "basics": "1× is normale snelheid. Laat de duur leeg voor een natuurlijk ritme.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Gebruik doorgaans de standaardwaarden. Sturing bepaalt de invloed van de instructie; de andere instellingen veranderen hoe het model geluid opbouwt. Wijzig één instelling tegelijk."
   },
   "languagePicker": {

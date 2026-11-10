@@ -8,8 +8,8 @@
     "hint32": "To'liq aniqlikni saqlaydi. Fayllar kattaroq, lekin ovoz yaxshilanmaydi.",
     "effort": "Ovozni sayqallash",
     "effortHint": "Ko'proq o'tish uzoqroq davom etadi; ovoz yaxshilanmasligi mumkin.",
-    "mastering": "Ovoz balandligini tekislash",
-    "masteringHint": "Tovushni muvozanatli va bir xil qiladi.",
+    "mastering": "Efir siqishi",
+    "masteringHint": "Radio uslubidagi siqish va yorqinlik. O'chiq bo'lsa ovozning o'z dinamikasi saqlanadi (−18 LUFS).",
     "nextTake": "Keyingi yozuvingiz uchun.",
     "bits16": "16-bit PCM",
     "bits24": "24-bit PCM",
@@ -3434,7 +3434,8 @@
     "balance": "Qo'poldan nozikka muvozanati",
     "denoise": "Namuna shovqinini tozalash",
     "polish": "Yaratilgan audioni sayqallash",
-    "basics": "1× — oddiy tezlik. Tabiiy vaqt uchun davomiylikni bo'sh qoldiring.",
+    "pauses": "Pauzalar",
+    "basics": "1× — oddiy tezlik. Pauzalar 1,6× — jonli o'quvchi kabi nafas. Tabiiy vaqt uchun davomiylikni bo'sh qoldiring.",
     "hint": "Odatda bularni standart holida qoldiring. Ta'sir so'rovning ta'sirini sozlaydi; boshqa boshqaruvlar model tovushni qanday qurishini o'zgartiradi. Bir vaqtda bittasini o'zgartiring."
   },
   "languagePicker": {

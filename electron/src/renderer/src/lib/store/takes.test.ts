@@ -63,6 +63,7 @@ describe('take metadata', () => {
       layerPenalty: 1,
       denoise: false,
       postprocess: false,
+      pauseScale: 1.2,
       duration: '12',
       showOverrides: true,
       selectedProfileId: 'ignored',

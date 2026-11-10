@@ -88,7 +88,12 @@ describe('toGenerateForm', () => {
   it('keeps existing defaults and sends explicit quality choices', () => {
     const defaults = toGenerateForm(BASE_INPUT);
     expect(defaults.get('wav_bits')).toBe('16');
-    expect(defaults.get('effect_preset')).toBe('broadcast');
+    expect(defaults.get('effect_preset')).toBe('natural');
+    expect(defaults.get('denoise')).toBe('true');
+    expect(defaults.get('pause_scale')).toBeNull();
+    const auto = toGenerateForm({ ...BASE_INPUT, denoise: null, pauseScale: 1.6 });
+    expect(auto.get('denoise')).toBeNull(); // the backend decides from the reference
+    expect(auto.get('pause_scale')).toBe('1.6');
     const chosen = toGenerateForm({ ...BASE_INPUT, wavBits: 32, effectPreset: 'raw', steps: 32 });
     expect(chosen.get('wav_bits')).toBe('32');
     expect(chosen.get('effect_preset')).toBe('raw');
@@ -347,7 +352,10 @@ describe('generateClone', () => {
       budget.queueWait +
       7_200 +
       budget.sidecarGrace +
-      Math.max(budget.progressExtensionCap, budget.progressExtensionBudgets * (7_200 + budget.sidecarGrace));
+      Math.max(
+        budget.progressExtensionCap,
+        budget.progressExtensionBudgets * (7_200 + budget.sidecarGrace),
+      );
     expect(withCeiling).toBeGreaterThan(backendMaxS * 1000);
     expect(withCeiling).toBeGreaterThan(generateAbortMs(20));
     expect(generateAbortMs(20, { cpuAutoCeiling: Number.NaN })).toBe(generateAbortMs(20));

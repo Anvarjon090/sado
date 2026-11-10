@@ -8,8 +8,8 @@
     "hint32": "Behåller full precision. Större filer, inte bättre röst.",
     "effort": "Röstförfining",
     "effortHint": "Fler omgångar tar längre tid; rösten blir inte alltid bättre.",
-    "mastering": "Jämna ut volymen",
-    "masteringHint": "Gör ljudet mer balanserat och jämnt.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "För din nästa inspelning.",
     "bits16": "16-bitars PCM",
     "bits24": "24-bitars PCM",
@@ -3434,7 +3434,8 @@
     "balance": "Balans mellan grovt och fint",
     "denoise": "Ta bort brus från referensen",
     "polish": "Förfina genererat ljud",
-    "basics": "1× är normal hastighet. Lämna längden tom för naturlig timing.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Behåll vanligtvis standardvärdena. Vägledning styr instruktionens påverkan; övriga reglage ändrar hur modellen bygger ljudet. Ändra ett i taget."
   },
   "languagePicker": {

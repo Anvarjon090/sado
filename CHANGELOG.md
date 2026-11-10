@@ -13,6 +13,7 @@ metadata and the backend fallback mirror it.
 - Uzbek voice engine: Navoiy-TTS with ten emotion presets
 - Redesigned studio look: graphite and turquoise, Onest type, light and dark
 - A Home that starts with your script, and a sidebar that lists each place once
+- Natural voice output: no hidden compression, pauses like a reader, clean references kept clean
 
 ### Added
 
@@ -21,6 +22,8 @@ metadata and the backend fallback mirror it.
 - Uzbek number reading covers phone numbers, card numbers (read in pairs), bank account and ID numbers (read in blocks of four), bare numbers up to 36 digits (read with their scale names), dates, clock times, prices, temperatures, fractions, ranges, "3-ta" counts and Roman-numbered centuries; Russian adds times, percents and ordinals
 - The Voices page can offer a downloadable starter voice pack from the Sado gallery (hidden until the pack holds human-recorded voices); nothing is fetched until you click
 - `scripts/voice_intake.py` checks a human reference recording against the voice acceptance rules (length, sample rate, clipping, pauses, noise, loudness, transcript match), masters it and can install it as a voice with a test sentence to listen to
+- Pause control: `pause_scale` lengthens the engine's own sentence pauses with their room tone (Voice controls → Pauses, 1.6× in the app, 1× through the API), and a blank line between paragraphs becomes a 650 ms breath
+- `scripts/voice_bench.py` renders a fixed Uzbek benchmark (short lines, questions, numbers and dates, mixed language, narration, hard phonemes) for any voice, measures loudness range, pauses, melody and spectrum, checks it with the local STT and diffs against a baseline run
 
 ### Changed
 
@@ -35,6 +38,9 @@ metadata and the backend fallback mirror it.
 - The sponsor footer (Become a Sponsor, social links) is removed from workspaces
 - Fresh installs follow the system light/dark setting, and the glass background effect is off by default
 - Voice avatars take initials from letters only (no more "A(")
+- Generated speech keeps its natural dynamics: the default output preset is `natural` — a BS.1770 loudness match to −18 LUFS and nothing else — in Clone, Design, streaming and the API; the radio-style `broadcast` chain (two compressors, high shelf, limiter) is now the explicit **Broadcast compression** switch
+- Reference cleanup (`denoise`) is decided per reference: a clean recording keeps its room and microphone, a noisy one is cleaned; Voice controls offers Auto / Yes / No
+- Sampling steps default to 32, the model's own default, instead of 16
 
 ### Fixed
 

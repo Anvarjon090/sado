@@ -1,8 +1,9 @@
 # Audio quality in Clone and Design
 
 The **Audio quality** controls apply to the next generated take. Existing files
-stay unchanged. Normal defaults remain 16-bit WAV, 16 sampling steps and
-broadcast mastering; model-specific limits still apply.
+stay unchanged. Normal defaults are 16-bit WAV, 32 sampling steps (the model's
+own default) and the **natural** output path — a loudness match and nothing
+else; model-specific limits still apply.
 
 The compact slider sits below the script in Clone and Design. **More options**
 reveals voice refinement (sampling steps), volume balancing and format guidance.
@@ -10,8 +11,9 @@ The three plain-language choices are **Standard**, **For editing**, and
 **Original**; the collapsed details explain the WAV formats. Size estimates use
 decimal MB per minute from the active engine’s output metadata. For unknown
 model formats, the UI shows the actual size after generation instead of guessing. **Voice controls** exposes
-speed, duration and cleanup; technical model controls are collapsed under
-**Advanced model tuning** with plain-language names and guidance.
+speed, pauses, duration and reference cleanup (Auto / Yes / No); technical
+model controls are collapsed under **Advanced model tuning** with plain-language
+names and guidance.
 
 Both popover headers have a **Reset to defaults** icon. Audio quality resets
 WAV precision, sampling steps and mastering; Voice controls resets speed,
@@ -45,10 +47,54 @@ only for adapters that forward this setting:
 | Supertonic-3 | 5–12 steps, matching its adapter limits | 16/24/32-bit WAV |
 | Other TTS engines | Engine manages sampling; no ineffective slider | 16/24/32-bit WAV |
 
-**Even out volume** adds the existing processing chain. Turning it off skips
-the app's added EQ, compression and normalization; engine postprocessing and
-the existing provenance watermark setting remain in effect. An engine that
-performs its own mastering continues to skip the app's mastering pre-stage.
+**Broadcast compression** adds the radio-style chain (two compressors, a +2 dB
+high shelf, a limiter and a −2 dBFS peak normalization). It is **off by
+default**: the natural path keeps the voice's own dynamics, tone and silence
+floor and only matches integrated loudness to −18 LUFS under a −1.5 dBTP
+ceiling (`backend/services/loudness_meter.py`, ITU-R BS.1770-4; the gain stops
+at the ceiling instead of limiting). The `raw` API preset skips even that.
+Engine postprocessing and the provenance watermark setting remain in effect
+either way. An engine that performs its own mastering skips the coloured
+presets' pre-stage; the natural path has none to skip.
+
+## Natural output, pauses and reference cleanup
+
+The broadcast chain used to be the silent default on every take. Measured on
+a cloned Uzbek voice against its human reference (`scripts/voice_bench.py`),
+it cut the loudness range from 2.9 to 1.2 LU, the crest factor from 17.5 to
+15 dB and pushed the 95 % spectral roll-off from 1.7 kHz to 6.3 kHz — a
+compressed, brightened result that listeners hear as synthetic. The raw model
+output sat within 0.5 kHz and 2 dB of the human recording on the same
+measures, so the fix was to stop processing, not to process better.
+
+Three controls follow from the same measurements:
+
+- **Pauses** (`pause_scale`, Voice controls → Pauses). OmniVoice leaves about
+  0.17 s between sentences; the human readers it was compared with left about
+  0.38 s. The control lengthens each pause the engine already produced by the
+  factor, filling with that pause's own room tone and never past 0.9 s. It
+  adds nothing where the engine put no pause and never shortens one. The app
+  defaults to 1.6×; the API defaults to 1× so scripted callers keep their
+  timing. A blank line between paragraphs becomes a 650 ms breath in every
+  path (`[pause Nms]` markers still win when present).
+- **Reference cleanup** (`denoise`, Voice controls → Clean reference noise).
+  The model's `<|denoise|>` token asks for clean speech regardless of the
+  reference's acoustics. On a clean recording that discards the room and
+  microphone a listener hears as a real person; on a phone clip it is the
+  right call. **Auto** (the default) measures the reference's speech-to-floor
+  ratio once per file and uses the token only under 28 dB; Yes and No force it.
+- **Sampling steps** default to 32: at 16 the same take measured 1.2 LU of
+  loudness range against 2.0–2.2 LU at 32–64.
+
+`scripts/voice_bench.py` renders a fixed Uzbek set — short lines, a long
+paragraph, questions, joy and sorrow, numbers and dates, a mixed Uzbek /
+English / Russian line, two-paragraph narration and the hard phonemes
+(oʻ, gʻ, q, x, h, sh, ch, ng) — for any voice and setting, measures each take
+(LUFS, loudness range, crest, pauses, F0 spread, spectral tilt), checks it
+with the local Uzbek STT and, with `--baseline`, prints the deltas against an
+earlier run. The numbers are proxies; the report ends with the files to listen
+to. Dubbing keeps its own per-segment preset (broadcast unless a segment says
+otherwise) because its loudness is set against the programme mix.
 
 The final playback response uses the saved WAV itself. Streaming previews still
 use PCM16; their completed take uses the selected precision. Updated remote

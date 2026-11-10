@@ -8,8 +8,8 @@
     "hint32": "保留完整精度。檔案更大，但不會改善聲音本身。",
     "effort": "聲音細化",
     "effortHint": "處理次數越多，耗時越長；聲音不一定更好。",
-    "mastering": "平衡音量",
-    "masteringHint": "讓聲音更均衡、音量更一致。",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "用於下一次錄音。",
     "bits16": "16 位元 PCM",
     "bits24": "24 位元 PCM",
@@ -3434,7 +3434,8 @@
     "balance": "結構與細節平衡",
     "denoise": "清除參考音訊雜訊",
     "polish": "潤飾生成音訊",
-    "basics": "1× 為正常語速。時長留空可使用自然節奏。",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "通常建議保留預設值。引導強度控制提示詞的影響，其他選項改變模型建構聲音的方式。每次只調整一項。"
   },
   "languagePicker": {

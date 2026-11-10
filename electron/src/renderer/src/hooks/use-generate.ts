@@ -343,6 +343,7 @@ function useGenerateController(): UseGenerateClone {
           layerPenalty: settings.layerPenalty,
           denoise: settings.denoise,
           postprocess: settings.postprocess,
+          pauseScale: settings.pauseScale,
           duration: settings.duration,
         };
         const result = await generateClone(input, {

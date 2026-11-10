@@ -26,8 +26,23 @@ describe('parsePersistedCloneSettings', () => {
     });
     expect(parsePersistedCloneSettings('{"wavBits":64,"effectPreset":"unknown"}')).toMatchObject({
       wavBits: 16,
-      effectPreset: 'broadcast',
+      effectPreset: 'natural',
     });
+  });
+  it('moves settings saved under the old defaults to the natural output path', async () => {
+    const { parsePersistedCloneSettings } = await loadModule();
+    // Before pauseScale existed every store carried broadcast / 16 / true by default.
+    expect(
+      parsePersistedCloneSettings('{"effectPreset":"broadcast","steps":16,"denoise":true}'),
+    ).toMatchObject({ effectPreset: 'natural', steps: 32, denoise: null, pauseScale: 1.6 });
+    // Deliberate choices survive the migration …
+    expect(
+      parsePersistedCloneSettings('{"effectPreset":"raw","steps":24,"denoise":false}'),
+    ).toMatchObject({ effectPreset: 'raw', steps: 24, denoise: false });
+    // … and a store written by this version keeps broadcast when it was chosen.
+    expect(
+      parsePersistedCloneSettings('{"effectPreset":"broadcast","steps":16,"pauseScale":1}'),
+    ).toMatchObject({ effectPreset: 'broadcast', steps: 16, pauseScale: 1 });
   });
   it('returns defaults for null, malformed JSON and non-objects', async () => {
     const { parsePersistedCloneSettings, DEFAULT_CLONE_SETTINGS } = await loadModule();
@@ -66,7 +81,7 @@ describe('cloneSettingsStore persistence', () => {
     const { cloneSettingsStore } = await loadModule();
     expect(cloneSettingsStore.state.language).toBe('French');
     expect(cloneSettingsStore.state.showOverrides).toBe(true);
-    expect(cloneSettingsStore.state.steps).toBe(16);
+    expect(cloneSettingsStore.state.steps).toBe(32); // the current default, not the legacy 16
   });
 
   it('survives malformed stored JSON', async () => {
@@ -94,17 +109,36 @@ describe('cloneSettingsStore persistence', () => {
     expect(cloneSettingsStore.state.text).toBe('keep me');
     expect(cloneSettingsStore.state.steps).toBe(DEFAULT_CLONE_SETTINGS.steps);
     expect(cloneSettingsStore.state.duration).toBe('');
-    expect(cloneSettingsStore.state.denoise).toBe(true);
+    expect(cloneSettingsStore.state.denoise).toBe(DEFAULT_CLONE_SETTINGS.denoise); // auto
   });
 
   it('resets voice controls without changing audio quality or the draft', async () => {
     const { cloneSettingsStore, patchCloneSettings, resetVoiceControls, DEFAULT_CLONE_SETTINGS } =
       await loadModule();
-    const preserved = { text: 'Keep script', refText: 'Keep transcript', instruct: 'Keep style',
-      language: 'French', selectedProfileId: 'voice-123', showOverrides: true, autoPlay: true,
-      wavBits: 32 as const, effectPreset: 'raw' as const, steps: 64 };
-    patchCloneSettings({ ...preserved, cfg: 4, speed: 1.5, tShift: 0.9, posTemp: 1,
-      classTemp: 2, layerPenalty: 1, duration: '5', denoise: false, postprocess: false });
+    const preserved = {
+      text: 'Keep script',
+      refText: 'Keep transcript',
+      instruct: 'Keep style',
+      language: 'French',
+      selectedProfileId: 'voice-123',
+      showOverrides: true,
+      autoPlay: true,
+      wavBits: 32 as const,
+      effectPreset: 'raw' as const,
+      steps: 64,
+    };
+    patchCloneSettings({
+      ...preserved,
+      cfg: 4,
+      speed: 1.5,
+      tShift: 0.9,
+      posTemp: 1,
+      classTemp: 2,
+      layerPenalty: 1,
+      duration: '5',
+      denoise: false,
+      postprocess: false,
+    });
     resetVoiceControls();
     expect(cloneSettingsStore.state).toEqual({ ...DEFAULT_CLONE_SETTINGS, ...preserved });
     await vi.advanceTimersByTimeAsync(300);

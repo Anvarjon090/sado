@@ -3,7 +3,11 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { QualityControls } from './quality-controls';
 import { cloneSettingsStore, DEFAULT_CLONE_SETTINGS } from '@/lib/store/clone-settings';
 
-const engine = vi.hoisted(() => ({ id: 'omnivoice', output_sample_rate: 24000 as number | null, output_channels: 1 as number | null }));
+const engine = vi.hoisted(() => ({
+  id: 'omnivoice',
+  output_sample_rate: 24000 as number | null,
+  output_channels: 1 as number | null,
+}));
 vi.mock('@/hooks/use-engines', () => ({ useEngines: () => ({ activeTts: engine }) }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -35,12 +39,20 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const open = () =>
-  fireEvent.click(screen.getByRole('button', { name: /^cloneQuality\.title: / }));
+const open = () => fireEvent.click(screen.getByRole('button', { name: /^cloneQuality\.title: / }));
 
 it('resets only audio quality from its header icon', () => {
-  const before = { ...DEFAULT_CLONE_SETTINGS, wavBits: 32 as const, effectPreset: 'raw' as const,
-    steps: 64, speed: 1.5, duration: '3', denoise: false, text: 'Keep this', language: 'French' };
+  const before = {
+    ...DEFAULT_CLONE_SETTINGS,
+    wavBits: 32 as const,
+    effectPreset: 'raw' as const,
+    steps: 64,
+    speed: 1.5,
+    duration: '3',
+    denoise: false,
+    text: 'Keep this',
+    language: 'French',
+  };
   cloneSettingsStore.setState(() => before);
   render(<QualityControls />);
   open();
@@ -48,11 +60,16 @@ it('resets only audio quality from its header icon', () => {
   expect(reset.textContent).toBe('');
   expect(reset.querySelector('svg')).not.toBeNull();
   fireEvent.click(reset);
-  expect(cloneSettingsStore.state).toEqual({ ...before,
+  expect(cloneSettingsStore.state).toEqual({
+    ...before,
     wavBits: DEFAULT_CLONE_SETTINGS.wavBits,
     steps: DEFAULT_CLONE_SETTINGS.steps,
-    effectPreset: DEFAULT_CLONE_SETTINGS.effectPreset });
-  expect(screen.getByRole('radio', { name: /cloneQuality\.preset16/ })).toHaveAttribute('aria-checked', 'true');
+    effectPreset: DEFAULT_CLONE_SETTINGS.effectPreset,
+  });
+  expect(screen.getByRole('radio', { name: /cloneQuality\.preset16/ })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  );
 });
 
 it('disables audio-quality reset while generating', () => {
@@ -67,7 +84,9 @@ it('disables audio-quality reset while generating', () => {
 
 it('shows the current preset on the composer pill and keeps tuning closed until opened', () => {
   render(<QualityControls />);
-  expect(screen.getByRole('button', { name: 'cloneQuality.title: cloneQuality.preset16' })).toBeVisible();
+  expect(
+    screen.getByRole('button', { name: 'cloneQuality.title: cloneQuality.preset16' }),
+  ).toBeVisible();
   expect(screen.queryByRole('radiogroup')).toBeNull();
   expect(screen.queryByRole('switch')).toBeNull();
   open();
@@ -90,16 +109,19 @@ it('changes export precision with the keyboard, updates size and keeps sampling 
   expect(screen.getByText('cloneQuality.size: 5.8')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('radio', { name: /cloneQuality\.preset16/ }));
   expect(cloneSettingsStore.state.wavBits).toBe(16);
-  expect(cloneSettingsStore.state.steps).toBe(16);
+  expect(cloneSettingsStore.state.steps).toBe(32);
   await act(async () => {
     fireEvent.keyDown(screen.getByRole('slider', { name: 'cloneQuality.effort' }), {
       key: 'ArrowRight',
     });
   });
-  expect(cloneSettingsStore.state.steps).toBe(17);
+  expect(cloneSettingsStore.state.steps).toBe(33);
   expect(cloneSettingsStore.state.wavBits).toBe(16);
+  // Off is the natural preset (loudness match only); on is broadcast compression.
   fireEvent.click(screen.getByRole('switch', { name: 'cloneQuality.mastering' }));
-  expect(cloneSettingsStore.state.effectPreset).toBe('raw');
+  expect(cloneSettingsStore.state.effectPreset).toBe('broadcast');
+  fireEvent.click(screen.getByRole('switch', { name: 'cloneQuality.mastering' }));
+  expect(cloneSettingsStore.state.effectPreset).toBe('natural');
 });
 
 it('hides unsupported sampling controls and disables quality changes while generating', () => {

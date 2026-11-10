@@ -1,24 +1,56 @@
 """
-Audio DSP pipeline — broadcast-grade mastering + configurable effects chain.
+Audio DSP pipeline — output presets, pause shaping and the optional effects chain.
 
-`apply_mastering()` is the shared pre-stage that runs before the user's
-effect preset: highpass + gentle compression only (see `MASTERING_CHAIN`).
-Reverb is deliberately NOT part of it — it is preset-declared only (e.g.
-cinematic, warm); a hidden reverb here used to bake echo into every non-raw
-synthesis, which field reports flagged. `apply_effects_chain()` lets callers
-build custom pipelines from a list of named effects.
+`finalize_output()` is the one tail every synthesis goes through. The default
+preset, **natural**, is a measurement and a gain: BS.1770 integrated loudness
+matched to −18 LUFS under a −1.5 dBTP ceiling, nothing else — the voice keeps
+the dynamics, tone and silence floor the model gave it. That default exists
+because the old one did not: the **broadcast** preset (two compressors, a
++2 dB high shelf, a limiter and a −2 dBFS peak normalization) measurably
+flattened a cloned Uzbek voice — loudness range 2.9 → 1.2 LU, crest 17.5 →
+15 dB, 95 % spectral roll-off 1.7 → 6.3 kHz against the human reference —
+and that compressed, brightened result is what listeners hear as "AI".
+Broadcast and the other coloured presets stay available as explicit choices.
 
-All effects use Spotify's `pedalboard` library. When pedalboard isn't
-installed, every function degrades gracefully (returns audio unmodified).
+`apply_mastering()` is the shared pre-stage of those coloured presets:
+highpass + gentle compression only (see `MASTERING_CHAIN`). Reverb is
+deliberately NOT part of it — it is preset-declared only (cinematic, warm); a
+hidden reverb here used to bake echo into every synthesis. `apply_effects_chain()`
+lets callers build custom pipelines from a list of named effects.
+
+`shape_pauses()` lengthens the pauses the engine already placed — OmniVoice
+leaves ~0.17 s between sentences where the human readers it was compared
+with left ~0.38 s — by extending each gap with its own room tone. It never
+adds pauses, noise or randomness.
+
+The coloured effects use Spotify's `pedalboard` library. When pedalboard isn't
+installed, those functions degrade gracefully (return audio unmodified); the
+natural preset has no such dependency.
 """
 import logging
+
+import numpy as np
 import torch
 
 logger = logging.getLogger("omnivoice.dsp")
 
+#: Preset every synthesis gets unless the request names another.
+DEFAULT_EFFECT_PRESET = "natural"
+#: Where the natural preset puts integrated loudness, and the true-peak ceiling
+#: the gain stops at. −18 LUFS sits between podcast (−16) and broadcast (−23)
+#: practice and leaves a cloned voice with a 20 dB crest factor unclipped.
+NATURAL_TARGET_LUFS = -18.0
+NATURAL_CEILING_DBTP = -1.5
+
 # ── Effect presets ──────────────────────────────────────────────────────
 
 EFFECT_PRESETS = {
+    "natural": {
+        "label": "Natural",
+        "icon": "🎚️",
+        "description": "Level only — the voice's own dynamics and tone, matched to −18 LUFS.",
+        "chain": [],
+    },
     "broadcast": {
         "label": "Broadcast",
         "icon": "📻",
@@ -237,7 +269,6 @@ def apply_effects_chain(audio_tensor, sample_rate: int, chain: list[dict]) -> to
             HighShelfFilter,
             PeakFilter,
         )
-        import numpy as np
     except ImportError:
         logger.debug("pedalboard not installed — effects chain skipped")
         return audio_tensor
@@ -299,3 +330,161 @@ def apply_effects_chain(audio_tensor, sample_rate: int, chain: list[dict]) -> to
         logger.warning("Effects chain failed: %s — returning unmodified audio", e)
         return audio_tensor
 
+
+
+# ── Output finalization: natural loudness, pause shaping, preset dispatch ──
+
+
+def loudness_normalize(
+    audio_tensor: torch.Tensor,
+    sample_rate: int,
+    target_lufs: float = NATURAL_TARGET_LUFS,
+    ceiling_dbtp: float = NATURAL_CEILING_DBTP,
+) -> torch.Tensor:
+    """Gain-only BS.1770 loudness match — the whole of the ``natural`` preset.
+
+    The waveform is multiplied by one constant: integrated loudness lands on
+    ``target_lufs`` unless the true peak would pass ``ceiling_dbtp``, where the
+    gain stops instead of limiting. Silence (nothing above the −70 LUFS gate)
+    comes back untouched, never amplified into hiss. Shape, dtype and device
+    are preserved.
+    """
+    if audio_tensor.numel() == 0:
+        return audio_tensor
+    from services.loudness_meter import normalize_gain
+
+    arr = audio_tensor.detach().cpu().float().numpy()
+    out, info = normalize_gain(arr, sample_rate, target_lufs=target_lufs, ceiling_dbtp=ceiling_dbtp)
+    if info.gain_db == 0.0:
+        return audio_tensor
+    return torch.from_numpy(out).to(device=audio_tensor.device, dtype=audio_tensor.dtype)
+
+
+#: Internal gaps shorter than this are articulation, not pauses.
+PAUSE_MIN_MS = 150
+#: No pause is stretched past this, whatever the scale.
+PAUSE_MAX_MS = 900
+_PAUSE_JOIN_S = 0.005
+
+
+def _room_tone(gap: np.ndarray, n_samples: int) -> np.ndarray:
+    """``n_samples`` of the gap's own ambience: its middle 60 % mirrored end to
+    end, so the fill has the floor the model produced and no seam."""
+    length = gap.shape[1]
+    lo, hi = int(length * 0.2), max(int(length * 0.8), int(length * 0.2) + 1)
+    core = gap[:, lo:hi]
+    tile = np.concatenate([core, core[:, ::-1]], axis=1)
+    reps = n_samples // tile.shape[1] + 1
+    return np.tile(tile, (1, reps))[:, :n_samples]
+
+
+def shape_pauses(
+    audio_tensor: torch.Tensor,
+    sample_rate: int,
+    scale: float = 1.0,
+    *,
+    min_pause_ms: int = PAUSE_MIN_MS,
+    max_pause_ms: int = PAUSE_MAX_MS,
+) -> torch.Tensor:
+    """Lengthen the pauses the engine already left, each by ``scale``.
+
+    Every internal gap of at least ``min_pause_ms`` grows to
+    ``min(gap × scale, max_pause_ms)``; the extension is the gap's own room
+    tone (see :func:`_room_tone`), spliced in at the gap's centre with 5 ms
+    crossfades. Gaps that are mostly exact digital silence are the ``[pause]``
+    buffers and paragraph gaps a caller inserted on purpose (or an engine's
+    zero padding at a chunk boundary) and are left alone. Nothing is
+    added where the engine put no pause, no gap is shortened, and ``scale <= 1``
+    returns the input itself. Accepts ``(n,)`` or ``(channels, n)``.
+    """
+    if scale <= 1.0 or audio_tensor.numel() == 0:
+        return audio_tensor
+    from services.speech_metrics import frame_levels, runs, speech_mask
+
+    arr = audio_tensor.detach().cpu().float().numpy()
+    flat = arr.ndim == 1
+    x = arr[None, :] if flat else arr
+    mono = x.mean(axis=0)
+    levels, hop = frame_levels(mono, sample_rate)
+    active = speech_mask(levels)
+    idx = np.where(active)[0]
+    if idx.size < 2:
+        return audio_tensor
+    first, last = int(idx[0]), int(idx[-1])
+    xf = int(_PAUSE_JOIN_S * sample_rate)
+    pieces = []
+    cursor = 0
+    for a, b in runs(~active[first:last + 1]):
+        start, end = (a + first) * hop, min((b + first) * hop, x.shape[1])
+        gap_s = (end - start) / sample_rate
+        if gap_s * 1000.0 < min_pause_ms:
+            continue
+        gap = x[:, start:end]
+        if np.mean(gap == 0) > 0.5:
+            # Mostly exact zeros: a [pause]/paragraph buffer or an engine's
+            # edge padding at a chunk boundary, not a pause the model spoke.
+            continue
+        extra = int(round((min(max_pause_ms / 1000.0, gap_s * scale) - gap_s) * sample_rate))
+        if extra < xf * 2:
+            continue
+        mid = (start + end) // 2
+        fill = _room_tone(gap, extra + 2 * xf)
+        ramp = np.linspace(0.0, 1.0, xf, dtype=np.float32)[None, :] if xf else None
+        head, tail = x[:, cursor:mid], x[:, mid:]
+        if ramp is not None and head.shape[1] >= xf and tail.shape[1] >= xf:
+            fill = fill.copy()
+            fill[:, :xf] = head[:, -xf:] * (1 - ramp) + fill[:, :xf] * ramp
+            fill[:, -xf:] = fill[:, -xf:] * (1 - ramp) + tail[:, :xf] * ramp
+            pieces.extend([head[:, :-xf], fill])
+            cursor = mid + xf
+        else:
+            pieces.extend([head, fill[:, xf:-xf] if xf else fill])
+            cursor = mid
+    if not pieces:
+        return audio_tensor
+    pieces.append(x[:, cursor:])
+    out = np.concatenate(pieces, axis=1)
+    if flat:
+        out = out[0]
+    return torch.from_numpy(np.ascontiguousarray(out)).to(
+        device=audio_tensor.device, dtype=audio_tensor.dtype
+    )
+
+
+def finalize_output(
+    audio_tensor: torch.Tensor,
+    sample_rate: int,
+    preset: str = DEFAULT_EFFECT_PRESET,
+    *,
+    skip_mastering: bool = False,
+    pause_scale: float = 1.0,
+) -> torch.Tensor:
+    """The one tail every synthesis runs: pause shaping, then the preset.
+
+    * ``raw`` — the engine's output as it came, pauses included.
+    * ``natural`` (default) — :func:`shape_pauses` then
+      :func:`loudness_normalize`; no compression, EQ or limiting.
+    * any coloured preset — :func:`shape_pauses`, the mastering pre-stage
+      (unless ``skip_mastering``, for engines that master their own output),
+      the preset's chain, then a −2 dBFS peak normalization.
+
+    Raises ``ValueError`` for an unknown preset id so a typo is a 4xx, not
+    silently "natural".
+    """
+    preset = preset or DEFAULT_EFFECT_PRESET
+    if preset not in EFFECT_PRESETS:
+        raise ValueError(
+            f"Unknown effect preset: {preset!r}. Valid: {list(EFFECT_PRESETS.keys())}"
+        )
+    if preset == "raw":
+        return audio_tensor
+    if pause_scale and pause_scale != 1.0:
+        audio_tensor = shape_pauses(audio_tensor, sample_rate, pause_scale)
+    if preset == "natural":
+        return loudness_normalize(audio_tensor, sample_rate)
+    if not skip_mastering:
+        audio_tensor = apply_mastering(audio_tensor, sample_rate=sample_rate)
+    chain = get_effect_chain(preset)
+    if chain:
+        audio_tensor = apply_effects_chain(audio_tensor, sample_rate=sample_rate, chain=chain)
+    return normalize_audio(audio_tensor, target_dBFS=-2.0)

@@ -29,8 +29,9 @@ def _make_test_audio(duration_s=1.0, sample_rate=24000) -> torch.Tensor:
 class TestListEffectPresets:
     def test_returns_all_presets(self):
         presets = list_effect_presets()
-        assert len(presets) == 6
+        assert len(presets) == 7
         ids = [p["id"] for p in presets]
+        assert ids[0] == "natural"  # the default leads the picker
         assert "broadcast" in ids
         assert "cinematic" in ids
         assert "podcast" in ids

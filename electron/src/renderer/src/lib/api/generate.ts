@@ -137,15 +137,17 @@ export function toGenerateForm(input: CloneGenerateInput): FormData {
   if (input.language) form.append('language', input.language);
   form.append('num_step', String(input.steps));
   form.append('wav_bits', String(input.wavBits ?? 16));
-  form.append('effect_preset', input.effectPreset ?? 'broadcast');
+  form.append('effect_preset', input.effectPreset ?? 'natural');
   form.append('guidance_scale', String(input.cfg));
   form.append('speed', String(input.speed));
-  form.append('denoise', String(input.denoise));
+  // null = let the backend decide from the reference's noise floor.
+  if (typeof input.denoise === 'boolean') form.append('denoise', String(input.denoise));
   form.append('t_shift', String(input.tShift));
   form.append('position_temperature', String(input.posTemp));
   form.append('class_temperature', String(input.classTemp));
   form.append('layer_penalty_factor', String(input.layerPenalty));
   form.append('postprocess_output', String(input.postprocess));
+  if (input.pauseScale !== undefined) form.append('pause_scale', String(input.pauseScale));
   const duration = Number.parseFloat(input.duration);
   if (input.duration && Number.isFinite(duration)) form.append('duration', String(duration));
 

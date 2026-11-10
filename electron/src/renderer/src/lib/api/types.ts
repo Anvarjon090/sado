@@ -145,7 +145,7 @@ export interface DesignRecipe {
  *  in generate.ts maps them to the multipart field names. */
 export interface CloneGenerateInput {
   wavBits?: 16 | 24 | 32;
-  effectPreset?: 'broadcast' | 'raw';
+  effectPreset?: 'natural' | 'broadcast' | 'raw';
   seed?: number;
   text: string;
   /** Display-name language ("English"). "Auto" is omitted on the wire. */
@@ -168,8 +168,11 @@ export interface CloneGenerateInput {
   posTemp: number;
   classTemp: number;
   layerPenalty: number;
-  denoise: boolean;
+  /** null: the backend decides from the reference's noise floor. */
+  denoise: boolean | null;
   postprocess: boolean;
+  /** Sentence pauses relative to the engine's own (1–3); omitted = 1. */
+  pauseScale?: number;
   /** '' = auto. */
   duration: string;
 }

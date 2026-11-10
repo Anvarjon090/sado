@@ -8,8 +8,8 @@
     "hint32": "पूरी सटीकता रखता है। फ़ाइल बड़ी होगी, आवाज़ बेहतर नहीं।",
     "effort": "आवाज़ का परिष्करण",
     "effortHint": "अधिक चरणों में अधिक समय लगता है; आवाज़ बेहतर हो, यह ज़रूरी नहीं।",
-    "mastering": "आवाज़ का स्तर संतुलित करें",
-    "masteringHint": "आवाज़ को अधिक संतुलित और एकसमान बनाता है।",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "आपकी अगली रिकॉर्डिंग के लिए।",
     "bits16": "16-बिट PCM",
     "bits24": "24-बिट PCM",
@@ -3434,7 +3434,8 @@
     "balance": "संरचना और बारीकी का संतुलन",
     "denoise": "संदर्भ रिकॉर्डिंग का शोर हटाएँ",
     "polish": "बने हुए ऑडियो को सँवारें",
-    "basics": "1× सामान्य गति है। स्वाभाविक लय के लिए अवधि खाली छोड़ें।",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "आमतौर पर डिफ़ॉल्ट मान रखें। मार्गदर्शन निर्देश का प्रभाव तय करता है; बाकी नियंत्रण मॉडल के ध्वनि बनाने के तरीके को बदलते हैं। एक बार में एक ही बदलें।"
   },
   "languagePicker": {

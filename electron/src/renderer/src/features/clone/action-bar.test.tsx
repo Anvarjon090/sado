@@ -47,6 +47,7 @@ const settings = {
   classTemp: 1,
   layerPenalty: 3,
   denoise: false,
+  pauseScale: 1.6,
   postprocess: true,
   duration: '',
   showOverrides: true,

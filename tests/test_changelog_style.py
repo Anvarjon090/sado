@@ -61,6 +61,12 @@ _REF_ALLOWLIST = (
     "Uzbek number reading covers phone numbers",
     "The Voices page can offer a downloadable starter voice pack",
     "`scripts/voice_intake.py` checks a human reference recording",
+    # owner-directed natural voice output (2026-11-10), no issue
+    "Pause control: `pause_scale` lengthens the engine's own sentence pauses",
+    "`scripts/voice_bench.py` renders a fixed Uzbek benchmark",
+    "Generated speech keeps its natural dynamics",
+    "Reference cleanup (`denoise`) is decided per reference",
+    "Sampling steps default to 32, the model's own default",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

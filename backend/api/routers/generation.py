@@ -36,6 +36,7 @@ from core import event_bus
 from core.render_trace import call as trace_call
 from core.logging_utils import log_safe
 from omnivoice.utils.voice_design import heal_design_instruct
+from services.audio_dsp import DEFAULT_EFFECT_PRESET
 
 router = APIRouter()
 logger = logging.getLogger("omnivoice.generate")
@@ -574,48 +575,72 @@ def _sanitize_audio(audio_out):
 
 
 @_render_timed('effects')
-def _apply_effect_chain(audio_out, sample_rate, effect_preset, *, skip_mastering=False):
-    """Shared post-DSP for /generate: preset validation → mastering →
-    effect chain → loudness normalization.
+def _apply_effect_chain(audio_out, sample_rate, effect_preset, *, skip_mastering=False,
+                        pause_scale=1.0):
+    """Shared post-DSP for /generate: sanitize, then
+    ``services.audio_dsp.finalize_output`` (pause shaping → preset).
 
-    ``skip_mastering`` honors a backend's ``applies_own_mastering`` flag
-    (issue #312): studio engines (e.g. VoxCPM2's native 48 kHz output)
-    opt out of the broadcast highpass + Compressor pre-stage that's tuned
-    for Sado's 24 kHz clone output. Loudness normalization still runs —
-    it's a benign peak scale. Mirrors ``_run_tts`` in openai_compat.py.
+    The default preset is ``natural``: a BS.1770 loudness match and nothing
+    else, because the old broadcast chain measurably compressed and
+    brightened cloned voices into the "AI" sound (see audio_dsp's module
+    docstring). ``skip_mastering`` honors a backend's ``applies_own_mastering``
+    flag (issue #312) on the coloured presets. Mirrors ``_run_tts`` in
+    openai_compat.py and the WS sentence path.
     """
-    from services.audio_dsp import (
-        EFFECT_PRESETS, apply_mastering, normalize_audio,
-        apply_effects_chain, get_effect_chain,
-    )
+    from services.audio_dsp import finalize_output
 
     # #629: a numerical glitch in the model (observed on MPS) can leave NaN/±inf
     # samples, which write an unreadable WAV that then fails decoding with an
     # opaque "ffmpeg returned error code: 183 / Invalid data" — surfaced to the
     # user as a misleading "ran out of memory". Replace non-finite samples with
     # silence here, before any DSP/encode touches the audio, so the output is
-    # always a valid WAV. Covers the raw path too (it returns just below).
+    # always a valid WAV. Covers the raw path too.
     audio_out = _sanitize_audio(audio_out)
+    return finalize_output(
+        audio_out, sample_rate, effect_preset,
+        skip_mastering=skip_mastering, pause_scale=pause_scale,
+    )
 
-    preset = effect_preset or "broadcast"
-    if preset not in EFFECT_PRESETS:
-        raise ValueError(
-            f"Unknown effect preset: {preset!r}. "
-            f"Valid: {list(EFFECT_PRESETS.keys())}"
-        )
 
-    if preset == "raw":
-        # Raw: skip all DSP — return raw model output
-        return audio_out
+def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms, *,
+                 duration=None, dropped_sink=None):
+    """Text → one waveform: spans first, then sentence chunks inside each span.
 
-    if not skip_mastering:
-        audio_out = apply_mastering(audio_out, sample_rate=sample_rate)
-    chain = get_effect_chain(preset)
-    if chain:
-        audio_out = apply_effects_chain(
-            audio_out, sample_rate=sample_rate, chain=chain,
-        )
-    return normalize_audio(audio_out, target_dBFS=-2.0)
+    Spans come from explicit ``[pause Nms]`` markers (issue #276) or, failing
+    those, from paragraph breaks — a blank line is a 650 ms breath the engine
+    would otherwise read as plain whitespace (``chunked_tts.paragraph_segments``).
+    Silence is stitched between spans by :func:`_render_with_pauses`. A span
+    longer than ``max_chunk_chars`` is split at sentence boundaries and
+    crossfaded (Wave 1.2). ``render_chunk(text, index, duration)`` makes one
+    engine call; ``index`` counts chunks across the whole request so a
+    per-chunk seed never repeats. An explicit ``duration`` only applies when
+    the whole text is a single engine call.
+    """
+    import itertools
+
+    from services.chunked_tts import (
+        DEFAULT_CROSSFADE_MS, DEFAULT_MAX_CHUNK_CHARS, concatenate_audio_chunks,
+        split_text_into_chunks, text_segments,
+    )
+
+    max_chars = DEFAULT_MAX_CHUNK_CHARS if max_chunk_chars is None else max_chunk_chars
+    xfade_ms = DEFAULT_CROSSFADE_MS if crossfade_ms is None else crossfade_ms
+    counter = itertools.count()
+
+    def _span(span_text, span_duration):
+        chunks = split_text_into_chunks(span_text, max_chars)
+        if len(chunks) > 1:
+            parts = [render_chunk(chunk, next(counter), None) for chunk in chunks]
+            return concatenate_audio_chunks(parts, sample_rate, xfade_ms,
+                                            texts=chunks, sink=dropped_sink)
+        return render_chunk(span_text, next(counter), span_duration)
+
+    segments, stitched = text_segments(text)
+    if stitched:
+        # Per-span duration is left to the engine; an explicit overall
+        # duration can't be meaningfully split across spans.
+        return _render_with_pauses(lambda span: _span(span, None), segments, sample_rate)
+    return _span(text, duration)
 
 
 def _safe_exc_text(e: BaseException) -> str:
@@ -1135,14 +1160,11 @@ def _run_inference(
     model, text, language, ref_audio_path, ref_text, instruct, duration,
     num_step, guidance_scale, speed, t_shift, denoise,
     postprocess_output, layer_penalty_factor, position_temperature,
-    class_temperature, used_seed, effect_preset="broadcast",
-    max_chunk_chars=None, crossfade_ms=None, *, dropped_sink=None,
+    class_temperature, used_seed, effect_preset=None,
+    max_chunk_chars=None, crossfade_ms=None, *, dropped_sink=None, pause_scale=1.0,
 ):
     import torch
     try:
-        if used_seed is not None:
-            torch.manual_seed(used_seed)
-
         kwargs = {}
         if t_shift is not None: kwargs["t_shift"] = t_shift
         if layer_penalty_factor is not None: kwargs["layer_penalty_factor"] = layer_penalty_factor
@@ -1153,59 +1175,26 @@ def _run_inference(
 
         from services.tts_backend import generate_with_cached_ref
 
-        def _gen(gen_text, gen_duration):
-            """One generate call for this request's voice, reference encoded once."""
-            return trace_call("synthesis", generate_with_cached_ref,
+        def _render_chunk(chunk_text, index, chunk_duration):
+            """One generate call for this request's voice, reference encoded
+            once. Chunk ``index`` reseeds deterministically (``seed + index``)
+            so neighbouring chunks never share RNG artifacts."""
+            if used_seed is not None:
+                torch.manual_seed(used_seed + index)
+            audio = trace_call("synthesis", generate_with_cached_ref,
                 model, ref_audio=ref_audio_path, ref_text=ref_text,
-                text=gen_text, language=language, instruct=instruct,
-                duration=gen_duration, num_step=num_step,
+                text=chunk_text, language=language, instruct=instruct,
+                duration=chunk_duration, num_step=num_step,
                 guidance_scale=guidance_scale, speed=speed, denoise=denoise,
                 postprocess_output=postprocess_output, **kwargs
-            )
+            )[0]
+            _note_generate_progress()
+            return audio
 
-        # Inline [pause Nms] markers (issue #276): split the text and stitch
-        # silence between independently-synthesized spans. Fully opt-in — text
-        # without a marker takes the unchanged single-shot path below.
-        from omnivoice.utils.text import parse_pause_markers
-        segments = parse_pause_markers(text)
-        has_pause = len(segments) > 1 or (segments and segments[0][1] > 0)
-
-        if has_pause:
-            def _gen_span(span_text):
-                # Per-span duration is left to the model; an explicit overall
-                # `duration` can't be meaningfully split across spans.
-                return _gen(span_text, None)[0]
-            audio_out = _render_with_pauses(_gen_span, segments, sr)
-        else:
-            # Wave 1.2: long text is split at sentence boundaries and the
-            # per-chunk audio crossfaded — removes the length ceiling. Short
-            # text takes the single-shot path below unchanged. [pause] inputs
-            # keep the dedicated stitcher above (spans are already short).
-            from services.chunked_tts import (
-                DEFAULT_CROSSFADE_MS, DEFAULT_MAX_CHUNK_CHARS,
-                concatenate_audio_chunks, split_text_into_chunks,
-            )
-            _max_chars = DEFAULT_MAX_CHUNK_CHARS if max_chunk_chars is None else max_chunk_chars
-            _xfade_ms = DEFAULT_CROSSFADE_MS if crossfade_ms is None else crossfade_ms
-            text_chunks = split_text_into_chunks(text, _max_chars)
-            if len(text_chunks) > 1:
-                parts = []
-                for i, chunk_text in enumerate(text_chunks):
-                    # Vary the seed per chunk (deterministically) to avoid
-                    # correlated RNG artifacts across chunk boundaries.
-                    if used_seed is not None:
-                        torch.manual_seed(used_seed + i)
-                    parts.append(_gen(chunk_text, None)[0])
-                    _note_generate_progress()
-                audio_out = concatenate_audio_chunks(parts, sr, _xfade_ms,
-                                                     texts=text_chunks,
-                                                     sink=dropped_sink)
-            else:
-                audio_out = _gen(text, duration)[0]
-
-        # Apply DSP effect preset. The Sado model never masters its own
-        # output, so mastering always runs here (unchanged behavior).
-        return _apply_effect_chain(audio_out, sr, effect_preset)
+        audio_out = _render_text(_render_chunk, text, sr, max_chunk_chars, crossfade_ms,
+                                 duration=duration, dropped_sink=dropped_sink)
+        # The Sado model never masters its own output; the preset tail runs here.
+        return _apply_effect_chain(audio_out, sr, effect_preset, pause_scale=pause_scale)
 
     except ValueError as e:
         # Don't wrap validation errors in OOM message
@@ -1217,10 +1206,10 @@ def _run_inference(
 def _run_backend_inference(
     backend, text, language, ref_audio_path, ref_text, instruct, duration,
     num_step, guidance_scale, speed, denoise, postprocess_output,
-    used_seed, effect_preset="broadcast",
+    used_seed, effect_preset=None,
     max_chunk_chars=None, crossfade_ms=None, *, t_shift=None,
     layer_penalty_factor=None, position_temperature=None,
-    class_temperature=None, dropped_sink=None,
+    class_temperature=None, dropped_sink=None, pause_scale=1.0,
 ):
     """Engine-aware twin of :func:`_run_inference` (issue #312).
 
@@ -1232,9 +1221,6 @@ def _run_backend_inference(
     """
     import torch
     try:
-        if used_seed is not None:
-            torch.manual_seed(used_seed)
-
         if language and language.lower() == "auto":
             language = None
 
@@ -1258,58 +1244,27 @@ def _run_backend_inference(
             })
         sr = backend.sample_rate
 
-        # Inline [pause Nms] markers (issue #276) work for every engine — the
-        # silence stitching is model-free.
-        from omnivoice.utils.text import parse_pause_markers
-        segments = parse_pause_markers(text)
-        has_pause = len(segments) > 1 or (segments and segments[0][1] > 0)
+        def _render_chunk(chunk_text, index, chunk_duration):
+            """One engine call. Chunk ``index`` reseeds deterministically and,
+            for engines that take a seed, forwards the same ``seed + index``."""
+            chunk_kwargs = dict(gen_kwargs)
+            if used_seed is not None:
+                torch.manual_seed(used_seed + index)
+                if forwards_seed:
+                    chunk_kwargs["seed"] = used_seed + index
+            audio = trace_call("synthesis", backend.generate, chunk_text,
+                               duration=chunk_duration, **chunk_kwargs)
+            _note_generate_progress()
+            return audio
 
-        if has_pause:
-            first_span = True
-
-            def _gen_span(span_text):
-                nonlocal first_span
-                # Per-span duration is left to the engine; an explicit overall
-                # `duration` can't be meaningfully split across spans.
-                span_kwargs = dict(gen_kwargs)
-                if forwards_seed and first_span and used_seed is not None:
-                    span_kwargs["seed"] = used_seed
-                first_span = False
-                return trace_call("synthesis", backend.generate, span_text, duration=None, **span_kwargs)
-            audio_out = _render_with_pauses(_gen_span, segments, sr)
-        else:
-            # Wave 1.2: sentence-boundary chunking for long text (see
-            # _run_inference for the rationale; behavior is identical here).
-            from services.chunked_tts import (
-                DEFAULT_CROSSFADE_MS, DEFAULT_MAX_CHUNK_CHARS,
-                concatenate_audio_chunks, split_text_into_chunks,
-            )
-            _max_chars = DEFAULT_MAX_CHUNK_CHARS if max_chunk_chars is None else max_chunk_chars
-            _xfade_ms = DEFAULT_CROSSFADE_MS if crossfade_ms is None else crossfade_ms
-            text_chunks = split_text_into_chunks(text, _max_chars)
-            if len(text_chunks) > 1:
-                parts = []
-                for i, chunk_text in enumerate(text_chunks):
-                    if used_seed is not None:
-                        torch.manual_seed(used_seed + i)
-                    chunk_kwargs = dict(gen_kwargs)
-                    if forwards_seed and used_seed is not None:
-                        chunk_kwargs["seed"] = used_seed + i
-                    parts.append(trace_call("synthesis", backend.generate,
-                        chunk_text, duration=None, **chunk_kwargs
-                    ))
-                    _note_generate_progress()
-                audio_out = concatenate_audio_chunks(parts, sr, _xfade_ms,
-                                                     texts=text_chunks,
-                                                     sink=dropped_sink)
-            else:
-                if forwards_seed and used_seed is not None:
-                    gen_kwargs["seed"] = used_seed
-                audio_out = trace_call("synthesis", backend.generate, text, duration=duration, **gen_kwargs)
-
+        # [pause Nms] markers (issue #276) and paragraph breaks work for every
+        # engine — the silence stitching is model-free.
+        audio_out = _render_text(_render_chunk, text, sr, max_chunk_chars, crossfade_ms,
+                                 duration=duration, dropped_sink=dropped_sink)
         return _apply_effect_chain(
             audio_out, sr, effect_preset,
             skip_mastering=getattr(backend, "applies_own_mastering", False),
+            pause_scale=pause_scale,
         )
 
     except ValueError as e:
@@ -1819,14 +1774,23 @@ async def generate_speech(
     guidance_scale: float = Form(2.0),
     speed: float = Form(1.0),
     t_shift: Optional[float] = Form(None),
-    denoise: bool = Form(True),
+    # None = decide from the reference: a noisy clip gets the model's
+    # <|denoise|> token, a clean recording keeps its own acoustics
+    # (services/reference_acoustics.py). An explicit value always wins.
+    denoise: Optional[bool] = Form(None),
     postprocess_output: Optional[bool] = Form(None),
     layer_penalty_factor: Optional[float] = Form(None),
     position_temperature: Optional[float] = Form(None),
     class_temperature: Optional[float] = Form(None),
     profile_id: Optional[str] = Form(None),
     seed: Optional[int] = Form(None),
-    effect_preset: str = Form("broadcast"),
+    # "natural" (BS.1770 loudness match, nothing else) unless the caller picks
+    # a coloured preset; see services/audio_dsp.py for why the old broadcast
+    # default was retired.
+    effect_preset: str = Form(DEFAULT_EFFECT_PRESET),
+    # Lengthen the engine's own sentence pauses (1 = as rendered, 1.6 ≈ a
+    # human reader's spacing, 3 = slow narration); never shortens or adds.
+    pause_scale: float = Form(1.0, ge=1.0, le=3.0),
     wav_bits: Literal["16", "24", "32"] = Form("16"),
     engine: Optional[str] = Form(None),
     # Wave 1.2 — unlimited-length generation: long text is split at sentence
@@ -2162,6 +2126,17 @@ async def generate_speech(
         if ref_text and persist_ref_text_profile_id:
             _persist_profile_ref_text(persist_ref_text_profile_id, ref_text)
 
+    # Reference acoustics: with no explicit choice, ask the model to clean up
+    # only when the reference is actually noisy. A clean recording cloned with
+    # the <|denoise|> token loses the room and microphone character a listener
+    # hears as "a real person"; a phone clip without it clones the hiss.
+    if denoise is None:
+        if ref_audio_path:
+            from services.reference_acoustics import reference_wants_denoise
+            denoise = await asyncio.to_thread(reference_wants_denoise, ref_audio_path)
+        else:
+            denoise = False
+
     # #526: materialize a concrete seed when none was supplied (and no profile
     # pinned one) so the take is reproducible and we can hand it back via the
     # X-Seed header for the "keep this seed" control. An explicit request seed
@@ -2243,6 +2218,7 @@ async def generate_speech(
         "max_chunk_chars": max_chunk_chars,
         "crossfade_ms": crossfade_ms,
         "effect_preset": effect_preset,
+        "pause_scale": pause_scale,
         "wav_bits": int(wav_bits),
         # The requesting user's provenance preference, not the GPU owner's.
         "watermark": bool(_watermark_enabled()),
@@ -2450,11 +2426,11 @@ async def generate_speech(
         )
 
     if stream:
-        from omnivoice.utils.text import parse_pause_markers
-        from services.chunked_tts import split_text_into_chunks
+        from services.chunked_tts import split_text_into_chunks, text_segments
 
-        _segments = parse_pause_markers(text)
-        _has_pause = len(_segments) > 1 or (_segments and _segments[0][1] > 0)
+        # Explicit [pause] markers or paragraph breaks mean a stitched render:
+        # that takes the single-job path below, exactly like the classic flow.
+        _segments, _has_pause = text_segments(text)
         _text_chunks = [] if _has_pause else split_text_into_chunks(text, max_chunk_chars)
         # #1330 — see the non-streaming path: chunks the engine rendered to
         # nothing land here so the stream can say the take is missing text
@@ -2518,7 +2494,8 @@ async def generate_speech(
                     )[0]
                     sr = _model.sampling_rate if hasattr(_model, "sampling_rate") else 24000
                     skip = False
-                preview = _apply_effect_chain(raw, sr, effect_preset, skip_mastering=skip)
+                preview = _apply_effect_chain(raw, sr, effect_preset, skip_mastering=skip,
+                                              pause_scale=pause_scale)
                 # The STREAMED copy is provenance-marked by the caller (#1169
                 # mark, moved off this GPU job in #1190): the preview PCM
                 # leaves the app the moment it's yielded, before
@@ -2544,7 +2521,8 @@ async def generate_speech(
                                                      sink=_dropped_sink)
                 skip = (getattr(_backend, "applies_own_mastering", False)
                         if _backend is not None else False)
-                return _apply_effect_chain(audio_out, sr, effect_preset, skip_mastering=skip)
+                return _apply_effect_chain(audio_out, sr, effect_preset, skip_mastering=skip,
+                                           pause_scale=pause_scale)
             except ValueError:
                 raise
             except Exception as e:
@@ -2572,7 +2550,7 @@ async def generate_speech(
                                     layer_penalty_factor=layer_penalty_factor,
                                     position_temperature=position_temperature,
                                     class_temperature=class_temperature,
-                                    dropped_sink=_dropped_sink,
+                                    dropped_sink=_dropped_sink, pause_scale=pause_scale,
                                 ),
                                 what="TTS generate",
                                 min_vram_gb=_engine_min_vram_gb,
@@ -2599,7 +2577,7 @@ async def generate_speech(
                                     t_shift, denoise, postprocess_output,
                                     layer_penalty_factor, position_temperature,
                                     class_temperature, used_seed, effect_preset,
-                                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_sink,
+                                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_sink, pause_scale=pause_scale,
                                 ),
                                 what="TTS generate",
                                 min_vram_gb=_engine_min_vram_gb,
@@ -2808,7 +2786,7 @@ async def generate_speech(
                     layer_penalty_factor=layer_penalty_factor,
                     position_temperature=position_temperature,
                     class_temperature=class_temperature,
-                    dropped_sink=_dropped_text,
+                    dropped_sink=_dropped_text, pause_scale=pause_scale,
                 )
             else:
                 _local_render = functools.partial(
@@ -2817,7 +2795,7 @@ async def generate_speech(
                     num_step, guidance_scale, speed, t_shift, denoise,
                     postprocess_output, layer_penalty_factor, position_temperature,
                     class_temperature, used_seed, effect_preset,
-                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_text,
+                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_text, pause_scale=pause_scale,
                 )
             audio_tensor = await _run_with_reference_lease(
                 ref_lease,

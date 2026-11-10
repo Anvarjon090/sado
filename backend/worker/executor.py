@@ -773,9 +773,19 @@ class TaskExecutor:
         guidance_scale = params.get("guidance_scale", 2.0)
         speed = params.get("speed", 1.0)
         denoise = params.get("denoise", True)
+        if denoise is None:
+            # Same per-reference rule as the requesting backend
+            # (services/reference_acoustics.py): clean recordings keep their
+            # character, noisy ones get the model's denoise token.
+            from services.reference_acoustics import reference_wants_denoise  # noqa: PLC0415
+
+            denoise = reference_wants_denoise(ref_audio)
         postprocess_output = params.get("postprocess_output", True)
         used_seed = params.get("seed")
-        effect_preset = params.get("effect_preset", "broadcast")
+        # None → the natural default; an older requester that still sends
+        # "broadcast" gets exactly what it asked for.
+        effect_preset = params.get("effect_preset") or None
+        pause_scale = float(params.get("pause_scale") or 1.0)
         max_chunk_chars = params.get("max_chunk_chars")
         crossfade_ms = params.get("crossfade_ms")
         try:
@@ -792,6 +802,7 @@ class TaskExecutor:
                         params.get("position_temperature"),
                         params.get("class_temperature"), used_seed,
                         effect_preset, max_chunk_chars, crossfade_ms,
+                        pause_scale=pause_scale,
                     )
                 return _run_backend_inference(
                     backend, text, language, ref_audio, ref_text, instruct,
@@ -802,6 +813,7 @@ class TaskExecutor:
                     layer_penalty_factor=params.get("layer_penalty_factor"),
                     position_temperature=params.get("position_temperature"),
                     class_temperature=params.get("class_temperature"),
+                    pause_scale=pause_scale,
                 )
         except Exception as exc:
             from worker import errors as worker_errors  # noqa: PLC0415

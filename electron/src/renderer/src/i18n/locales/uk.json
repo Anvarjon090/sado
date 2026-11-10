@@ -8,8 +8,8 @@
     "hint32": "Зберігає повну точність. Файли більші, але сам голос не покращується.",
     "effort": "Доопрацювання голосу",
     "effortHint": "Більше проходів потребує більше часу; голос не обов’язково стане кращим.",
-    "mastering": "Вирівняти гучність",
-    "masteringHint": "Робить звучання більш збалансованим і рівномірним.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "Для наступного запису.",
     "bits16": "16-біт PCM",
     "bits24": "24-біт PCM",
@@ -3438,7 +3438,8 @@
     "balance": "Баланс структури й деталей",
     "denoise": "Прибрати шум зі зразка",
     "polish": "Обробити готовий звук",
-    "basics": "1× — звичайна швидкість. Залиште тривалість порожньою для природного темпу.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "Зазвичай краще залишати типові значення. Спрямування визначає вплив запиту; решта налаштувань змінює побудову звуку моделлю. Змінюйте по одному."
   },
   "languagePicker": {

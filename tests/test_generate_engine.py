@@ -223,9 +223,11 @@ def test_generate_default_path_still_runs_omnivoice(client, monkeypatch, tmp_pat
 
 
 def test_generate_respects_applies_own_mastering(client, monkeypatch, no_omnivoice_model):
-    """Studio engines (applies_own_mastering=True) skip apply_mastering;
-    regular engines still get the broadcast chain — parity with
-    /v1/audio/speech and /ws/tts."""
+    """Studio engines (applies_own_mastering=True) skip apply_mastering on the
+    coloured presets; regular engines get the broadcast chain when they ask
+    for it — parity with /v1/audio/speech and /ws/tts. The default preset is
+    ``natural`` (loudness match only), so with no preset named nobody is
+    mastered."""
     audio_dsp = importlib.import_module("services.audio_dsp")  # run-time resolve, see _tts_mod
 
     mastering = MagicMock(side_effect=lambda t, sample_rate=24000: t)
@@ -236,10 +238,16 @@ def test_generate_respects_applies_own_mastering(client, monkeypatch, no_omnivoi
     monkeypatch.setitem(_tts_mod()._REGISTRY, "fake-studio", studio)
     monkeypatch.setitem(_tts_mod()._REGISTRY, "fake-plain", plain)
 
-    res = client.post("/generate", data={"text": "studio", "engine": "fake-studio"})
+    res = client.post("/generate", data={"text": "studio", "engine": "fake-studio",
+                                         "effect_preset": "broadcast"})
     assert res.status_code == 200, res.text
     assert mastering.call_count == 0
 
     res = client.post("/generate", data={"text": "plain", "engine": "fake-plain"})
+    assert res.status_code == 200, res.text
+    assert mastering.call_count == 0  # natural default: no compressor for anyone
+
+    res = client.post("/generate", data={"text": "plain", "engine": "fake-plain",
+                                         "effect_preset": "broadcast"})
     assert res.status_code == 200, res.text
     assert mastering.call_count == 1

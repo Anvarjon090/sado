@@ -8,8 +8,8 @@
     "hint32": "يحافظ على الدقة الكاملة. ملفات أكبر، دون تحسين الصوت نفسه.",
     "effort": "تنقيح الصوت",
     "effortHint": "المزيد من المراحل يستغرق وقتًا أطول؛ وقد لا يتحسن الصوت.",
-    "mastering": "موازنة مستوى الصوت",
-    "masteringHint": "يجعل الصوت أكثر توازنًا واتساقًا.",
+    "mastering": "Broadcast compression",
+    "masteringHint": "Radio-style compression and brightness. Off keeps the voice's own dynamics at −18 LUFS.",
     "nextTake": "للتسجيل التالي.",
     "bits16": "PCM ‏16 بت",
     "bits24": "PCM ‏24 بت",
@@ -3442,7 +3442,8 @@
     "balance": "توازن البنية والتفاصيل",
     "denoise": "تنقية ضوضاء العينة المرجعية",
     "polish": "تحسين الصوت الناتج",
-    "basics": "1× هي السرعة العادية. اترك المدة فارغة لإيقاع طبيعي.",
+    "pauses": "Pauses",
+    "basics": "1× is normal speed. Pauses at 1.6× breathe like a human reader. Leave duration blank for natural timing.",
     "hint": "يُفضل عادةً إبقاء القيم الافتراضية. يضبط التوجيه تأثير التعليمات؛ وتغيّر الخيارات الأخرى كيفية بناء النموذج للصوت. غيّر خيارًا واحدًا كل مرة."
   },
   "languagePicker": {

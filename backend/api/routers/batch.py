@@ -507,7 +507,7 @@ async def _run_batch_pipeline_leased(job_id: str, job: dict, lease: voice_leases
             total_segments=len(translated_segments),
         )
 
-        from services.audio_dsp import apply_mastering, normalize_audio
+        from services.audio_dsp import finalize_output
         from services.audio_io import atomic_save_wav
         import torch
 
@@ -672,9 +672,10 @@ async def _run_batch_pipeline_leased(job_id: str, job: dict, lease: voice_leases
                         )
                     rendered = []
                     for audio_out in generated:
-                        if not getattr(backend, "applies_own_mastering", False):
-                            audio_out = apply_mastering(audio_out, sample_rate=sr)
-                        rendered.append(normalize_audio(audio_out, target_dBFS=-2.0))
+                        rendered.append(finalize_output(
+                            audio_out, sr,
+                            skip_mastering=getattr(backend, "applies_own_mastering", False),
+                        ))
                     return rendered
 
                 try:
@@ -738,9 +739,10 @@ async def _run_batch_pipeline_leased(job_id: str, job: dict, lease: voice_leases
                         guidance_scale=2.0, speed=1.0,
                         denoise=True, postprocess_output=_batch_postprocess,
                     )
-                    if not getattr(backend, "applies_own_mastering", False):
-                        audio_out = apply_mastering(audio_out, sample_rate=sr)
-                    return normalize_audio(audio_out, target_dBFS=-2.0)
+                    return finalize_output(
+                        audio_out, sr,
+                        skip_mastering=getattr(backend, "applies_own_mastering", False),
+                    )
                 except Exception as e:
                     logger.warning("TTS failed for seg %d (lang=%s): %s", i, lang, e)
                     # #1190: the silence still stands in for the segment (one

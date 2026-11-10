@@ -38,6 +38,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 import soundfile as sf
+
 from services import voice_intake as vi
 from services.ffmpeg_utils import find_ffmpeg
 

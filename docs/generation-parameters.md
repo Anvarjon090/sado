@@ -18,7 +18,7 @@ audio = model.generate(text="Hello world", generation_config=config)
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `num_step` | int | 32 | Number of iterative unmasking steps. Higher values improve quality but slow down generation. Use 16 for faster inference. |
-| `denoise` | bool | True | Prepend the `<|denoise|>` token to the input, which signals the model to produce cleaner speech. |
+| `denoise` | bool | True | Prepend the `<|denoise|>` token to the input, which signals the model to produce cleaner speech. Sado's `/generate` leaves it unset by default and decides per reference (see below). |
 | `guidance_scale` | float | 2.0 | Classifier-free guidance scale.|
 | `t_shift` | float | 0.1 | Time-step shift for the noise schedule. Smaller values emphasise earlier steps in decoding. |
 
@@ -63,6 +63,18 @@ Priority: `duration` > `speed`.
 > **Tip — reference-clip quality transfers.** Zero-shot cloning mirrors the acoustics of the reference clip, not just the voice: a clip recorded in an echoey room clones echoey. Record dry and close-mic for clean output. No effect preset adds reverb unless you choose one that declares it (Cinematic, Warm).
 
 For an in-app recording, choose the microphone and Auto, Mono, or Stereo in the Voice panel. While recording, the input meter confirms whether Sado is receiving a usable signal; monitoring is visual and never plays the microphone through the speakers.
+
+## Sado output path (`POST /generate`)
+
+| Field | Default | Description |
+|---|---|---|
+| `effect_preset` | `natural` | `natural` matches integrated loudness to −18 LUFS under a −1.5 dBTP ceiling and changes nothing else; `broadcast`, `podcast`, `cinematic`, `warm`, `bright` add their chains; `raw` returns the engine output as is. |
+| `pause_scale` | `1.0` (app: `1.6`) | Lengthens the engine's own pauses of 150 ms or more by this factor with their room tone, capped at 0.9 s; range 1–3. Never adds or shortens a pause. |
+| `denoise` | unset | Unset = measured per reference: the `<|denoise|>` token is used when the clip's speech-to-floor ratio is under 28 dB, otherwise the recording's acoustics are kept. `true`/`false` force it. Voice design has no reference and never uses it. |
+| `num_step` | performance tier (16 / 32 / 64) | The app sends 32 unless you move the slider. |
+
+A blank line between paragraphs is rendered as separate spans with a 650 ms
+breath between them; `[pause Nms]` markers take precedence when present.
 
 ## Long-Form Generation
 
