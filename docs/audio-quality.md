@@ -86,6 +86,43 @@ Three controls follow from the same measurements:
 - **Sampling steps** default to 32: at 16 the same take measured 1.2 LU of
   loudness range against 2.0–2.2 LU at 32–64.
 
+**Take guard.** The same reference and text can come back as another voice:
+measured on a designed female voice cloned from its own 7 s sample, two of
+seven benchmark lines rendered half an octave down (F0 111 and 155 Hz against
+the voice's 250 Hz) — the "suddenly deep" takes listeners notice first. Every
+reference-based render now measures each chunk against the reference's median
+pitch and re-renders once with a retake seed when it drifts more than
+6 semitones or loses its harmonic structure, keeping the closer take
+(`retake=false` opts out). One extra render at most, only on a flagged chunk.
+
+## Designed voices: what the engine can and cannot be told
+
+OmniVoice's voice design takes a closed tag set — `male`/`female`; `child`,
+`teenager`, `young adult`, `middle-aged`, `elderly`; five pitch words; `whisper`
+— and the sampling seed picks the speaker inside that box. Nothing in the model
+takes "soft", "warm" or "smooth". Measured on the Uzbek fine-tune
+(2026-11-10, six seeds each): `moderate pitch` renders a male young adult at
+about 165 Hz, `low pitch` at 143 Hz, `very low pitch` at 117 Hz, so an adult
+man needs "low" or "very low" and "moderate" is a teenager; the `female`
+tag held in 4 of 6 renders at guidance 2.0 and 6 of 6 at 3.0, so designed
+voices use guidance 3.0. The base `k2-fsa/OmniVoice` checkpoint was worse on
+Uzbek design text (female tag held 2–3 of 6, several unvoiced renders), so the
+fine-tune stays.
+
+`scripts/voice_casting.py` turns that into a casting session: for each of
+sixteen age-and-sex slots (5, 15, 20, 30, 40, 50, 60, 70 years, male and
+female) it renders candidates (seeds × tag variants) on one audition line,
+measures pitch against the slot's human range, harmonics-to-noise ratio,
+cepstral peak prominence, 2–5 kHz presence and loudness range, checks the
+words with the local STT, ranks with a printed weighted sum and keeps the
+softest intelligible voice in range. `bench` renders the seven benchmark
+texts for each pick (raw and natural) and writes an `index.html` that lines
+the age groups up side by side; `install` saves each pick as a Sado voice
+whose reference is the audition clip itself, so later takes clone the voice
+that was heard instead of re-rolling the design. Adjacent decades inside one
+engine age bucket (40/50, 60/70) differ by seed and pitch word only; the
+numbers narrow the field and the ear decides.
+
 `scripts/voice_bench.py` renders a fixed Uzbek set — short lines, a long
 paragraph, questions, joy and sorrow, numbers and dates, a mixed Uzbek /
 English / Russian line, two-paragraph narration and the hard phonemes

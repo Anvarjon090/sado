@@ -603,7 +603,7 @@ def _apply_effect_chain(audio_out, sample_rate, effect_preset, *, skip_mastering
 
 
 def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms, *,
-                 duration=None, dropped_sink=None):
+                 duration=None, dropped_sink=None, guard=None):
     """Text → one waveform: spans first, then sentence chunks inside each span.
 
     Spans come from explicit ``[pause Nms]`` markers (issue #276) or, failing
@@ -614,7 +614,9 @@ def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms,
     crossfaded (Wave 1.2). ``render_chunk(text, index, duration)`` makes one
     engine call; ``index`` counts chunks across the whole request so a
     per-chunk seed never repeats. An explicit ``duration`` only applies when
-    the whole text is a single engine call.
+    the whole text is a single engine call. ``guard`` (a
+    ``services.take_guard.TakeGuard``) re-renders a chunk that came back as
+    another voice; see that module.
     """
     import itertools
 
@@ -627,13 +629,19 @@ def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms,
     xfade_ms = DEFAULT_CROSSFADE_MS if crossfade_ms is None else crossfade_ms
     counter = itertools.count()
 
+    def _one(chunk_text, chunk_duration):
+        index = next(counter)
+        if guard is not None:
+            return guard.render(render_chunk, chunk_text, index, chunk_duration)
+        return render_chunk(chunk_text, index, chunk_duration)
+
     def _span(span_text, span_duration):
         chunks = split_text_into_chunks(span_text, max_chars)
         if len(chunks) > 1:
-            parts = [render_chunk(chunk, next(counter), None) for chunk in chunks]
+            parts = [_one(chunk, None) for chunk in chunks]
             return concatenate_audio_chunks(parts, sample_rate, xfade_ms,
                                             texts=chunks, sink=dropped_sink)
-        return render_chunk(span_text, next(counter), span_duration)
+        return _one(span_text, span_duration)
 
     segments, stitched = text_segments(text)
     if stitched:
@@ -1156,12 +1164,23 @@ def _generate_timeout_s(
     )
 
 
+def _take_guard_for(ref_audio_path, sample_rate, retake):
+    """A ``TakeGuard`` for a reference whose pitch can be measured, else None."""
+    if not retake or not ref_audio_path:
+        return None
+    from services.take_guard import TakeGuard, reference_pitch_hz
+
+    reference_hz = reference_pitch_hz(ref_audio_path)
+    return TakeGuard(reference_hz, sample_rate) if reference_hz else None
+
+
 def _run_inference(
     model, text, language, ref_audio_path, ref_text, instruct, duration,
     num_step, guidance_scale, speed, t_shift, denoise,
     postprocess_output, layer_penalty_factor, position_temperature,
     class_temperature, used_seed, effect_preset=None,
     max_chunk_chars=None, crossfade_ms=None, *, dropped_sink=None, pause_scale=1.0,
+    retake=True,
 ):
     import torch
     try:
@@ -1192,7 +1211,8 @@ def _run_inference(
             return audio
 
         audio_out = _render_text(_render_chunk, text, sr, max_chunk_chars, crossfade_ms,
-                                 duration=duration, dropped_sink=dropped_sink)
+                                 duration=duration, dropped_sink=dropped_sink,
+                                 guard=_take_guard_for(ref_audio_path, sr, retake))
         # The Sado model never masters its own output; the preset tail runs here.
         return _apply_effect_chain(audio_out, sr, effect_preset, pause_scale=pause_scale)
 
@@ -1209,7 +1229,7 @@ def _run_backend_inference(
     used_seed, effect_preset=None,
     max_chunk_chars=None, crossfade_ms=None, *, t_shift=None,
     layer_penalty_factor=None, position_temperature=None,
-    class_temperature=None, dropped_sink=None, pause_scale=1.0,
+    class_temperature=None, dropped_sink=None, pause_scale=1.0, retake=True,
 ):
     """Engine-aware twin of :func:`_run_inference` (issue #312).
 
@@ -1260,7 +1280,8 @@ def _run_backend_inference(
         # [pause Nms] markers (issue #276) and paragraph breaks work for every
         # engine — the silence stitching is model-free.
         audio_out = _render_text(_render_chunk, text, sr, max_chunk_chars, crossfade_ms,
-                                 duration=duration, dropped_sink=dropped_sink)
+                                 duration=duration, dropped_sink=dropped_sink,
+                                 guard=_take_guard_for(ref_audio_path, sr, retake))
         return _apply_effect_chain(
             audio_out, sr, effect_preset,
             skip_mastering=getattr(backend, "applies_own_mastering", False),
@@ -1791,6 +1812,9 @@ async def generate_speech(
     # Lengthen the engine's own sentence pauses (1 = as rendered, 1.6 ≈ a
     # human reader's spacing, 3 = slow narration); never shortens or adds.
     pause_scale: float = Form(1.0, ge=1.0, le=3.0),
+    # Re-render a chunk that came back as another voice (half an octave off
+    # the reference, or a buzz) once with a retake seed; services/take_guard.py.
+    retake: bool = Form(True),
     wav_bits: Literal["16", "24", "32"] = Form("16"),
     engine: Optional[str] = Form(None),
     # Wave 1.2 — unlimited-length generation: long text is split at sentence
@@ -2219,6 +2243,7 @@ async def generate_speech(
         "crossfade_ms": crossfade_ms,
         "effect_preset": effect_preset,
         "pause_scale": pause_scale,
+        "retake": retake,
         "wav_bits": int(wav_bits),
         # The requesting user's provenance preference, not the GPU owner's.
         "watermark": bool(_watermark_enabled()),
@@ -2550,7 +2575,7 @@ async def generate_speech(
                                     layer_penalty_factor=layer_penalty_factor,
                                     position_temperature=position_temperature,
                                     class_temperature=class_temperature,
-                                    dropped_sink=_dropped_sink, pause_scale=pause_scale,
+                                    dropped_sink=_dropped_sink, pause_scale=pause_scale, retake=retake,
                                 ),
                                 what="TTS generate",
                                 min_vram_gb=_engine_min_vram_gb,
@@ -2577,7 +2602,7 @@ async def generate_speech(
                                     t_shift, denoise, postprocess_output,
                                     layer_penalty_factor, position_temperature,
                                     class_temperature, used_seed, effect_preset,
-                                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_sink, pause_scale=pause_scale,
+                                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_sink, pause_scale=pause_scale, retake=retake,
                                 ),
                                 what="TTS generate",
                                 min_vram_gb=_engine_min_vram_gb,
@@ -2786,7 +2811,7 @@ async def generate_speech(
                     layer_penalty_factor=layer_penalty_factor,
                     position_temperature=position_temperature,
                     class_temperature=class_temperature,
-                    dropped_sink=_dropped_text, pause_scale=pause_scale,
+                    dropped_sink=_dropped_text, pause_scale=pause_scale, retake=retake,
                 )
             else:
                 _local_render = functools.partial(
@@ -2795,7 +2820,7 @@ async def generate_speech(
                     num_step, guidance_scale, speed, t_shift, denoise,
                     postprocess_output, layer_penalty_factor, position_temperature,
                     class_temperature, used_seed, effect_preset,
-                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_text, pause_scale=pause_scale,
+                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_text, pause_scale=pause_scale, retake=retake,
                 )
             audio_tensor = await _run_with_reference_lease(
                 ref_lease,

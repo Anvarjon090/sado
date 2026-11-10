@@ -53,6 +53,14 @@ class SpeechMetrics:
     f0_range_st: float | None
     f0_micro_st: float | None
     voiced_ratio: float
+    #: Voice texture, median over voiced frames: harmonics-to-noise ratio
+    #: (smooth phonation is high), cepstral peak prominence (rough or
+    #: breathy voices are low), H1−H2 (breathier is higher).
+    hnr_db: float | None = None
+    cpp_db: float | None = None
+    h1_h2_db: float | None = None
+    #: 2–5 kHz against 0.1–1 kHz on speech frames: harshness / presence.
+    presence_db: float = 0.0
     band_db: dict = field(default_factory=dict)
     centroid_hz: float = 0.0
     rolloff95_hz: float = 0.0
@@ -135,6 +143,70 @@ def pitch_track(x: np.ndarray, sr: int, hop_s: float = HOP_S) -> np.ndarray:
     return f0.squeeze(0).numpy()
 
 
+def voice_texture(x: np.ndarray, sr: int, f0: np.ndarray, voiced: np.ndarray,
+                  hop_s: float = HOP_S) -> tuple[float | None, float | None, float | None]:
+    """``(hnr_db, cpp_db, h1_h2_db)`` — medians over the voiced frames.
+
+    * HNR: normalized autocorrelation at the F0 lag of a 40 ms frame,
+      ``10·log10(r / (1 − r))``; the classic harmonics-to-noise estimate.
+    * CPP: cepstral peak prominence — the peak of the real cepstrum in the
+      60–450 Hz quefrency band above a straight line fitted to the cepstrum,
+      in dB; low for rough or breathy phonation, high for smooth voices.
+    * H1−H2: level of the first harmonic over the second, from the frame's
+      spectrum at F0 and 2·F0; a breathiness proxy.
+    """
+    frame = int(0.040 * sr)
+    hop = int(hop_s * sr)
+    if len(x) < frame or not voiced.any():
+        return None, None, None
+    window = np.hanning(frame).astype(np.float32)
+    nfft = 1 << (frame * 2 - 1).bit_length()
+    lo, hi = int(sr / 450), int(sr / 60)
+    # Boersma (1993): divide the signal's autocorrelation by the window's own,
+    # otherwise the taper alone caps r(T0) near 0.85 (≈7 dB) for a pure tone.
+    win_ac = np.fft.irfft(np.abs(np.fft.rfft(window, nfft)) ** 2, nfft)[: hi + 1]
+    win_ac = win_ac / win_ac[0]
+    hnr, cpp, h1h2 = [], [], []
+    freqs = np.fft.rfftfreq(nfft, 1.0 / sr)
+    for i in np.where(voiced)[0]:
+        start = i * hop
+        seg = x[start:start + frame]
+        if len(seg) < frame or f0[i] <= 0:
+            continue
+        seg = (seg - seg.mean()) * window
+        spec = np.fft.rfft(seg, nfft)
+        power = np.abs(spec) ** 2 + 1e-12
+        # HNR from the autocorrelation (Wiener–Khinchin), normalized by r(0).
+        ac = np.fft.irfft(power, nfft)[: hi + 1]
+        if ac[0] <= 0:
+            continue
+        lag = int(round(sr / f0[i]))
+        a, b = max(lo, int(lag * 0.9)), min(hi, int(lag * 1.1) + 1)
+        if b <= a:
+            continue
+        norm = ac[a:b] / ac[0] / np.maximum(win_ac[a:b], 1e-3)
+        r = float(norm.max())
+        if r > 0:
+            hnr.append(10.0 * np.log10(min(r, 0.9999) / max(1.0 - r, 1e-4)))
+        # CPP: cepstrum of the log-magnitude spectrum (dB), peak over a line.
+        log_db = 10.0 * np.log10(power)
+        cep = np.fft.irfft(log_db, nfft)[: hi + 1]
+        q = np.arange(hi + 1)
+        sel = q >= lo
+        peak_i = lo + int(np.argmax(cep[lo:hi + 1]))
+        slope, intercept = np.polyfit(q[sel], cep[sel], 1)
+        cpp.append(float(cep[peak_i] - (slope * peak_i + intercept)))
+        # H1 − H2 from the spectrum around the first two harmonics.
+        def _harm(k: int) -> float:
+            band = (freqs >= f0[i] * k * 0.85) & (freqs <= f0[i] * k * 1.15)
+            return float(10.0 * np.log10(power[band].max())) if band.any() else float("nan")
+        h1, h2 = _harm(1), _harm(2)
+        if np.isfinite(h1) and np.isfinite(h2):
+            h1h2.append(h1 - h2)
+    med = lambda v: float(np.median(v)) if v else None  # noqa: E731
+    return med(hnr), med(cpp), med(h1h2)
+
+
 def analyze_speech(samples: np.ndarray, sr: int) -> SpeechMetrics:
     x = to_mono(samples)
     duration = len(x) / sr
@@ -175,6 +247,8 @@ def analyze_speech(samples: np.ndarray, sr: int) -> SpeechMetrics:
         steps = np.abs(np.diff(12.0 * np.log2(f0[vi] / 100.0)))[adjacent]
         micro = float(np.mean(steps)) if steps.size else None
 
+    hnr, cpp, h1h2 = voice_texture(x, sr, f0, voiced, hop_s)
+
     f, _, zxx = stft(x, fs=sr, nperseg=1024, noverlap=768)
     power = np.abs(zxx) ** 2
     frame_t = np.arange(power.shape[1]) * (256 / sr)
@@ -188,6 +262,7 @@ def analyze_speech(samples: np.ndarray, sr: int) -> SpeechMetrics:
 
     bands = {"0-1k": band(0, 1000), "1-4k": band(1000, 4000), "4-8k": band(4000, 8000),
              "8k+": band(8000, sr / 2 + 1)}
+    presence = band(2000, 5000) - band(100, 1000)
     cumulative = np.cumsum(spec) / total
     return SpeechMetrics(
         duration_s=round(duration, 3),
@@ -209,6 +284,8 @@ def analyze_speech(samples: np.ndarray, sr: int) -> SpeechMetrics:
         f0_range_st=round(float(np.percentile(st, 95) - np.percentile(st, 5)), 2) if st.size else None,
         f0_micro_st=_round(micro, 3),
         voiced_ratio=round(float(voiced.sum() / max(act.sum(), 1)), 3),
+        hnr_db=_round(hnr), cpp_db=_round(cpp), h1_h2_db=_round(h1h2),
+        presence_db=round(presence, 2),
         band_db={k: round(v, 2) for k, v in bands.items()},
         centroid_hz=round(float((f * spec).sum() / total), 1),
         rolloff95_hz=round(float(f[min(int(np.searchsorted(cumulative, 0.95)), len(f) - 1)]), 1),
@@ -223,7 +300,8 @@ def _round(value: float | None, digits: int = 2) -> float | None:
 #: Columns worth a glance in a comparison table, in reading order.
 SUMMARY_COLUMNS = (
     "duration_s", "lufs", "lra_lu", "crest_db", "level_std_db", "pauses", "pause_mean_s",
-    "pause_floor_dbfs", "f0_median_hz", "f0_std_st", "f0_range_st", "rolloff95_hz", "tilt_db",
+    "pause_floor_dbfs", "f0_median_hz", "f0_std_st", "f0_range_st", "hnr_db", "cpp_db",
+    "h1_h2_db", "presence_db", "rolloff95_hz", "tilt_db",
 )
 
 

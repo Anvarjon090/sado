@@ -72,6 +72,7 @@ For an in-app recording, choose the microphone and Auto, Mono, or Stereo in the 
 | `pause_scale` | `1.0` (app: `1.6`) | Lengthens the engine's own pauses of 150 ms or more by this factor with their room tone, capped at 0.9 s; range 1–3. Never adds or shortens a pause. |
 | `denoise` | unset | Unset = measured per reference: the `<|denoise|>` token is used when the clip's speech-to-floor ratio is under 28 dB, otherwise the recording's acoustics are kept. `true`/`false` force it. Voice design has no reference and never uses it. |
 | `num_step` | performance tier (16 / 32 / 64) | The app sends 32 unless you move the slider. |
+| `retake` | `true` | With a reference clip: a chunk whose median pitch lands more than 6 semitones from the reference's, or that has no harmonic structure, is rendered once more with a retake seed and the closer take is kept (`backend/services/take_guard.py`). `false` keeps the first take. |
 
 A blank line between paragraphs is rendered as separate spans with a 650 ms
 breath between them; `[pause Nms]` markers take precedence when present.

@@ -273,3 +273,92 @@ def test_reference_acoustics_measures_and_caches(tmp_path):
     cached = ra._snr_cached.cache_info()
     ra.reference_snr_db(str(clean))
     assert ra._snr_cached.cache_info().hits == cached.hits + 1
+
+
+# ── take guard ─────────────────────────────────────────────────────────────
+
+
+def _voiced(seconds: float, f0: float, *, hnr_noise: float = 0.0) -> np.ndarray:
+    n = int(seconds * SR)
+    t = np.arange(n) / SR
+    out = sum(np.sin(2 * np.pi * f0 * h * t) / h for h in range(1, 7))
+    ramp = np.linspace(0, 1, int(0.02 * SR))
+    env = np.ones(n)
+    env[: len(ramp)] = ramp
+    env[-len(ramp):] = ramp[::-1]
+    out = out * env / np.max(np.abs(out)) * 0.3
+    if hnr_noise:
+        out = out + np.random.default_rng(1).standard_normal(n) * hnr_noise
+    quiet = np.zeros(int(0.2 * SR))
+    return np.concatenate([quiet, out, quiet]).astype(np.float32)
+
+
+def test_take_guard_retakes_a_voice_that_flipped_and_keeps_the_better_one():
+    from services import take_guard as tg
+
+    guard = tg.TakeGuard(reference_hz=220.0, sample_rate=SR)
+    good = torch.from_numpy(_voiced(2.0, 215.0))[None, :]
+    flipped = torch.from_numpy(_voiced(2.0, 120.0))[None, :]  # a man's range on a woman's reference
+    calls: list[tuple[str, int]] = []
+
+    def render(text, index, duration):
+        calls.append((text, index))
+        return flipped if index < tg.RETAKE_SEED_OFFSET else good
+
+    out = guard.render(render, "Salom", 0, None)
+    assert out is good and guard.retakes == 1
+    assert calls == [("Salom", 0), ("Salom", tg.RETAKE_SEED_OFFSET)]
+
+    # A take within range is accepted first time; nothing is re-rendered.
+    calls.clear()
+    assert guard.render(render, "Salom", tg.RETAKE_SEED_OFFSET + 5, None) is good
+    assert len(calls) == 1
+    # When the retake is no better, the first take stays.
+    always_bad = lambda text, index, duration: flipped
+    assert guard.render(always_bad, "Salom", 1, None) is flipped
+
+
+def test_take_guard_flags_a_buzz_and_measures_the_reference(tmp_path):
+    import soundfile as sf
+
+    from services import take_guard as tg
+
+    guard = tg.TakeGuard(reference_hz=220.0, sample_rate=SR)
+    buzz = torch.from_numpy(_voiced(2.0, 220.0, hnr_noise=0.25))[None, :]
+    assert not guard.accepts(buzz)  # right pitch, no harmonic structure
+    ref = tmp_path / "ref.wav"
+    sf.write(ref, _voiced(3.0, 200.0), SR, subtype="PCM_16")
+    assert tg.reference_pitch_hz(str(ref)) == pytest.approx(200.0, abs=8)
+    assert tg.reference_pitch_hz(str(tmp_path / "missing.wav")) is None
+    silent = tmp_path / "silent.wav"
+    sf.write(silent, np.zeros(SR, dtype=np.float32), SR, subtype="PCM_16")
+    assert tg.reference_pitch_hz(str(silent)) is None  # unmeasurable → guard disabled
+
+
+def test_generate_retakes_through_the_engine_and_can_be_switched_off(client, monkeypatch):
+    """The fake engine answers a man's pitch to a woman's reference on the first
+    call and the reference's pitch on the retake seed."""
+    from services import take_guard as tg
+
+    ref = _wav_bytes(_voiced(3.0, 220.0))
+    woman, man = _voiced(2.0, 215.0), _voiced(2.0, 120.0)
+
+    def generate(self, text, **kw):
+        type(self).calls.append((text, kw))
+        return torch.from_numpy(man if kw.get("seed", 0) < tg.RETAKE_SEED_OFFSET else woman)[None, :]
+
+    client.fake.supports_generation_seed = True
+    monkeypatch.setattr(client.fake, "generate", generate)
+    client.fake.calls.clear()
+    res = client.post("/generate", data={"text": "Salom dunyo", "engine": "fake-natural", "ref_text": "salom",
+                                         "seed": "5", "effect_preset": "raw"},
+                      files={"ref_audio": ("ref.wav", ref, "audio/wav")})
+    assert res.status_code == 200, res.text
+    assert [c[1]["seed"] for c in client.fake.calls] == [5, 5 + tg.RETAKE_SEED_OFFSET]
+
+    client.fake.calls.clear()
+    res = client.post("/generate", data={"text": "Salom dunyo", "engine": "fake-natural", "ref_text": "salom",
+                                         "seed": "5", "effect_preset": "raw", "retake": "false"},
+                      files={"ref_audio": ("ref.wav", ref, "audio/wav")})
+    assert res.status_code == 200, res.text
+    assert len(client.fake.calls) == 1

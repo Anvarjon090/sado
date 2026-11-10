@@ -24,6 +24,8 @@ metadata and the backend fallback mirror it.
 - `scripts/voice_intake.py` checks a human reference recording against the voice acceptance rules (length, sample rate, clipping, pauses, noise, loudness, transcript match), masters it and can install it as a voice with a test sentence to listen to
 - Pause control: `pause_scale` lengthens the engine's own sentence pauses with their room tone (Voice controls → Pauses, 1.6× in the app, 1× through the API), and a blank line between paragraphs becomes a 650 ms breath
 - `scripts/voice_bench.py` renders a fixed Uzbek benchmark (short lines, questions, numbers and dates, mixed language, narration, hard phonemes) for any voice, measures loudness range, pauses, melody and spectrum, checks it with the local STT and diffs against a baseline run
+- Take guard: a reference-based render that comes back as another voice (half an octave off the reference, or a buzz) is rendered once more with a retake seed and the closer take is kept; `retake=false` opts out
+- `scripts/voice_casting.py` casts sixteen age-and-sex voices (5–70 years) from the engine's design tags by auditioning seeds, measuring pitch, smoothness and harshness, and writing a side-by-side listening page; picks install as Sado voices pinned to their audition clip
 
 ### Changed
 

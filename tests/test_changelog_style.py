@@ -67,6 +67,8 @@ _REF_ALLOWLIST = (
     "Generated speech keeps its natural dynamics",
     "Reference cleanup (`denoise`) is decided per reference",
     "Sampling steps default to 32, the model's own default",
+    "Take guard: a reference-based render that comes back as another voice",
+    "`scripts/voice_casting.py` casts sixteen age-and-sex voices",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

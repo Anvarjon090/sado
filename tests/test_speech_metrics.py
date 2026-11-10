@@ -83,3 +83,30 @@ def test_silence_yields_an_empty_but_valid_report():
 def test_runs_and_summary_columns_exist():
     assert sm.runs(np.array([0, 1, 1, 0, 1], dtype=bool)) == [(1, 3), (4, 5)]
     assert "lra_lu" in sm.SUMMARY_COLUMNS and "tilt_db" in sm.SUMMARY_COLUMNS
+
+
+def test_voice_texture_separates_smooth_from_noisy_phonation():
+    clean = passage(0.4)
+    rng = np.random.default_rng(5)
+    noisy = (clean + rng.standard_normal(len(clean)).astype(np.float32) * 0.03).astype(np.float32)
+    a, b = sm.analyze_speech(clean, SR), sm.analyze_speech(noisy, SR)
+    assert a.hnr_db is not None and a.cpp_db is not None
+    assert a.hnr_db > 15 and b.hnr_db < a.hnr_db - 5
+    assert a.cpp_db > b.cpp_db
+    assert b.presence_db > a.presence_db  # added broadband noise reads as harshness
+
+
+def test_h1_h2_follows_the_harmonic_balance():
+    n = int(2.0 * SR)
+    t = np.arange(n) / SR
+    bright = (np.sin(2 * np.pi * 200 * t) + 1.0 * np.sin(2 * np.pi * 400 * t)) * 0.2
+    breathy = (np.sin(2 * np.pi * 200 * t) + 0.25 * np.sin(2 * np.pi * 400 * t)) * 0.2
+    ramp = np.linspace(0, 1, int(0.02 * SR))
+    for sig in (bright, breathy):
+        sig[: len(ramp)] *= ramp
+        sig[-len(ramp):] *= ramp[::-1]
+    quiet = np.zeros(int(0.3 * SR), dtype=np.float32)
+    mb = sm.analyze_speech(np.concatenate([quiet, bright.astype(np.float32), quiet]), SR)
+    mr = sm.analyze_speech(np.concatenate([quiet, breathy.astype(np.float32), quiet]), SR)
+    assert mb.h1_h2_db == pytest.approx(0.0, abs=1.5)
+    assert mr.h1_h2_db == pytest.approx(12.0, abs=2.0)
