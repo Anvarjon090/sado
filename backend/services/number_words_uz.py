@@ -39,8 +39,20 @@ _TENS = [
 ]
 HUNDRED = "yuz"
 # (value, word), largest first.
-_SCALES = [(10**9, "milliard"), (10**6, "million"), (10**3, "ming")]
-MAX_CARDINAL = 10**12 - 1
+_SCALES = [
+    (10**33, "detsillion"),
+    (10**30, "nonillion"),
+    (10**27, "oktillion"),
+    (10**24, "septillion"),
+    (10**21, "sekstillion"),
+    (10**18, "kvintillion"),
+    (10**15, "kvadrillion"),
+    (10**12, "trillion"),
+    (10**9, "milliard"),
+    (10**6, "million"),
+    (10**3, "ming"),
+]
+MAX_CARDINAL = 10**36 - 1
 
 DECIMAL_WORD = "butun"
 PERCENT_WORD = "foiz"
@@ -83,11 +95,11 @@ def _below_thousand(n: int) -> list[str]:
 # ── Public API ───────────────────────────────────────────────────────────────
 
 def cardinal(n: int) -> str:
-    """Render an integer 0 ≤ n ≤ 999 999 999 999 as Uzbek words."""
+    """Render an integer 0 ≤ n < 10**36 as Uzbek words (up to detsillion)."""
     if isinstance(n, bool) or not isinstance(n, int):
         raise TypeError("cardinal() expects an int")
     if n < 0 or n > MAX_CARDINAL:
-        raise ValueError("cardinal() supports 0..999999999999")
+        raise ValueError("cardinal() supports 0..10**36-1")
     if n == 0:
         return _UNITS[0]
     words: list[str] = []
@@ -239,13 +251,67 @@ def money(symbol: str, whole: str, cents: str | None = None) -> str:
 
 
 def digits(raw: str) -> str:
-    """Read a digit run one digit at a time: "1234567" → bir ikki uch ….
-
-    Card and account numbers are spoken this way, and it is the only reading
-    the TTS engines handle reliably: a raw run of seven or more digits makes
-    Navoiy babble instead of speaking.
-    """
+    """Read a digit run one digit at a time: "1234567" → bir ikki uch …."""
     return " ".join(_UNITS[int(d)] for d in raw if d.isdigit())
+
+
+def block(raw: str) -> str:
+    """One block of an account or ID number, the way a clerk dictates it.
+
+    Leading zeros are spoken one by one and the rest is a number: "2020" →
+    ikki ming yigirma, "0512" → nol besh yuz o'n ikki, "0001" → nol nol nol
+    bir, "0000" → nol nol nol nol, "100" → bir yuz.
+    """
+    rest = raw.lstrip("0")
+    words = [_UNITS[0]] * (len(raw) - len(rest))
+    if rest:
+        words.append(digit_group(rest))
+    return " ".join(words)
+
+
+def split_code(run: str) -> list[str]:
+    """Split an unspaced account or ID number into listenable blocks.
+
+    Fours by default (a 20-digit bank account), threes when the length
+    divides by three but not by four (a 9-digit INN), and a lone trailing
+    digit is rebalanced into 3+2 ("00014" → 000, 14) so no block is a single
+    digit.
+    """
+    if len(run) <= 4:
+        return [run]
+    size = 3 if len(run) % 3 == 0 and len(run) % 4 else 4
+    groups = [run[i : i + size] for i in range(0, len(run), size)]
+    if len(groups[-1]) == 1:
+        tail = groups[-2] + groups[-1]
+        groups[-2:] = [tail[:3], tail[3:]]
+    return groups
+
+
+def code(raw: str) -> str:
+    """Read an account or ID number block by block, each block as a number.
+
+    "2020 8000 9001 2345 6001" → ikki ming yigirma, sakkiz ming, to'qqiz ming
+    bir, ikki ming uch yuz qirq besh, olti ming bir. Blocks the writer spaced
+    are kept; an unspaced run is split by :func:`split_code`. The comma after
+    each block gives the TTS a short pause so a listener can write it down.
+    """
+    parts = [g for g in re.split(r"[\s-]+", raw.strip()) if g]
+    if len(parts) == 1 or any(len(g) > 6 for g in parts):
+        parts = split_code("".join(parts))
+    return ", ".join(block(g) for g in parts)
+
+
+def card(raw: str) -> str:
+    """Read a bank card number two digits at a time, the way people dictate it.
+
+    "5614 6828 0512 9000" → ellik olti, o'n to'rt, oltmish sakkiz, yigirma
+    sakkiz, nol besh, o'n ikki, to'qson, nol nol. Every pair stands alone, a
+    pair with a leading zero is read digit by digit ("05" → nol besh), an odd
+    trailing digit is read alone, and the comma after each pair gives the TTS
+    a short pause so a listener can write the number down.
+    """
+    run = "".join(d for d in raw if d.isdigit())
+    return ", ".join(digit_group(run[i : i + 2]) for i in range(0, len(run), 2))
 
 
 def digit_group(raw: str) -> str:

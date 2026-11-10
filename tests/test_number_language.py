@@ -78,7 +78,7 @@ def test_openai_speech_infers_the_engine_language():
     # A bare 7–12 digit run reads as a cardinal, a 13+ digit one digit by
     # digit: Navoiy-TTS babbles on raw digit runs instead of speaking them.
     ("1234567 raqami", "bir million ikki yuz o'ttiz to'rt ming besh yuz oltmish yetti raqami"),
-    ("4111111111111111", "to'rt bir bir bir bir bir bir bir bir bir bir bir bir bir bir bir"),
+    ("4111111111111111", "qirq bir, o'n bir, o'n bir, o'n bir, o'n bir, o'n bir, o'n bir, o'n bir"),
 ])
 def test_uzbek_long_numbers_leave_no_digits(text, expected):
     assert normalize_text(text, "Uzbek") == expected
@@ -118,3 +118,56 @@ def test_word_votes():
     assert word_votes("қишлоқ") == {"uzc": 1.0}
     assert word_votes("o'qiganman") == {"uz": 0.9}
     assert word_votes("iPhone") == {}
+
+
+@pytest.mark.parametrize(
+    ("raw", "spoken"),
+    [
+        (
+            "Hisob raqam: 20208000900123456001",
+            ("Hisob raqam: ikki ming yigirma, sakkiz ming, to'qqiz ming bir, "
+            "ikki ming uch yuz qirq besh, olti ming bir"),
+        ),
+        (
+            "20208000900123456001",
+            ("ikki ming yigirma, sakkiz ming, to'qqiz ming bir, ikki ming uch yuz qirq besh, "
+            "olti ming bir"),
+        ),
+        (
+            "Karta raqami: 8600 1234 5678 9012",
+            ("Karta raqami: sakson olti, nol nol, o'n ikki, o'ttiz to'rt, ellik olti, "
+            "yetmish sakkiz, to'qson, o'n ikki"),
+        ),
+        (
+            "JSHSHIR 31234567890123",
+            ("JSHSHIR uch ming yuz yigirma uch, to'rt ming besh yuz oltmish yetti, "
+            "sakkiz ming to'qqiz yuz bir, yigirma uch"),
+        ),
+        ("Aholisi 8000000000000 kishi", "Aholisi sakkiz trillion kishi"),
+        (
+            "Karta 8600 1234 5678 9012",
+            ("Karta sakson olti, nol nol, o'n ikki, o'ttiz to'rt, ellik olti, yetmish sakkiz, "
+            "to'qson, o'n ikki"),
+        ),
+        (
+            "Karta 5614 6828 0512 9000",
+            ("Karta ellik olti, o'n to'rt, oltmish sakkiz, yigirma sakkiz, nol besh, o'n ikki, "
+            "to'qson, nol nol"),
+        ),
+        ("INN 302456789", "INN uch yuz ikki, to'rt yuz ellik olti, yetti yuz sakson to'qqiz"),
+        ("MFO 00014", "MFO nol nol nol, o'n to'rt"),
+        ("Xona raqami 305", "Xona raqami uch yuz besh"),
+        ("Narxi 1500000", "Narxi bir million besh yuz ming"),
+    ],
+)
+def test_uzbek_account_numbers_read_in_groups(raw, spoken):
+    assert normalize_text(raw, "Uzbek") == spoken
+
+
+def test_uzbek_bare_long_numbers_read_as_quantities():
+    spoken = normalize_text("465465654625624562456425645", "Uzbek")
+    assert spoken.startswith("to'rt yuz oltmish besh septillion")
+    assert spoken.endswith("olti yuz qirq besh")
+    assert not any(c.isdigit() for c in spoken)
+    # Beyond the scale table (10**36) a run falls back to blocks of four.
+    assert normalize_text("1" * 40, "Uzbek").startswith("bir ming yuz o'n bir, bir ming yuz o'n bir")

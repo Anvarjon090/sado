@@ -800,14 +800,33 @@ _UZ_ROMAN_RE = re.compile(
 # 7–12 digit amounts are read only in front of a word that counts something;
 # anything else that long is an ID, an account or a card number.
 _UZ_LONG_AMOUNT_RE = re.compile(
-    r"(?<![\w.,:/$%+#№-])([1-9]\d{6,11})(?=\s+(?:so'm|sum|dollar|rubl|yevro|tenge|"
+    r"(?<![\w.,:/$%+#№-])([1-9]\d{6,})(?=\s+(?:so'm|sum|dollar|rubl|yevro|tenge|"
     r"kishi|nafar|ta\b|dona|tonna|gektar|kilometr|km\b|metr|litr|kilogramm|kg\b|marta|"
     r"yil|aholi|tomoshabin|foydalanuvchi))"
 )
 # A bare 7–12 digit run (a price, a population, a year span) reads as a
-# cardinal; 13+ digits is a card/account number and reads digit by digit.
-# Raw digits are not an option for Uzbek: Navoiy-TTS babbles instead of
-# speaking them, so every long run must leave this module as words.
+# cardinal, and so does a longer bare run up to 10**36 ("kvadrillion",
+# "septillion", …). Two lengths are identifiers by convention and read the
+# way clerks dictate them: 16 digits is a bank card (two digits at a time)
+# and 20 digits is a bank account (blocks of four). Raw digits are not an
+# option for Uzbek: Navoiy-TTS babbles instead of speaking them, so every
+# long run must leave this module as words.
+# An identifier named by its keyword ("hisob raqami", "karta", "INN", "MFO",
+# "№") reads block by block even when short or spaced: "MFO 00014" must not
+# drop its zeros, and "INN 302456789" is not three hundred million.
+_UZ_CARD_WORDS = r"karta\w*|kartochka\w*|humo|uzcard|visa|mastercard|maestro"
+_UZ_ACCOUNT_WORDS = r"hisob\s+raqam\w*|[hx]/r|inn|stir|mfo|jshshir|pinfl|pasport\w*"
+_UZ_ID_KEYWORD_RE = re.compile(
+    r"(?i)(?<![\w'])((?:" + _UZ_CARD_WORDS + r"|" + _UZ_ACCOUNT_WORDS + r"|id|kod\w*|"
+    r"raqam\w*)(?:\s+raqam\w*)?\s*[:№#-]?\s*|[№#]\s*)"
+    r"(\d{2,}(?:[ -]\d{2,})*)(?![\w%:/-])(?![.,]\d)"
+)
+_UZ_CARD_WORD_RE = re.compile(r"(?i)^(?:" + _UZ_CARD_WORDS + r")")
+_UZ_ACCOUNT_WORD_RE = re.compile(r"(?i)^(?:" + _UZ_ACCOUNT_WORDS + r")")
+# Space- or hyphen-grouped digits with no keyword: "8600 1234 5678 9012".
+_UZ_GROUPED_CODE_RE = re.compile(
+    r"(?<![\w.,:/+-])(\d{4}(?:[ -]\d{4}){2,4}(?:[ -]\d{1,4})?)(?![\w%:/-])(?![.,]\d)"
+)
 _UZ_LONG_NUMBER_RE = re.compile(
     r"(?<![\w.,:/$%+#№-])(\d{7,12})(?![\w:/%.,-])(?![.,]\d)"
 )
@@ -866,9 +885,36 @@ def _uzbek_extended_forms(text: str, mod) -> str:
         except Exception:  # noqa: BLE001 — conservative: never mangle
             return m.group(0)
 
+    def keyword_code(m: re.Match) -> str:
+        if sum(c.isdigit() for c in m.group(2)) < 5:
+            raise ValueError("a short house/room number stays a cardinal")
+        head = m.group(1).strip()
+        if _UZ_CARD_WORD_RE.match(head):
+            return m.group(1) + mod.card(m.group(2))
+        if _UZ_ACCOUNT_WORD_RE.match(head):
+            return m.group(1) + mod.code(m.group(2))
+        return m.group(1) + bare_code(m.group(2))
+
+    def bare_code(raw: str) -> str:
+        # Under a generic "raqam"/"ID"/"№" or no keyword at all, sixteen
+        # digits is a bank card and anything else an account-style code.
+        if sum(c.isdigit() for c in raw) == 16:
+            return mod.card(raw)
+        return mod.code(raw)
+
+    def long_run(m: re.Match) -> str:
+        raw = m.group(1)
+        if len(raw) == 16:
+            return mod.card(raw)
+        if len(raw) == 20 or raw.startswith("0") or int(raw) > mod.MAX_CARDINAL:
+            return mod.code(raw)
+        return mod.cardinal(int(raw))
+
     keep_safe(_UZ_PHONE_RE, phone)
     keep_safe(_UZ_DATE_RE, date)
     keep_safe(_TIME_RE, lambda m: mod.clock(int(m.group(1)), int(m.group(2))))
+    keep_safe(_UZ_ID_KEYWORD_RE, keyword_code)
+    keep_safe(_UZ_GROUPED_CODE_RE, lambda m: bare_code(m.group(1)))
     keep_safe(_UZ_MONEY_RE, money)
     keep_safe(_UZ_DEGREE_RE, degree)
     keep_safe(_UZ_RANGE_RE, range_)
@@ -880,7 +926,7 @@ def _uzbek_extended_forms(text: str, mod) -> str:
     keep_safe(_UZ_SIGNED_RE, lambda m: mod.signed(m.group(1), mod.cardinal(int(m.group(2)))))
     keep_safe(_UZ_LONG_AMOUNT_RE, lambda m: mod.cardinal(int(m.group(1))))
     keep_safe(_UZ_LONG_NUMBER_RE, lambda m: mod.cardinal(int(m.group(1))))
-    keep_safe(_UZ_ID_RUN_RE, lambda m: mod.digits(m.group(1)))
+    keep_safe(_UZ_ID_RUN_RE, long_run)
     return text
 
 
