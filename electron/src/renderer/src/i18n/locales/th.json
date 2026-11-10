@@ -230,7 +230,8 @@
     "droppedChunks_one": "ส่วนข้อความที่ไม่มีเสียงในเทคนี้: {{count}} ลองสร้างอีกครั้ง",
     "droppedChunksWithText_one": "ส่วนข้อความที่ไม่มีเสียงในเทคนี้: {{count}} — “{{text}}” ลองสร้างอีกครั้ง",
     "droppedChunks_other": "ส่วนข้อความที่ไม่มีเสียงในเทคนี้: {{count}} ลองสร้างอีกครั้ง",
-    "droppedChunksWithText_other": "ส่วนข้อความที่ไม่มีเสียงในเทคนี้: {{count}} — “{{text}}” ลองสร้างอีกครั้ง"
+    "droppedChunksWithText_other": "ส่วนข้อความที่ไม่มีเสียงในเทคนี้: {{count}} — “{{text}}” ลองสร้างอีกครั้ง",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "สิทธิ์การเข้าถึง",

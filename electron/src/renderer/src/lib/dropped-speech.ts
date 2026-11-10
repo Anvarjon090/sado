@@ -3,6 +3,7 @@ import type { GenerateResult } from '@/lib/api/types';
 import { tr } from '@/lib/i18n-text';
 
 const DROPPED_TOAST_MS = 8000;
+const SSML_TOAST_MS = 10000;
 const DROPPED_TEXT_PREVIEW_CHARS = 120;
 
 /**
@@ -24,4 +25,16 @@ export function announceDroppedSpeech(
       : tr('tts.droppedChunks', { count }),
     { duration: DROPPED_TOAST_MS, ...(source ? { description: source } : {}) },
   );
+}
+
+/**
+ * SSML the engine could not honour (pitch, phonemes, an unknown voice …) is
+ * reported by the backend instead of being dropped silently; show it once.
+ */
+export function announceSsmlWarnings(warnings: string[] | null | undefined, source?: string): void {
+  if (!warnings || warnings.length === 0) return;
+  toast.warning(tr('tts.ssmlWarnings', { count: warnings.length, list: warnings.join(' · ') }), {
+    duration: SSML_TOAST_MS,
+    ...(source ? { description: source } : {}),
+  });
 }

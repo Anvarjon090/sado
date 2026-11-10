@@ -230,7 +230,8 @@
     "droppedChunks_one": "Textabschnitte ohne Audio in dieser Aufnahme: {{count}}. Versuche, erneut zu generieren.",
     "droppedChunksWithText_one": "Textabschnitte ohne Audio in dieser Aufnahme: {{count}} — „{{text}}“. Versuche, erneut zu generieren.",
     "droppedChunks_other": "Textabschnitte ohne Audio in dieser Aufnahme: {{count}}. Versuche, erneut zu generieren.",
-    "droppedChunksWithText_other": "Textabschnitte ohne Audio in dieser Aufnahme: {{count}} — „{{text}}“. Versuche, erneut zu generieren."
+    "droppedChunksWithText_other": "Textabschnitte ohne Audio in dieser Aufnahme: {{count}} — „{{text}}“. Versuche, erneut zu generieren.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Berechtigungen",

@@ -234,7 +234,8 @@
     "droppedChunks_few": "Фрагменти тексту без аудіо в цьому записі: {{count}}. Спробуйте згенерувати знову.",
     "droppedChunksWithText_few": "Фрагменти тексту без аудіо в цьому записі: {{count}} — «{{text}}». Спробуйте згенерувати знову.",
     "droppedChunks_many": "Фрагменти тексту без аудіо в цьому записі: {{count}}. Спробуйте згенерувати знову.",
-    "droppedChunksWithText_many": "Фрагменти тексту без аудіо в цьому записі: {{count}} — «{{text}}». Спробуйте згенерувати знову."
+    "droppedChunksWithText_many": "Фрагменти тексту без аудіо в цьому записі: {{count}} — «{{text}}». Спробуйте згенерувати знову.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Дозволи",

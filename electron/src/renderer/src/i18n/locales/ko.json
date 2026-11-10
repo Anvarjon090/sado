@@ -230,7 +230,8 @@
     "droppedChunks_one": "이 테이크에서 오디오가 생성되지 않은 텍스트 구간: {{count}}개. 다시 생성해 보세요.",
     "droppedChunksWithText_one": "이 테이크에서 오디오가 생성되지 않은 텍스트 구간: {{count}}개 — “{{text}}”. 다시 생성해 보세요.",
     "droppedChunks_other": "이 테이크에서 오디오가 생성되지 않은 텍스트 구간: {{count}}개. 다시 생성해 보세요.",
-    "droppedChunksWithText_other": "이 테이크에서 오디오가 생성되지 않은 텍스트 구간: {{count}}개 — “{{text}}”. 다시 생성해 보세요."
+    "droppedChunksWithText_other": "이 테이크에서 오디오가 생성되지 않은 텍스트 구간: {{count}}개 — “{{text}}”. 다시 생성해 보세요.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "권한",

@@ -232,7 +232,8 @@
     "droppedChunks_other": "Fragmentos de texto sin audio en esta toma: {{count}}. Intenta generar de nuevo.",
     "droppedChunksWithText_other": "Fragmentos de texto sin audio en esta toma: {{count}} — «{{text}}». Intenta generar de nuevo.",
     "droppedChunks_many": "Fragmentos de texto sin audio en esta toma: {{count}}. Intenta generar de nuevo.",
-    "droppedChunksWithText_many": "Fragmentos de texto sin audio en esta toma: {{count}} — «{{text}}». Intenta generar de nuevo."
+    "droppedChunksWithText_many": "Fragmentos de texto sin audio en esta toma: {{count}} — «{{text}}». Intenta generar de nuevo.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Permisos",

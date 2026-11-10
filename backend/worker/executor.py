@@ -787,6 +787,7 @@ class TaskExecutor:
         effect_preset = params.get("effect_preset") or None
         pause_scale = float(params.get("pause_scale") or 1.0)
         retake = bool(params.get("retake", True))
+        spans = params.get("spans")  # SSML spans; voice switches were dropped by the requester
         max_chunk_chars = params.get("max_chunk_chars")
         crossfade_ms = params.get("crossfade_ms")
         try:
@@ -803,7 +804,7 @@ class TaskExecutor:
                         params.get("position_temperature"),
                         params.get("class_temperature"), used_seed,
                         effect_preset, max_chunk_chars, crossfade_ms,
-                        pause_scale=pause_scale, retake=retake,
+                        pause_scale=pause_scale, retake=retake, spans=spans,
                     )
                 return _run_backend_inference(
                     backend, text, language, ref_audio, ref_text, instruct,
@@ -814,7 +815,7 @@ class TaskExecutor:
                     layer_penalty_factor=params.get("layer_penalty_factor"),
                     position_temperature=params.get("position_temperature"),
                     class_temperature=params.get("class_temperature"),
-                    pause_scale=pause_scale, retake=retake,
+                    pause_scale=pause_scale, retake=retake, spans=spans,
                 )
         except Exception as exc:
             from worker import errors as worker_errors  # noqa: PLC0415

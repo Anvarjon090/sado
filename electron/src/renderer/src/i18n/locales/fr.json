@@ -232,7 +232,8 @@
     "droppedChunks_other": "Passages sans audio dans cette prise : {{count}}. Relancez la génération.",
     "droppedChunksWithText_other": "Passages sans audio dans cette prise : {{count}} — « {{text}} ». Relancez la génération.",
     "droppedChunks_many": "Passages sans audio dans cette prise : {{count}}. Relancez la génération.",
-    "droppedChunksWithText_many": "Passages sans audio dans cette prise : {{count}} — « {{text}} ». Relancez la génération."
+    "droppedChunksWithText_many": "Passages sans audio dans cette prise : {{count}} — « {{text}} ». Relancez la génération.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Autorisations",

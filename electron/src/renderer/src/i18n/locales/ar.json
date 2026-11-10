@@ -238,7 +238,8 @@
     "droppedChunks_few": "مقاطع النص المفقودة من هذا التسجيل: {{count}}. حاول توليد الصوت مجددًا.",
     "droppedChunksWithText_few": "مقاطع النص المفقودة من هذا التسجيل: {{count}} — «{{text}}». حاول توليد الصوت مجددًا.",
     "droppedChunks_many": "مقاطع النص المفقودة من هذا التسجيل: {{count}}. حاول توليد الصوت مجددًا.",
-    "droppedChunksWithText_many": "مقاطع النص المفقودة من هذا التسجيل: {{count}} — «{{text}}». حاول توليد الصوت مجددًا."
+    "droppedChunksWithText_many": "مقاطع النص المفقودة من هذا التسجيل: {{count}} — «{{text}}». حاول توليد الصوت مجددًا.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "الأذونات",

@@ -232,7 +232,8 @@
     "droppedChunks_other": "Parti di testo senza audio in questa registrazione: {{count}}. Prova a generare di nuovo.",
     "droppedChunksWithText_other": "Parti di testo senza audio in questa registrazione: {{count}} — «{{text}}». Prova a generare di nuovo.",
     "droppedChunks_many": "Parti di testo senza audio in questa registrazione: {{count}}. Prova a generare di nuovo.",
-    "droppedChunksWithText_many": "Parti di testo senza audio in questa registrazione: {{count}} — «{{text}}». Prova a generare di nuovo."
+    "droppedChunksWithText_many": "Parti di testo senza audio in questa registrazione: {{count}} — «{{text}}». Prova a generare di nuovo.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Autorizzazioni",

@@ -69,6 +69,8 @@ _REF_ALLOWLIST = (
     "Sampling steps default to 32, the model's own default",
     "Take guard: a reference-based render that comes back as another voice",
     "`scripts/voice_casting.py` casts sixteen age-and-sex voices",
+    "SSML on `/generate` and `/v1/audio/speech`",
+    "Protected voices: `POST /profiles/{id}/protect`",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

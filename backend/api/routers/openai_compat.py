@@ -536,12 +536,35 @@ def _typed_speech_http_error(e: Exception) -> Optional[HTTPException]:
     return None
 
 
-def _run_tts(backend, text: str, kw: dict):
-    """Run TTS inference in the GPU thread pool."""
+def _run_tts(backend, text: str, kw: dict, spans=None):
+    """Run TTS inference in the GPU thread pool.
+
+    ``spans`` (SSML) renders each span with its own speed, language and gain
+    and stitches the pauses between them, through the same span stitcher
+    /generate uses.
+    """
     from services.audio_dsp import finalize_output
     from services.watermark import mark_synthetic
-    wav = backend.generate(text, **kw)
     sr = backend.sample_rate
+    if spans:
+        from api.routers.generation import _render_with_pauses
+
+        base_speed = float(kw.get("speed") or 1.0)
+
+        def _span(span_text, overrides):
+            span_kw = dict(kw)
+            span_kw["speed"] = base_speed * float(overrides.get("speed_factor") or 1.0)
+            if overrides.get("language"):
+                span_kw["language"] = overrides["language"]
+            audio = backend.generate(span_text, **span_kw)
+            gain_db = float(overrides.get("gain_db") or 0.0)
+            return audio * (10.0 ** (gain_db / 20.0)) if gain_db else audio
+
+        wav = _render_with_pauses(
+            _span, [(sp["text"], int(sp.get("pause_ms") or 0), sp) for sp in spans], sr,
+        )
+    else:
+        wav = backend.generate(text, **kw)
     # Same tail as /generate's default: the natural preset — a BS.1770
     # loudness match and nothing else, so this route and /generate hand
     # out the same voice. Engines that master their own output
@@ -686,10 +709,28 @@ async def create_speech(req: SpeechRequest):
     # language decide, because an Uzbek profile on an Uzbek-only engine must
     # still get Uzbek number words (raw digits make Navoiy-TTS babble).
     # Pref-gated (default ON), idempotent, never raises.
+    from services.ssml import SsmlError, is_ssml, parse_ssml
     from services.text_normalization import normalize_for_tts
-    text = normalize_for_tts(
-        req.input, req.language or _spoken_language(backend, profile_language)
-    )
+    spoken_language = req.language or _spoken_language(backend, profile_language)
+    ssml_spans = None
+    ssml_warnings: list = []
+    if is_ssml(req.input):
+        # SSML (docs/ssml.md): spans with their own pauses, speed and language;
+        # <voice> is a /generate feature and is reported as unsupported here.
+        try:
+            doc = parse_ssml(req.input)
+        except SsmlError as exc:
+            return OpenAIError(400, str(exc), param="input")
+        ssml_warnings = list(doc.warnings)
+        if doc.voices():
+            ssml_warnings.append("<voice> is not supported on /v1/audio/speech; the request's voice was used")
+        for span in doc.spans:
+            if span.text:
+                span.text = normalize_for_tts(span.text, span.delivery.language or spoken_language)
+        ssml_spans = [span.to_wire() for span in doc.spans]
+        text = doc.plain_text()
+    else:
+        text = normalize_for_tts(req.input, spoken_language)
 
     # VRAM eviction runs in get_model()'s warm-return path now, covering every
     # native TTS generate (this route, WS TTS, dub, batch, audiobook).
@@ -783,7 +824,7 @@ async def create_speech(req: SpeechRequest):
         # so long inputs failed here even after v0.3.22 shipped the scaling.
         from services.model_manager import generate_timeout_s
         wav, sr = await run_on_gpu_pool_guarded(
-            lambda: _run_tts(backend, text, kw), what="OpenAI TTS generate",
+            lambda: _run_tts(backend, text, kw, ssml_spans), what="OpenAI TTS generate",
             timeout=generate_timeout_s(text, engine=backend))
     except Exception as e:
         # #1172/#1173: typed failures get their real status + actionable

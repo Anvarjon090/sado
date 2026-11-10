@@ -230,7 +230,8 @@
     "droppedChunks_one": "Textdelar utan ljud i den här tagningen: {{count}}. Försök generera igen.",
     "droppedChunksWithText_one": "Textdelar utan ljud i den här tagningen: {{count}} — ”{{text}}”. Försök generera igen.",
     "droppedChunks_other": "Textdelar utan ljud i den här tagningen: {{count}}. Försök generera igen.",
-    "droppedChunksWithText_other": "Textdelar utan ljud i den här tagningen: {{count}} — ”{{text}}”. Försök generera igen."
+    "droppedChunksWithText_other": "Textdelar utan ljud i den här tagningen: {{count}} — ”{{text}}”. Försök generera igen.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Behörigheter",

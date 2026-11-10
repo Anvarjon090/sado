@@ -26,6 +26,8 @@ metadata and the backend fallback mirror it.
 - `scripts/voice_bench.py` renders a fixed Uzbek benchmark (short lines, questions, numbers and dates, mixed language, narration, hard phonemes) for any voice, measures loudness range, pauses, melody and spectrum, checks it with the local STT and diffs against a baseline run
 - Take guard: a reference-based render that comes back as another voice (half an octave off the reference, or a buzz) is rendered once more with a retake seed and the closer take is kept; `retake=false` opts out
 - `scripts/voice_casting.py` casts sixteen age-and-sex voices (5–70 years) from the engine's design tags by auditioning seeds, measuring pitch, smoothness and harshness, and writing a side-by-side listening page; picks install as Sado voices pinned to their audition clip
+- SSML on `/generate` and `/v1/audio/speech`: a `<speak>` document is parsed into spans — `<break>`, `<p>`, `<s>`, `<prosody rate volume>`, `<emphasis>`, `<say-as>`, `<sub>`, `<lang>` and `<voice>` map onto the engine's real controls; unsupported markup (`pitch`, `<phoneme>`, `<audio>`) is spoken plainly and reported in `X-SSML-Warnings`
+- Protected voices: `POST /profiles/{id}/protect` makes a voice refuse deletion and reference replacement until the protection is lifted
 
 ### Changed
 

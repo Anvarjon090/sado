@@ -134,6 +134,11 @@ plus `[voice:NAME]` for multi-voice scripts
 (`backend/services/longform_parser.py`). These are not parsed on the Voice
 page.
 
+**SSML.** A `<speak>` document on the Voice page or the API is parsed as
+SSML: `<break>`, `<p>`/`<s>`, `<prosody rate volume>`, `<emphasis>`,
+`<say-as>`, `<sub>`, `<lang>` and `<voice>` map onto the engine's real
+controls and the rest is reported. See [ssml.md](ssml.md).
+
 ### CosyVoice 3 (opt-in)
 
 The most direct paralinguistic control in the app, if you're willing to

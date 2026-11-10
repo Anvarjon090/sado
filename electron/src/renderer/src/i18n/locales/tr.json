@@ -230,7 +230,8 @@
     "droppedChunks_one": "Bu kayıtta sesi üretilmeyen metin bölümleri: {{count}}. Yeniden üretmeyi deneyin.",
     "droppedChunksWithText_one": "Bu kayıtta sesi üretilmeyen metin bölümleri: {{count}} — “{{text}}”. Yeniden üretmeyi deneyin.",
     "droppedChunks_other": "Bu kayıtta sesi üretilmeyen metin bölümleri: {{count}}. Yeniden üretmeyi deneyin.",
-    "droppedChunksWithText_other": "Bu kayıtta sesi üretilmeyen metin bölümleri: {{count}} — “{{text}}”. Yeniden üretmeyi deneyin."
+    "droppedChunksWithText_other": "Bu kayıtta sesi üretilmeyen metin bölümleri: {{count}} — “{{text}}”. Yeniden üretmeyi deneyin.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "İzinler",

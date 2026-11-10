@@ -230,7 +230,8 @@
     "droppedChunks_one": "このテイクで音声が生成されなかったテキスト部分：{{count}} 件。再生成してください。",
     "droppedChunksWithText_one": "このテイクで音声が生成されなかったテキスト部分：{{count}} 件 —「{{text}}」。再生成してください。",
     "droppedChunks_other": "このテイクで音声が生成されなかったテキスト部分：{{count}} 件。再生成してください。",
-    "droppedChunksWithText_other": "このテイクで音声が生成されなかったテキスト部分：{{count}} 件 —「{{text}}」。再生成してください。"
+    "droppedChunksWithText_other": "このテイクで音声が生成されなかったテキスト部分：{{count}} 件 —「{{text}}」。再生成してください。",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "権限",

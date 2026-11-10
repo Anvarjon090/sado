@@ -190,6 +190,8 @@ export interface GenerateResult {
   seed: number | null;
   routing: { status: string; reason: string } | null;
   dropped: { count: number; text: string } | null;
+  /** X-SSML-Warnings: markup the engine could not honour (docs/ssml.md). */
+  ssmlWarnings: string[] | null;
 }
 
 // ── Errors ────────────────────────────────────────────────────────────────

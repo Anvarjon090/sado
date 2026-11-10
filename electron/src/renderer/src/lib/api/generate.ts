@@ -186,6 +186,18 @@ function headerInt(headers: Headers, name: string): number | null {
 }
 
 /** Everything `/generate` reports about a take rides in response headers. */
+function parseSsmlWarnings(raw: string | null): string[] | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0
+      ? parsed.filter((item): item is string => typeof item === 'string')
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export function parseGenerateHeaders(headers: Headers): Omit<GenerateResult, 'blob'> {
   const routingStatus = headers.get('X-OmniVoice-Routing');
   const droppedCount = headerInt(headers, 'X-OmniVoice-Dropped-Chunks');
@@ -202,6 +214,7 @@ export function parseGenerateHeaders(headers: Headers): Omit<GenerateResult, 'bl
       droppedCount !== null && droppedCount > 0
         ? { count: droppedCount, text: headers.get('X-OmniVoice-Dropped-Text') ?? '' }
         : null,
+    ssmlWarnings: parseSsmlWarnings(headers.get('X-SSML-Warnings')),
   };
 }
 
@@ -287,6 +300,7 @@ interface StreamEvent {
   terminal?: boolean;
   retryable?: boolean;
   percent?: number;
+  ssml_warnings?: string[];
 }
 
 /** Stream PCM for immediate preview, then return the canonical saved WAV. */
@@ -307,6 +321,7 @@ export async function generateCloneStreaming(
       signal: opts.signal,
     });
     const headers = parseGenerateHeaders(response.headers);
+    let ssmlWarnings = headers.ssmlWarnings;
     if (!response.body) throw new StreamingPreviewError('TTS stream has no response body');
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -317,6 +332,7 @@ export async function generateCloneStreaming(
       if (event.type === 'start') {
         if (!event.sample_rate) throw new StreamingPreviewError('TTS stream has no sample rate');
         total = event.total_chunks ?? 0;
+        if (event.ssml_warnings?.length) ssmlWarnings = event.ssml_warnings;
         player = createStreamingPreview(event.sample_rate, event.crossfade_ms);
       } else if (event.type === 'chunk') {
         if (!event.pcm || !player) throw new StreamingPreviewError('Invalid TTS audio chunk');
@@ -387,6 +403,7 @@ export async function generateCloneStreaming(
       seed: completed.seed ?? headers.seed,
       routing: headers.routing,
       dropped,
+      ssmlWarnings,
     };
   } catch (error) {
     (player as ReturnType<typeof createStreamingPreview> | null)?.fail();

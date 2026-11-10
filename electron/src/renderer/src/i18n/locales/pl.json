@@ -234,7 +234,8 @@
     "droppedChunks_few": "Fragmenty tekstu bez dźwięku w tym nagraniu: {{count}}. Spróbuj wygenerować ponownie.",
     "droppedChunksWithText_few": "Fragmenty tekstu bez dźwięku w tym nagraniu: {{count}} — „{{text}}”. Spróbuj wygenerować ponownie.",
     "droppedChunks_many": "Fragmenty tekstu bez dźwięku w tym nagraniu: {{count}}. Spróbuj wygenerować ponownie.",
-    "droppedChunksWithText_many": "Fragmenty tekstu bez dźwięku w tym nagraniu: {{count}} — „{{text}}”. Spróbuj wygenerować ponownie."
+    "droppedChunksWithText_many": "Fragmenty tekstu bez dźwięku w tym nagraniu: {{count}} — „{{text}}”. Spróbuj wygenerować ponownie.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Uprawnienia",

@@ -575,7 +575,8 @@
     "droppedChunks_one": "Diqqat: matningizning {{count}} qismi audio bermadi, shuning uchun bu variantda u yo'q. Qayta yaratib ko'ring.",
     "droppedChunks_other": "Diqqat: matningizning {{count}} qismi audio bermadi, shuning uchun bu variantda ular yo'q. Qayta yaratib ko'ring.",
     "droppedChunksWithText_one": "Diqqat: matningizning {{count}} qismi audio bermadi — “{{text}}”. Qayta yaratib ko'ring.",
-    "droppedChunksWithText_other": "Diqqat: matningizning {{count}} qismi audio bermadi — “{{text}}”. Qayta yaratib ko'ring."
+    "droppedChunksWithText_other": "Diqqat: matningizning {{count}} qismi audio bermadi — “{{text}}”. Qayta yaratib ko'ring.",
+    "ssmlWarnings": "SSML: {{count}} ta element bajarilmadi — {{list}}"
   },
   "player": {
     "generated_audio": "Yaratilgan audio",

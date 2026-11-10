@@ -514,6 +514,54 @@ def _note_generate_progress() -> None:
         pass
 
 
+def _ssml_headers(warnings) -> dict:
+    """``X-SSML-Warnings`` (a JSON array, ASCII-safe for a header) when there is
+    anything the SSML could not do; nothing otherwise."""
+    if not warnings:
+        return {}
+    import json as _json
+
+    return {"X-SSML-Warnings": _json.dumps(list(warnings), ensure_ascii=True)}
+
+
+def _ssml_spans_for_render(doc, warnings, *, remote=False):
+    """Spans for the stitcher: text, pause and per-span overrides.
+
+    ``<voice name>`` is resolved here to a saved voice's conditioning (id or
+    case-insensitive name) through the same rules a profile request uses; an
+    unknown name keeps the request's voice and warns. A remote worker cannot
+    see this machine's voice files, so a voice switch is dropped there, with a
+    warning, rather than shipped as a path that does not exist over there.
+    """
+    resolved = {}
+    for name in doc.voices():
+        with db_conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM voice_profiles WHERE id=? OR lower(name)=lower(?) "
+                "ORDER BY CASE WHEN id=? THEN 0 ELSE 1 END LIMIT 1",
+                (name, name, name),
+            ).fetchone()
+        if row is None:
+            warnings.append(f'<voice name="{name}"> was not found; the request\'s voice was used')
+            continue
+        if remote:
+            warnings.append(f'<voice name="{name}"> is not available on a remote worker; the request\'s voice was used')
+            continue
+        cond = _resolve_profile_conditioning(row)
+        resolved[name] = {
+            key: cond[key] for key in ("ref_audio_path", "ref_text", "instruct", "seed")
+            if cond.get(key) is not None
+        }
+    spans = []
+    for span in doc.spans:
+        wire = span.to_wire()
+        voice = wire.pop("voice", None)
+        if voice in resolved:
+            wire.update(resolved[voice])
+        spans.append(wire)
+    return spans
+
+
 def _render_with_pauses(gen_span, segments, sample_rate):
     """Synthesize ``[(text, pause_ms), ...]`` spans and stitch silence between
     them (issue #276).
@@ -527,9 +575,11 @@ def _render_with_pauses(gen_span, segments, sample_rate):
     import torch
 
     items = []  # ('a', tensor) for audio, ('s', n_samples) for silence
-    for span_text, pause_ms in segments:
+    for segment in segments:
+        span_text, pause_ms = segment[0], segment[1]
+        extra = segment[2] if len(segment) > 2 else None  # SSML: per-span overrides
         if span_text and span_text.strip():
-            items.append(("a", gen_span(span_text)))
+            items.append(("a", gen_span(span_text) if extra is None else gen_span(span_text, extra)))
             _note_generate_progress()
         if pause_ms > 0:
             n = int(round(sample_rate * pause_ms / 1000.0))
@@ -603,7 +653,7 @@ def _apply_effect_chain(audio_out, sample_rate, effect_preset, *, skip_mastering
 
 
 def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms, *,
-                 duration=None, dropped_sink=None, guard=None):
+                 duration=None, dropped_sink=None, guard=None, spans=None):
     """Text → one waveform: spans first, then sentence chunks inside each span.
 
     Spans come from explicit ``[pause Nms]`` markers (issue #276) or, failing
@@ -616,7 +666,10 @@ def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms,
     per-chunk seed never repeats. An explicit ``duration`` only applies when
     the whole text is a single engine call. ``guard`` (a
     ``services.take_guard.TakeGuard``) re-renders a chunk that came back as
-    another voice; see that module.
+    another voice; see that module. ``spans`` (SSML, docs/ssml.md) replaces
+    the text: each carries its own pause and overrides — ``speed_factor``,
+    ``gain_db``, ``language`` and, for ``<voice>``, the reference — which
+    ``render_chunk`` receives as its fourth argument.
     """
     import itertools
 
@@ -629,19 +682,34 @@ def _render_text(render_chunk, text, sample_rate, max_chunk_chars, crossfade_ms,
     xfade_ms = DEFAULT_CROSSFADE_MS if crossfade_ms is None else crossfade_ms
     counter = itertools.count()
 
-    def _one(chunk_text, chunk_duration):
+    def _one(chunk_text, chunk_duration, overrides=None):
         index = next(counter)
-        if guard is not None:
-            return guard.render(render_chunk, chunk_text, index, chunk_duration)
-        return render_chunk(chunk_text, index, chunk_duration)
+        # A <voice> span is another reference; the request's guard would judge
+        # it against the wrong pitch, so that span renders unguarded.
+        if guard is not None and not (overrides and overrides.get("ref_audio_path")):
+            return guard.render(
+                lambda t, i, d: render_chunk(t, i, d, overrides) if overrides else render_chunk(t, i, d),
+                chunk_text, index, chunk_duration,
+            )
+        return render_chunk(chunk_text, index, chunk_duration, overrides) if overrides else render_chunk(chunk_text, index, chunk_duration)
 
-    def _span(span_text, span_duration):
+    def _span(span_text, span_duration, overrides=None):
         chunks = split_text_into_chunks(span_text, max_chars)
         if len(chunks) > 1:
-            parts = [_one(chunk, None) for chunk in chunks]
+            parts = [_one(chunk, None, overrides) for chunk in chunks]
             return concatenate_audio_chunks(parts, sample_rate, xfade_ms,
                                             texts=chunks, sink=dropped_sink)
-        return _one(span_text, span_duration)
+        return _one(span_text, span_duration, overrides)
+
+    if spans is not None:
+        def _ssml_span(span_text, overrides):
+            audio = _span(span_text, None, overrides)
+            gain_db = float(overrides.get("gain_db") or 0.0)
+            return audio * (10.0 ** (gain_db / 20.0)) if gain_db else audio
+
+        return _render_with_pauses(
+            _ssml_span, [(sp["text"], int(sp.get("pause_ms") or 0), sp) for sp in spans], sample_rate,
+        )
 
     segments, stitched = text_segments(text)
     if stitched:
@@ -1180,7 +1248,7 @@ def _run_inference(
     postprocess_output, layer_penalty_factor, position_temperature,
     class_temperature, used_seed, effect_preset=None,
     max_chunk_chars=None, crossfade_ms=None, *, dropped_sink=None, pause_scale=1.0,
-    retake=True,
+    retake=True, spans=None,
 ):
     import torch
     try:
@@ -1194,17 +1262,22 @@ def _run_inference(
 
         from services.tts_backend import generate_with_cached_ref
 
-        def _render_chunk(chunk_text, index, chunk_duration):
+        def _render_chunk(chunk_text, index, chunk_duration, overrides=None):
             """One generate call for this request's voice, reference encoded
             once. Chunk ``index`` reseeds deterministically (``seed + index``)
-            so neighbouring chunks never share RNG artifacts."""
+            so neighbouring chunks never share RNG artifacts. ``overrides``
+            (an SSML span) may replace the speed, language and reference."""
+            ov = overrides or {}
             if used_seed is not None:
                 torch.manual_seed(used_seed + index)
             audio = trace_call("synthesis", generate_with_cached_ref,
-                model, ref_audio=ref_audio_path, ref_text=ref_text,
-                text=chunk_text, language=language, instruct=instruct,
+                model, ref_audio=ov.get("ref_audio_path", ref_audio_path),
+                ref_text=ov.get("ref_text", ref_text),
+                text=chunk_text, language=ov.get("language") or language,
+                instruct=ov.get("instruct", instruct),
                 duration=chunk_duration, num_step=num_step,
-                guidance_scale=guidance_scale, speed=speed, denoise=denoise,
+                guidance_scale=guidance_scale,
+                speed=(speed or 1.0) * float(ov.get("speed_factor") or 1.0), denoise=denoise,
                 postprocess_output=postprocess_output, **kwargs
             )[0]
             _note_generate_progress()
@@ -1212,7 +1285,7 @@ def _run_inference(
 
         audio_out = _render_text(_render_chunk, text, sr, max_chunk_chars, crossfade_ms,
                                  duration=duration, dropped_sink=dropped_sink,
-                                 guard=_take_guard_for(ref_audio_path, sr, retake))
+                                 guard=_take_guard_for(ref_audio_path, sr, retake), spans=spans)
         # The Sado model never masters its own output; the preset tail runs here.
         return _apply_effect_chain(audio_out, sr, effect_preset, pause_scale=pause_scale)
 
@@ -1229,7 +1302,7 @@ def _run_backend_inference(
     used_seed, effect_preset=None,
     max_chunk_chars=None, crossfade_ms=None, *, t_shift=None,
     layer_penalty_factor=None, position_temperature=None,
-    class_temperature=None, dropped_sink=None, pause_scale=1.0, retake=True,
+    class_temperature=None, dropped_sink=None, pause_scale=1.0, retake=True, spans=None,
 ):
     """Engine-aware twin of :func:`_run_inference` (issue #312).
 
@@ -1264,10 +1337,21 @@ def _run_backend_inference(
             })
         sr = backend.sample_rate
 
-        def _render_chunk(chunk_text, index, chunk_duration):
+        def _render_chunk(chunk_text, index, chunk_duration, overrides=None):
             """One engine call. Chunk ``index`` reseeds deterministically and,
-            for engines that take a seed, forwards the same ``seed + index``."""
+            for engines that take a seed, forwards the same ``seed + index``.
+            ``overrides`` (an SSML span) may replace the speed, language and
+            reference."""
             chunk_kwargs = dict(gen_kwargs)
+            if overrides:
+                chunk_kwargs["speed"] = (speed or 1.0) * float(overrides.get("speed_factor") or 1.0)
+                if overrides.get("language"):
+                    chunk_kwargs["language"] = overrides["language"]
+                if "ref_audio_path" in overrides:
+                    chunk_kwargs["ref_audio"] = overrides["ref_audio_path"]
+                    chunk_kwargs["ref_text"] = overrides.get("ref_text")
+                if "instruct" in overrides:
+                    chunk_kwargs["instruct"] = overrides["instruct"]
             if used_seed is not None:
                 torch.manual_seed(used_seed + index)
                 if forwards_seed:
@@ -1281,7 +1365,7 @@ def _run_backend_inference(
         # engine — the silence stitching is model-free.
         audio_out = _render_text(_render_chunk, text, sr, max_chunk_chars, crossfade_ms,
                                  duration=duration, dropped_sink=dropped_sink,
-                                 guard=_take_guard_for(ref_audio_path, sr, retake))
+                                 guard=_take_guard_for(ref_audio_path, sr, retake), spans=spans)
         return _apply_effect_chain(
             audio_out, sr, effect_preset,
             skip_mastering=getattr(backend, "applies_own_mastering", False),
@@ -1844,6 +1928,17 @@ async def generate_speech(
     import unicodedata
     text = unicodedata.normalize("NFC", text)
 
+    # SSML (docs/ssml.md): a <speak> document becomes ordered spans with
+    # their own pauses, speed, language and voice; markup the engine cannot
+    # honour is reported, never silently dropped.
+    from services.ssml import SsmlError, is_ssml, parse_ssml
+    ssml_doc = None
+    if is_ssml(text):
+        try:
+            ssml_doc = parse_ssml(text)
+        except SsmlError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
     # ── Engine resolution (issue #312) ──────────────────────────────────────
     # The request runs on the engine selected in Settings (POST /engines/select,
     # env var OMNIVOICE_TTS_BACKEND wins), or an explicit per-request `engine`
@@ -2180,30 +2275,36 @@ async def generate_speech(
     # in services/text_normalization.py). Pref-gated (default ON), idempotent,
     # never raises; applied exactly once per request, at this choke point.
     from services.text_normalization import normalize_for_tts
-    text = normalize_for_tts(text, language)
 
-    # Expressive-TTS Spec 01: apply the user pronunciation dictionary + inline
-    # [[…]] one-off overrides to the text, here — AFTER `language` is fully
-    # resolved (a profile may fill it above) so per-language entries match the
-    # real render language, and BEFORE the text reaches either inference path
-    # (native Sado or a pluggable backend) and the chunk splitter. This is
-    # the single point user text → normalized text → model, so the transform
-    # covers generate for every engine. Pure text substitution → identical on
-    # mac/Win/Linux. A disabled pref or empty dictionary is a pass-through, so
-    # plain text stays byte-identical (#G5 backward-compat).
-    if pronounce and pronunciation_enabled():
-        from services.pronunciation import apply_pronunciation, load_entries_from_db
-        try:
-            _pron_rows = load_entries_from_db()
-        except Exception:  # noqa: BLE001 — table missing / DB locked → no-op
-            _pron_rows = []
-        text = apply_pronunciation(text, _pron_rows, language)
-    else:
+    def _prepare_text(piece, piece_language):
+        """Normalization, then the pronunciation dictionary — once per piece.
+
+        Expressive-TTS Spec 01: the dictionary and inline ``[[…]]`` overrides
+        run AFTER normalization and AFTER the language is final, so entries
+        operate on normalized text and respellings are never re-mangled."""
+        piece = normalize_for_tts(piece, piece_language)
+        if pronounce and pronunciation_enabled():
+            from services.pronunciation import apply_pronunciation, load_entries_from_db
+            try:
+                rows = load_entries_from_db()
+            except Exception:  # noqa: BLE001 — table missing / DB locked → no-op
+                rows = []
+            return apply_pronunciation(piece, rows, piece_language)
         # Even with the dictionary off, inline [[…]] overrides are an explicit,
-        # in-text authoring choice → always honored (and never left as literal
-        # double-bracket text the model would mispronounce).
+        # in-text authoring choice → always honored.
         from services.pronunciation import apply_inline_overrides
-        text = apply_inline_overrides(text)
+        return apply_inline_overrides(piece)
+
+    ssml_spans = None
+    ssml_warnings: list = []
+    if ssml_doc is not None:
+        ssml_warnings = list(ssml_doc.warnings)
+        for span in ssml_doc.spans:
+            if span.text:
+                span.text = _prepare_text(span.text, span.delivery.language or language)
+        ssml_spans = _ssml_spans_for_render(ssml_doc, ssml_warnings, remote=_remote)
+    else:
+        text = _prepare_text(text, language)
 
     start_time = time.time()
 
@@ -2244,6 +2345,7 @@ async def generate_speech(
         "effect_preset": effect_preset,
         "pause_scale": pause_scale,
         "retake": retake,
+        "spans": ssml_spans,
         "wav_bits": int(wav_bits),
         # The requesting user's provenance preference, not the GPU owner's.
         "watermark": bool(_watermark_enabled()),
@@ -2315,7 +2417,7 @@ async def generate_speech(
         # the finished take as a single chunk.
         _remote_headers = _apply_routing_headers(
             {"X-Seed": str(used_seed) if used_seed is not None else "",
-             "Cache-Control": "no-cache"},
+             "Cache-Control": "no-cache", **_ssml_headers(ssml_warnings)},
             None, _decision,
         )
 
@@ -2356,7 +2458,7 @@ async def generate_speech(
                 yield _line({
                     "type": "start", "sample_rate": sample_rate, "channels": 1,
                     "format": "pcm16", "total_chunks": 1, "crossfade_ms": 0,
-                    "seed": used_seed,
+                    "seed": used_seed, "ssml_warnings": ssml_warnings,
                 })
                 # No second provenance mark: the worker marked at the tensor
                 # stage before encoding, with the requesting user's preference
@@ -2456,6 +2558,8 @@ async def generate_speech(
         # Explicit [pause] markers or paragraph breaks mean a stitched render:
         # that takes the single-job path below, exactly like the classic flow.
         _segments, _has_pause = text_segments(text)
+        if ssml_spans is not None:
+            _has_pause = True  # SSML spans render as one stitched job
         _text_chunks = [] if _has_pause else split_text_into_chunks(text, max_chunk_chars)
         # #1330 — see the non-streaming path: chunks the engine rendered to
         # nothing land here so the stream can say the take is missing text
@@ -2575,7 +2679,7 @@ async def generate_speech(
                                     layer_penalty_factor=layer_penalty_factor,
                                     position_temperature=position_temperature,
                                     class_temperature=class_temperature,
-                                    dropped_sink=_dropped_sink, pause_scale=pause_scale, retake=retake,
+                                    dropped_sink=_dropped_sink, pause_scale=pause_scale, retake=retake, spans=ssml_spans,
                                 ),
                                 what="TTS generate",
                                 min_vram_gb=_engine_min_vram_gb,
@@ -2602,7 +2706,7 @@ async def generate_speech(
                                     t_shift, denoise, postprocess_output,
                                     layer_penalty_factor, position_temperature,
                                     class_temperature, used_seed, effect_preset,
-                                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_sink, pause_scale=pause_scale, retake=retake,
+                                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_sink, pause_scale=pause_scale, retake=retake, spans=ssml_spans,
                                 ),
                                 what="TTS generate",
                                 min_vram_gb=_engine_min_vram_gb,
@@ -2621,7 +2725,7 @@ async def generate_speech(
                     yield _line({
                         "type": "start", "sample_rate": sample_rate, "channels": 1,
                         "format": "pcm16", "total_chunks": 1, "crossfade_ms": 0,
-                        "seed": used_seed,
+                        "seed": used_seed, "ssml_warnings": ssml_warnings,
                     })
                     # Provenance-mark the streamed copy (#1169): these PCM
                     # bytes leave the app before _finalize_generation marks
@@ -2681,6 +2785,7 @@ async def generate_speech(
                                 "channels": 1, "format": "pcm16",
                                 "total_chunks": len(_text_chunks),
                                 "crossfade_ms": crossfade_ms, "seed": used_seed,
+                                "ssml_warnings": ssml_warnings,
                             })
                         yield _line({"type": "chunk", "seq": i, "pcm": _pcm16_b64(preview)})
                     audio_tensor = await run_on_gpu_pool_guarded(
@@ -2777,6 +2882,7 @@ async def generate_speech(
         _stream_headers = _apply_routing_headers({
             "X-Seed": str(used_seed) if used_seed is not None else "",
             "Cache-Control": "no-cache",
+            **_ssml_headers(ssml_warnings),
         }, _routing_notice, _decision)
         return StreamingResponse(
             _stream_events(),
@@ -2811,7 +2917,7 @@ async def generate_speech(
                     layer_penalty_factor=layer_penalty_factor,
                     position_temperature=position_temperature,
                     class_temperature=class_temperature,
-                    dropped_sink=_dropped_text, pause_scale=pause_scale, retake=retake,
+                    dropped_sink=_dropped_text, pause_scale=pause_scale, retake=retake, spans=ssml_spans,
                 )
             else:
                 _local_render = functools.partial(
@@ -2820,7 +2926,7 @@ async def generate_speech(
                     num_step, guidance_scale, speed, t_shift, denoise,
                     postprocess_output, layer_penalty_factor, position_temperature,
                     class_temperature, used_seed, effect_preset,
-                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_text, pause_scale=pause_scale, retake=retake,
+                    max_chunk_chars, crossfade_ms, dropped_sink=_dropped_text, pause_scale=pause_scale, retake=retake, spans=ssml_spans,
                 )
             audio_tensor = await _run_with_reference_lease(
                 ref_lease,
@@ -2875,6 +2981,7 @@ async def generate_speech(
             "X-Seed": str(used_seed) if used_seed is not None else "",
             "X-Audio-Duration": str(audio_dur),
             "Content-Length": str(len(wav_bytes)),
+            **_ssml_headers(ssml_warnings),
         }
         # #1330: the body is a WAV, so the header channel carries the notice
         # that some of the text produced no audio. Count first (always exact),

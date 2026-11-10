@@ -230,7 +230,8 @@
     "droppedChunks_one": "此版本中未生成音频的文本片段：{{count}} 个。请尝试重新生成。",
     "droppedChunksWithText_one": "此版本中未生成音频的文本片段：{{count}} 个 —“{{text}}”。请尝试重新生成。",
     "droppedChunks_other": "此版本中未生成音频的文本片段：{{count}} 个。请尝试重新生成。",
-    "droppedChunksWithText_other": "此版本中未生成音频的文本片段：{{count}} 个 —“{{text}}”。请尝试重新生成。"
+    "droppedChunksWithText_other": "此版本中未生成音频的文本片段：{{count}} 个 —“{{text}}”。请尝试重新生成。",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "权限",

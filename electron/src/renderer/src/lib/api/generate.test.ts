@@ -195,6 +195,7 @@ describe('parseGenerateHeaders', () => {
       'X-OmniVoice-Routing-Reason': 'no CUDA',
       'X-OmniVoice-Dropped-Chunks': '2',
       'X-OmniVoice-Dropped-Text': 'lost | words',
+      'X-SSML-Warnings': '["<phoneme> is not supported"]',
     });
     expect(parseGenerateHeaders(headers)).toEqual({
       id: 'abc',
@@ -204,11 +205,16 @@ describe('parseGenerateHeaders', () => {
       seed: 42,
       routing: { status: 'cpu_fallback', reason: 'no CUDA' },
       dropped: { count: 2, text: 'lost | words' },
+      ssmlWarnings: ['<phoneme> is not supported'],
     });
   });
 
   it('yields nulls when headers are absent or malformed', () => {
-    const headers = new Headers({ 'X-Seed': 'nope', 'X-OmniVoice-Dropped-Chunks': '0' });
+    const headers = new Headers({
+      'X-Seed': 'nope',
+      'X-OmniVoice-Dropped-Chunks': '0',
+      'X-SSML-Warnings': '{not json',
+    });
     expect(parseGenerateHeaders(headers)).toEqual({
       id: null,
       audioPath: null,
@@ -217,6 +223,7 @@ describe('parseGenerateHeaders', () => {
       seed: null,
       routing: null,
       dropped: null,
+      ssmlWarnings: null,
     });
   });
 });

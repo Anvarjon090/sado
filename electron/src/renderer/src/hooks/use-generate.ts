@@ -37,7 +37,7 @@ import { beginAppActivity } from '@/lib/app-activity';
 import { useTtsReadiness } from './use-tts-readiness';
 import { useEngines } from './use-engines';
 import { recordActionBreadcrumb } from '@/lib/report-breadcrumb';
-import { announceDroppedSpeech } from '@/lib/dropped-speech';
+import { announceDroppedSpeech, announceSsmlWarnings } from '@/lib/dropped-speech';
 
 const TIMER_TICK_MS = 100;
 const PROGRESS_THROTTLE_MS = 100;
@@ -134,6 +134,7 @@ function announceInstructWarnings(free: string): string {
 
 function announceResultNotices(result: GenerateResult): void {
   announceDroppedSpeech(result.dropped);
+  announceSsmlWarnings(result.ssmlWarnings);
   // The backend only sets the routing headers on cpu_fallback / accelerated-
   // with-caveat, so their presence is the signal.
   if (result.routing && result.routing.status !== lastRoutingStatus) {

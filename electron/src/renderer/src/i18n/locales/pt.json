@@ -232,7 +232,8 @@
     "droppedChunks_other": "Trechos de texto sem áudio nesta gravação: {{count}}. Tente gerar novamente.",
     "droppedChunksWithText_other": "Trechos de texto sem áudio nesta gravação: {{count}} — “{{text}}”. Tente gerar novamente.",
     "droppedChunks_many": "Trechos de texto sem áudio nesta gravação: {{count}}. Tente gerar novamente.",
-    "droppedChunksWithText_many": "Trechos de texto sem áudio nesta gravação: {{count}} — “{{text}}”. Tente gerar novamente."
+    "droppedChunksWithText_many": "Trechos de texto sem áudio nesta gravação: {{count}} — “{{text}}”. Tente gerar novamente.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Permissões",

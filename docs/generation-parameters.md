@@ -75,7 +75,8 @@ For an in-app recording, choose the microphone and Auto, Mono, or Stereo in the 
 | `retake` | `true` | With a reference clip: a chunk whose median pitch lands more than 6 semitones from the reference's, or that has no harmonic structure, is rendered once more with a retake seed and the closer take is kept (`backend/services/take_guard.py`). `false` keeps the first take. |
 
 A blank line between paragraphs is rendered as separate spans with a 650 ms
-breath between them; `[pause Nms]` markers take precedence when present.
+breath between them; `[pause Nms]` markers take precedence when present. Text
+that starts with `<speak>` is parsed as SSML — see [ssml.md](ssml.md).
 
 ## Long-Form Generation
 

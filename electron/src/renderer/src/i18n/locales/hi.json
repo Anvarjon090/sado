@@ -230,7 +230,8 @@
     "droppedChunks_one": "इस टेक में बिना ऑडियो वाले पाठ खंड: {{count}}। फिर से जनरेट करें।",
     "droppedChunksWithText_one": "इस टेक में बिना ऑडियो वाले पाठ खंड: {{count}} — “{{text}}”। फिर से जनरेट करें।",
     "droppedChunks_other": "इस टेक में बिना ऑडियो वाले पाठ खंड: {{count}}। फिर से जनरेट करें।",
-    "droppedChunksWithText_other": "इस टेक में बिना ऑडियो वाले पाठ खंड: {{count}} — “{{text}}”। फिर से जनरेट करें।"
+    "droppedChunksWithText_other": "इस टेक में बिना ऑडियो वाले पाठ खंड: {{count}} — “{{text}}”। फिर से जनरेट करें।",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "अनुमतियाँ",

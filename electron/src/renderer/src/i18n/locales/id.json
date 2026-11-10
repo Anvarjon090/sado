@@ -230,7 +230,8 @@
     "droppedChunks_one": "Bagian teks tanpa audio dalam hasil ini: {{count}}. Coba buat ulang.",
     "droppedChunksWithText_one": "Bagian teks tanpa audio dalam hasil ini: {{count}} — “{{text}}”. Coba buat ulang.",
     "droppedChunks_other": "Bagian teks tanpa audio dalam hasil ini: {{count}}. Coba buat ulang.",
-    "droppedChunksWithText_other": "Bagian teks tanpa audio dalam hasil ini: {{count}} — “{{text}}”. Coba buat ulang."
+    "droppedChunksWithText_other": "Bagian teks tanpa audio dalam hasil ini: {{count}} — “{{text}}”. Coba buat ulang.",
+    "ssmlWarnings": "SSML: {{count}} element(s) could not be honoured — {{list}}"
   },
   "permissions": {
     "title": "Izin",
