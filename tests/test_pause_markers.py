@@ -4,6 +4,7 @@ Covers the pure text parser (`parse_pause_markers`) and the model-free audio
 stitching (`_render_with_pauses`) — no TTS model is loaded; `gen_span` is a
 fake that returns known-length tensors so the silence math is deterministic.
 """
+import pytest
 import torch
 
 from omnivoice.utils.text import (
@@ -105,3 +106,39 @@ def test_render_no_pause_single_span_passthrough():
     segs = [("just text", 0)]
     out = _render_with_pauses(_fake_gen(sr), segs, sr)
     assert out.shape == (1, sr)
+
+
+# ── engine padding vs the pause the listener hears ─────────────────────────
+
+
+def _padded_gen(sr, pad_ms=200, tone_ms=500):
+    """Engine-like spans: ~200 ms of silence on each side of the speech."""
+    pad = torch.zeros(1, sr * pad_ms // 1000)
+    t = torch.arange(sr * tone_ms // 1000) / sr
+    tone = (0.3 * torch.sin(2 * torch.pi * 220 * t)).unsqueeze(0)
+    return lambda *_: torch.cat([pad, tone, pad], dim=-1)
+
+
+def _gaps(out, sr):
+    loud = torch.nonzero(out.abs().flatten() > 0.01).flatten()
+    cuts = torch.nonzero(loud[1:] - loud[:-1] > sr // 100).flatten()
+    return [float((loud[c + 1] - loud[c]) / sr) for c in cuts]
+
+
+def test_requested_pause_is_the_gap_heard_not_pause_plus_engine_padding():
+    sr = 24_000
+    out = _render_with_pauses(_padded_gen(sr), [("a", 500), ("b", 0), ("c", 0)], sr)
+    gaps = _gaps(out, sr)
+    assert gaps[0] == pytest.approx(0.5, abs=0.015)  # <break time="500ms"/>, not 0.9 s
+    # No pause asked for: spans part like words (two kept 40 ms edges), not by 400 ms.
+    assert gaps[1] == pytest.approx(0.08, abs=0.015)
+    # The trim keeps the speech itself intact: three 0.5 s tones remain.
+    assert float((out.abs() > 0.01).sum()) / sr == pytest.approx(1.5, abs=0.02)
+
+
+def test_leading_and_trailing_pauses_stay_exact_with_padded_spans():
+    sr = 24_000
+    out = _render_with_pauses(_padded_gen(sr), [("", 1000), ("a", 300)], sr)
+    loud = torch.nonzero(out.abs().flatten() > 0.01).flatten()
+    assert float(loud[0]) / sr == pytest.approx(1.0, abs=0.015)
+    assert float(out.shape[-1] - 1 - loud[-1]) / sr == pytest.approx(0.3, abs=0.015)

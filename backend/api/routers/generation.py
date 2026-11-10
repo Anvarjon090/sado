@@ -562,45 +562,102 @@ def _ssml_spans_for_render(doc, warnings, *, remote=False):
     return spans
 
 
-def _render_with_pauses(gen_span, segments, sample_rate):
-    """Synthesize ``[(text, pause_ms), ...]`` spans and stitch silence between
-    them (issue #276).
+#: Quiet edge kept on each side of a rendered span once the engine's own
+#: lead-in and tail padding is trimmed — about one inter-word gap, so two spans
+#: joined without a pause still part the way words do (measured on plain
+#: text: 5–65 ms between words). The engine pads every render with ~200 ms
+#: of silence per side, which is what turned a 500 ms <break> into 800 ms
+#: and put a 0.3–0.4 s hole into the middle of a sentence at every SSML
+#: span boundary.
+SPAN_EDGE_KEEP_MS = 40
+SPAN_EDGE_FADE_MS = 5
+
+
+def _tidy_span(audio, sample_rate):
+    """``(audio, head_quiet, tail_quiet)``: the span with its engine padding
+    trimmed to :data:`SPAN_EDGE_KEEP_MS` per side and a short fade on each cut,
+    plus how many quiet samples remain on either side — so a requested pause
+    can be made exact. A span with no quiet edges (or no speech) is returned
+    as it came."""
+    import torch
+
+    from services.chunked_tts import DEFAULT_TRIM_THRESHOLD_DB, trim_edge_silence
+
+    if audio is None or audio.shape[-1] == 0:
+        return audio, 0, 0
+    trimmed = trim_edge_silence(audio, sample_rate, keep_ms=SPAN_EDGE_KEEP_MS)
+    level = trimmed.abs()
+    if level.dim() > 1:
+        level = level.reshape(-1, level.shape[-1]).amax(dim=0)
+    loud = torch.nonzero(level > 10.0 ** (DEFAULT_TRIM_THRESHOLD_DB / 20.0)).flatten()
+    if loud.numel() == 0:
+        return audio, 0, 0
+    head = int(loud[0])
+    tail = trimmed.shape[-1] - 1 - int(loud[-1])
+    if trimmed.shape[-1] != audio.shape[-1]:
+        fade = int(sample_rate * SPAN_EDGE_FADE_MS / 1000)
+        if fade > 0 and trimmed.shape[-1] > 2 * fade:
+            trimmed = trimmed.clone()
+            ramp = torch.linspace(0.0, 1.0, fade, dtype=trimmed.dtype, device=trimmed.device)
+            trimmed[..., :fade] = trimmed[..., :fade] * ramp
+            trimmed[..., -fade:] = trimmed[..., -fade:] * ramp.flip(0)
+    return trimmed, head, tail
+
+
+def _render_with_pauses(gen_span, segments, sample_rate, *, tidy_edges=True):
+    """Synthesize ``[(text, pause_ms[, extra]), ...]`` spans and stitch silence
+    between them (issue #276; SSML and paragraph breaks ride the same path).
 
     ``gen_span(text) -> torch.Tensor`` synthesizes one text span (raw model
-    output). A silence buffer of ``pause_ms`` is inserted after a span when
-    requested, matching the audio tensor's channel dims / dtype / device.
-    Returns the concatenated waveform. Kept model-free (``gen_span`` is injected)
-    so the stitching is unit-testable without loading the TTS model.
+    output); with a third tuple element it is called ``gen_span(text, extra)``.
+    Each span's engine padding is trimmed (:func:`_tidy_span`) so that a
+    requested pause is the gap the listener hears — the silence inserted is
+    the pause minus the quiet already kept on the two edges — and spans joined
+    with no pause part by a word gap, not a hole. Kept model-free (``gen_span``
+    is injected) so the stitching is unit-testable without loading the model.
     """
     import torch
 
-    items = []  # ('a', tensor) for audio, ('s', n_samples) for silence
+    rendered = []  # {"audio", "head", "tail", "pause_ms"} per spoken span
+    leading_pause_ms = 0
     for segment in segments:
         span_text, pause_ms = segment[0], segment[1]
         extra = segment[2] if len(segment) > 2 else None  # SSML: per-span overrides
         if span_text and span_text.strip():
-            items.append(("a", gen_span(span_text) if extra is None else gen_span(span_text, extra)))
+            audio = gen_span(span_text) if extra is None else gen_span(span_text, extra)
+            audio, head, tail = _tidy_span(audio, sample_rate) if tidy_edges else (audio, 0, 0)
+            rendered.append({"audio": audio, "head": head, "tail": tail, "pause_ms": 0})
             _note_generate_progress()
         if pause_ms > 0:
-            n = int(round(sample_rate * pause_ms / 1000.0))
-            if n > 0:
-                items.append(("s", n))
+            if rendered:
+                rendered[-1]["pause_ms"] += pause_ms
+            else:
+                leading_pause_ms += pause_ms
 
-    ref = next((t for kind, t in items if kind == "a"), None)
-    if ref is None:
+    if not rendered:
         # No speakable text (e.g. the input was only pause markers) — emit the
         # requested silence so the caller still gets a valid clip.
-        total = sum(n for kind, n in items if kind == "s") or 1
-        return torch.zeros(total, dtype=torch.float32)
+        return torch.zeros(max(int(round(sample_rate * leading_pause_ms / 1000.0)), 1), dtype=torch.float32)
+
+    ref = rendered[0]["audio"]
+
+    def _silence(n_samples):
+        shape = list(ref.shape)
+        shape[-1] = n_samples
+        return torch.zeros(*shape, dtype=ref.dtype, device=ref.device)
 
     parts = []
-    for kind, val in items:
-        if kind == "a":
-            parts.append(val)
-        else:
-            shape = list(ref.shape)
-            shape[-1] = val
-            parts.append(torch.zeros(*shape, dtype=ref.dtype, device=ref.device))
+    if leading_pause_ms > 0:
+        n = int(round(sample_rate * leading_pause_ms / 1000.0)) - rendered[0]["head"]
+        if n > 0:
+            parts.append(_silence(n))
+    for i, item in enumerate(rendered):
+        parts.append(item["audio"])
+        if item["pause_ms"] > 0:
+            following_head = rendered[i + 1]["head"] if i + 1 < len(rendered) else 0
+            n = int(round(sample_rate * item["pause_ms"] / 1000.0)) - item["tail"] - following_head
+            if n > 0:
+                parts.append(_silence(n))
     return torch.cat(parts, dim=-1)
 
 

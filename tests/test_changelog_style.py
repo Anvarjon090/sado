@@ -71,6 +71,7 @@ _REF_ALLOWLIST = (
     "`scripts/voice_casting.py` casts sixteen age-and-sex voices",
     "SSML on `/generate` and `/v1/audio/speech`",
     "Protected voices: `POST /profiles/{id}/protect`",
+    "`[pause]`, paragraph and SSML spans are joined without the engine's",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

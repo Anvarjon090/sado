@@ -51,6 +51,7 @@ metadata and the backend fallback mirror it.
 - Uzbek numbers over six digits reach the engine as words: 7-12 digit runs read as cardinals, 13+ digit runs digit by digit, and `/v1/audio/speech` infers the voice's language when the request omits it
 - Numbers inside English or Russian sentences of an Uzbek script are read in that sentence's language, not in Uzbek
 - Long words and file paths wrap instead of spilling out of setup steps, the tools list, donation amounts and settings rows (Russian, German and other languages)
+- `[pause]`, paragraph and SSML spans are joined without the engine's ~200 ms padding on each side, so a requested pause is the gap heard and spans joined without a pause no longer leave a 300–400 ms hole mid-sentence
 
 ## [0.5.7] — 2026-10-05
 

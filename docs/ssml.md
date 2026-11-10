@@ -48,8 +48,11 @@ all is refused with HTTP 400 and a message that says why.
 ## How it is rendered
 
 Each span is one engine call with its own speed, language and (for
-`<voice>`) reference; silences are stitched between spans exactly as for
-`[pause 300ms]` markers, and paragraph breaks are the same 650 ms breath a
+`<voice>`) reference. The engine pads every render with about 200 ms of
+silence per side; that padding is trimmed to a word gap before the spans are
+joined, so a `<break time="500ms"/>` is the 500 ms the listener hears and
+two spans joined without a break part like words, not by a hole. Silences are
+stitched between spans exactly as for `[pause 300ms]` markers, and paragraph breaks are the same 650 ms breath a
 blank line gets in plain text. Spans longer than the chunk limit are split at
 sentence boundaries as usual. The take guard (re-render when a span comes
 back as another voice) runs on spans in the request's voice; a `<voice>` span
