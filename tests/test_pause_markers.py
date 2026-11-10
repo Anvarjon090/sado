@@ -132,8 +132,9 @@ def test_requested_pause_is_the_gap_heard_not_pause_plus_engine_padding():
     assert gaps[0] == pytest.approx(0.5, abs=0.015)  # <break time="500ms"/>, not 0.9 s
     # No pause asked for: spans part like words (two kept 40 ms edges), not by 400 ms.
     assert gaps[1] == pytest.approx(0.08, abs=0.015)
-    # The trim keeps the speech itself intact: three 0.5 s tones remain.
-    assert float((out.abs() > 0.01).sum()) / sr == pytest.approx(1.5, abs=0.02)
+    # The trim keeps the speech itself intact: three tones' worth of loud samples remain.
+    tone_loud = int((_padded_gen(sr)().abs() > 0.01).sum())
+    assert int((out.abs() > 0.01).sum()) == pytest.approx(3 * tone_loud, abs=sr // 100)
 
 
 def test_leading_and_trailing_pauses_stay_exact_with_padded_spans():
