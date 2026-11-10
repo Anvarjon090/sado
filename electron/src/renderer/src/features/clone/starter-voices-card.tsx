@@ -14,6 +14,13 @@ export const STARTER_PACK_ID = 'sado-starter';
 /** Shown on the static card; the real list comes from the manifest after the click. */
 export const STARTER_VOICE_COUNT = 6;
 export const STARTER_PACK_MB = 3;
+/**
+ * Held back until the Sado gallery holds human-recorded voices: the six
+ * synthetic voices were withdrawn on 2026-11-10 (only real recordings are
+ * accepted as references), so there is nothing to download yet. The Voices
+ * page checks this flag before rendering the card.
+ */
+export const STARTER_PACK_READY = false;
 /** How the backend tags a profile it materialized from the Sado gallery. */
 export const STARTER_PERSONALITY_PREFIX = 'community:Anvarjon090/sado-gallery:';
 

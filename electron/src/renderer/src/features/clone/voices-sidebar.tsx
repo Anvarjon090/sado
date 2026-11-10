@@ -37,7 +37,7 @@ import { selectCloneProfile } from '@/lib/store/reference';
 import { queryKeys } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { runRendererTask } from '@/lib/global-error-recovery';
-import { StarterVoicesCard } from './starter-voices-card';
+import { STARTER_PACK_READY, StarterVoicesCard } from './starter-voices-card';
 import { ConfirmDialog } from './confirm-dialog';
 import { displayTitle, formatRelative } from './format';
 import {
@@ -201,7 +201,7 @@ export function SavedVoices({
         </p>
         {library ? (
           <>
-            <StarterVoicesCard profiles={allItems} />
+            {STARTER_PACK_READY ? <StarterVoicesCard profiles={allItems} /> : null}
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               <Button
                 onClick={() =>
@@ -269,7 +269,7 @@ export function SavedVoices({
           ) : null}
         </div>
       ) : null}
-      {library ? (
+      {library && STARTER_PACK_READY ? (
         <div className="flex justify-center px-2 pt-2">
           <StarterVoicesCard profiles={allItems} className="mb-2" />
         </div>
