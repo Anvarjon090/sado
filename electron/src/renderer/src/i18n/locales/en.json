@@ -406,6 +406,8 @@
     "starter_failed": "Could not download the starter voices: {{message}}",
     "delete_profile": "Delete voice",
     "delete_profile_confirm": "Delete “{{name}}”? This cannot be undone.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "profile_deleted": "Voice deleted.",
     "delete_profile_failed": "Could not delete the voice: {{message}}",
     "history_delete_failed": "Could not delete the take: {{message}}",

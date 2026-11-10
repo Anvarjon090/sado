@@ -658,10 +658,12 @@ async def replace_profile_audio(
     async with lock:
         with db_conn() as conn:
             row = conn.execute(
-                "SELECT kind, ref_audio_path, locked_audio_path, consent_audio_path "
+                "SELECT kind, ref_audio_path, locked_audio_path, consent_audio_path, is_protected "
                 "FROM voice_profiles WHERE id=?",
                 (profile_id,),
             ).fetchone()
+        if row and _is_protected(row):
+            raise HTTPException(status_code=409, detail=PROTECTED_DETAIL)
         if not row:
             raise not_found
         if (row["kind"] or "clone") != "clone":
@@ -1120,11 +1122,45 @@ def revoke_consent(profile_id: str):
     return {"id": profile_id, "verified_own_voice": False}
 
 
+PROTECTED_DETAIL = (
+    "This voice is protected: it cannot be deleted or have its recording "
+    "replaced. Lift the protection first (voice settings → Protect voice)."
+)
+
+
+def _is_protected(row) -> bool:
+    try:
+        return bool(row["is_protected"])
+    except (KeyError, IndexError):
+        return False
+
+
+@router.post("/profiles/{profile_id}/protect")
+def protect_profile(profile_id: str, protected: bool = Form(True)):
+    """Mark a voice as protected (or lift it): a protected voice refuses
+    ``DELETE`` and reference replacement with 409. For the voices an owner must
+    never lose to a stray click — a starter voice, a recording of someone who
+    cannot re-record. Locking (a pinned take) is orthogonal.
+    """
+    with db_conn() as conn:
+        row = conn.execute("SELECT id FROM voice_profiles WHERE id=?", (profile_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Voice profile not found.")
+        conn.execute(
+            "UPDATE voice_profiles SET is_protected=? WHERE id=?",
+            (1 if protected else 0, profile_id),
+        )
+        row = conn.execute("SELECT * FROM voice_profiles WHERE id=?", (profile_id,)).fetchone()
+    return _profile_record(row)
+
+
 @router.delete("/profiles/{profile_id}")
 def delete_profile(profile_id: str):
     paths = []
     with db_conn() as conn:
-        row = conn.execute("SELECT ref_audio_path, locked_audio_path, consent_audio_path FROM voice_profiles WHERE id=?", (profile_id,)).fetchone()
+        row = conn.execute("SELECT ref_audio_path, locked_audio_path, consent_audio_path, is_protected FROM voice_profiles WHERE id=?", (profile_id,)).fetchone()
+        if row and _is_protected(row):
+            raise HTTPException(status_code=409, detail=PROTECTED_DETAIL)
         if row:
             for col in ["ref_audio_path", "locked_audio_path", "consent_audio_path"]:
                 if row[col]:

@@ -569,6 +569,8 @@
     "chips_more": "他{{count}}件…",
     "cfg": "CFG",
     "delete_profile_confirm": "「{{name}}」を削除しますか？この操作は元に戻せません。",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "フォルダ内に表示",
     "history_starred": "スター付き",
     "history_all": "すべて",

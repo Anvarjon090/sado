@@ -569,6 +569,8 @@
     "chips_more": "{{count}} weitere…",
     "cfg": "CFG",
     "delete_profile_confirm": "„{{name}}“ löschen? Dies kann nicht rückgängig gemacht werden.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Im Ordner anzeigen",
     "history_starred": "Markiert",
     "history_all": "Alle",

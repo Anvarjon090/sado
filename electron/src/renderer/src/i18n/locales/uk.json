@@ -573,6 +573,8 @@
     "chips_more": "ще {{count}}…",
     "cfg": "CFG",
     "delete_profile_confirm": "Видалити «{{name}}»? Цю дію неможливо скасувати.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Показати в папці",
     "history_starred": "Із зіркою",
     "history_all": "всі",

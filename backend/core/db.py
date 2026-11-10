@@ -51,6 +51,7 @@ _BASE_SCHEMA = """
         personality TEXT DEFAULT '',
         description TEXT DEFAULT '',
         is_demo INTEGER DEFAULT 0,
+        is_protected INTEGER DEFAULT 0,
         verified_own_voice INTEGER DEFAULT 0,
         consent_text TEXT DEFAULT '',
         consent_audio_path TEXT DEFAULT '',

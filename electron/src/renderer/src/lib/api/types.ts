@@ -27,6 +27,8 @@ export interface Profile {
   /** Epoch seconds (SQLite REAL) on the wire; tolerate ISO strings too. */
   created_at: number | string;
   is_locked: boolean | number | null;
+  /** A protected voice refuses deletion and reference replacement (409). */
+  is_protected?: boolean | number | null;
   verified_own_voice?: boolean | number | null;
   consent_text?: string | null;
   consent_recorded_at?: string | null;

@@ -571,6 +571,8 @@
     "chips_more": "{{count}} de plus…",
     "cfg": "CFG",
     "delete_profile_confirm": "Supprimer « {{name}} » ? Cette action est irréversible.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Afficher dans le dossier",
     "history_starred": "Étoilées",
     "history_all": "Tout",

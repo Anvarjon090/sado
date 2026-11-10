@@ -569,6 +569,8 @@
     "chips_more": "{{count}} till…",
     "cfg": "CFG",
     "delete_profile_confirm": "Ta bort ”{{name}}”? Detta kan inte ångras.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Visa i mapp",
     "history_starred": "Stjärnmärkta",
     "history_all": "Alla",

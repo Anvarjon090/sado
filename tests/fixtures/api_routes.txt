@@ -275,6 +275,7 @@ POST /preview/upload
 POST /profiles
 POST /profiles/{profile_id}/consent
 POST /profiles/{profile_id}/lock
+POST /profiles/{profile_id}/protect
 POST /profiles/{profile_id}/unlock
 POST /projects
 POST /pronunciation

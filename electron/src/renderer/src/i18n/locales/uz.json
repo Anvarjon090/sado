@@ -406,6 +406,8 @@
     "starter_failed": "Standart ovozlarni yuklab bo'lmadi: {{message}}",
     "delete_profile": "Ovozni o'chirish",
     "delete_profile_confirm": "“{{name}}” o'chirilsinmi? Bu amalni qaytarib bo'lmaydi.",
+    "protect_hint": "Himoyalangan ovozni o'chirib yoki yozuvini almashtirib bo'lmaydi — avval himoyani oling.",
+    "protected": "Himoyalangan ovoz",
     "profile_deleted": "Ovoz o'chirildi.",
     "delete_profile_failed": "Ovozni o'chirib bo'lmadi: {{message}}",
     "history_delete_failed": "Yozuvni o'chirib bo'lmadi: {{message}}",

@@ -569,6 +569,8 @@
     "chips_more": "อีก {{count}} รายการ…",
     "cfg": "CFG",
     "delete_profile_confirm": "ลบ “{{name}}” หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "แสดงในโฟลเดอร์",
     "history_starred": "ติดดาว",
     "history_all": "ทั้งหมด",

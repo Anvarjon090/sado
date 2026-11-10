@@ -569,6 +569,8 @@
     "chips_more": "nog {{count}}…",
     "cfg": "CFG",
     "delete_profile_confirm": "‘{{name}}’ verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Weergeven in map",
     "history_starred": "Met ster",
     "history_all": "Allemaal",

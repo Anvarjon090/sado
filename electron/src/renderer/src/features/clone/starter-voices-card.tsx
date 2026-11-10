@@ -12,15 +12,15 @@ import { cn } from '@/lib/utils';
 /** The pack id in the Sado gallery manifest (`backend/api/routers/community.py`). */
 export const STARTER_PACK_ID = 'sado-starter';
 /** Shown on the static card; the real list comes from the manifest after the click. */
-export const STARTER_VOICE_COUNT = 6;
-export const STARTER_PACK_MB = 3;
+export const STARTER_VOICE_COUNT = 1;
+export const STARTER_PACK_MB = 2;
 /**
- * Held back until the Sado gallery holds human-recorded voices: the six
- * synthetic voices were withdrawn on 2026-11-10 (only real recordings are
- * accepted as references), so there is nothing to download yet. The Voices
- * page checks this flag before rendering the card.
+ * The Sado gallery holds human-recorded voices only: the six synthetic voices
+ * were withdrawn on 2026-11-10 and the pack reopened the same day with the
+ * owner's first real recording (Navrözberk). The Voices page checks this flag
+ * before rendering the card, so an empty pack never offers a download.
  */
-export const STARTER_PACK_READY = false;
+export const STARTER_PACK_READY = true;
 /** How the backend tags a profile it materialized from the Sado gallery. */
 export const STARTER_PERSONALITY_PREFIX = 'community:Anvarjon090/sado-gallery:';
 

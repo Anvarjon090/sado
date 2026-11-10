@@ -569,6 +569,8 @@
     "chips_more": "{{count}} mục khác…",
     "cfg": "CFG",
     "delete_profile_confirm": "Xóa “{{name}}”? Không thể hoàn tác thao tác này.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Hiển thị trong thư mục",
     "history_starred": "Đã gắn sao",
     "history_all": "Tất cả",

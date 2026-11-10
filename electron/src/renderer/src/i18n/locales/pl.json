@@ -573,6 +573,8 @@
     "chips_more": "jeszcze {{count}}…",
     "cfg": "CFG",
     "delete_profile_confirm": "Usunąć „{{name}}”? Tej czynności nie można cofnąć.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Pokaż w folderze",
     "history_starred": "Z gwiazdką",
     "history_all": "Wszystko",

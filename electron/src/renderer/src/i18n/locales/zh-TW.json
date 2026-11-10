@@ -569,6 +569,8 @@
     "chips_more": "還有 {{count}} 個…",
     "cfg": "CFG",
     "delete_profile_confirm": "刪除「{{name}}」？此操作無法復原。",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "在資料夾中顯示",
     "history_starred": "已加星",
     "history_all": "全部",

@@ -569,6 +569,8 @@
     "chips_more": "{{count}} tane daha…",
     "cfg": "CFG",
     "delete_profile_confirm": "“{{name}}” silinsin mi? Bu işlem geri alınamaz.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Klasörde göster",
     "history_starred": "Yıldızlı",
     "history_all": "Hepsi",

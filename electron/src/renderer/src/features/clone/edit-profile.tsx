@@ -300,7 +300,11 @@ export function EditProfile({ profile, onDone }: { profile: Profile; onDone: () 
           confirmDelete && 'rounded-lg border border-destructive/20 bg-destructive/5 px-3 pb-3',
         )}
       >
-        {confirmDelete ? (
+        {profile.is_protected ? (
+          <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+            {t('clone.protected')} — {t('clone.protect_hint')}
+          </p>
+        ) : confirmDelete ? (
           <>
             <p className="min-w-0 flex-1 text-xs text-muted-foreground">
               {t('clone.delete_profile_confirm', { name: profile.name })}

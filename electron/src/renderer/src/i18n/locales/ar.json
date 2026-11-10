@@ -577,6 +577,8 @@
     "chips_more": "{{count}} أخرى…",
     "cfg": "CFG",
     "delete_profile_confirm": "هل تريد حذف «{{name}}»؟ لا يمكن التراجع عن ذلك.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "عرض في المجلد",
     "history_starred": "المميزة بنجمة",
     "history_all": "الكل",

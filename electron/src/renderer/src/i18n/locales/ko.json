@@ -570,6 +570,8 @@
     "cfg": "CFG",
     "title": "음성 복제",
     "delete_profile_confirm": "“{{name}}”을(를) 삭제할까요? 되돌릴 수 없습니다.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "폴더에 표시",
     "history_starred": "별표됨",
     "characters_other": "{{count}}명",

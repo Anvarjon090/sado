@@ -571,6 +571,8 @@
     "chips_more": "mais {{count}}…",
     "cfg": "CFG",
     "delete_profile_confirm": "Excluir “{{name}}”? Esta ação não pode ser desfeita.",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "Mostrar na pasta",
     "history_starred": "Marcadas",
     "history_all": "Todos",

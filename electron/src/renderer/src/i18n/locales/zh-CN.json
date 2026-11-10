@@ -583,6 +583,8 @@
     "cfg": "CFG",
     "title": "语音克隆",
     "delete_profile_confirm": "删除“{{name}}”？此操作无法撤销。",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "在文件夹中显示",
     "history_starred": "已加星",
     "characters_other": "{{count}} 个角色",

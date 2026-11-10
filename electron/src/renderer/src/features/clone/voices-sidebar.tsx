@@ -378,8 +378,10 @@ export function SavedVoices({
                     variant="ghost"
                     size="icon-xs"
                     className="text-muted-foreground hover:text-destructive"
+                    disabled={Boolean(profile.is_protected)}
+                    title={profile.is_protected ? t('clone.protected') : undefined}
                     onClick={() => setPendingDelete(profile)}
-                    aria-label={t('clone.delete_profile')}
+                    aria-label={profile.is_protected ? t('clone.protected') : t('clone.delete_profile')}
                   >
                     <Trash2Icon />
                   </Button>

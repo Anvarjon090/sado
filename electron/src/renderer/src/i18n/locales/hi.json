@@ -569,6 +569,8 @@
     "chips_more": "{{count}} और…",
     "cfg": "CFG",
     "delete_profile_confirm": "“{{name}}” हटाएँ? इसे वापस नहीं किया जा सकता।",
+    "protect_hint": "A protected voice cannot be deleted or have its recording replaced — lift the protection first.",
+    "protected": "Protected voice",
     "reveal": "फ़ोल्डर में दिखाएँ",
     "history_starred": "स्टार किए गए",
     "history_all": "सब",
