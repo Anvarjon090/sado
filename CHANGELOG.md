@@ -19,6 +19,7 @@ metadata and the backend fallback mirror it.
 - Uzbek interface: new `uz` locale covering the whole app (brand names, formats and units stay as written)
 - Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune, Apache-2.0): zero-shot cloning, ten emotion presets (`xotirjam` … `kinoyali`), Uzbek-only; opt-in through `OMNIVOICE_NAVOIY_DIR`, running in its own sidecar venv because the checkpoint pins `transformers==4.51.3`
 - Uzbek number reading covers phone numbers, card numbers (read in pairs), bank account and ID numbers (read in blocks of four), bare numbers up to 36 digits (read with their scale names), dates, clock times, prices, temperatures, fractions, ranges, "3-ta" counts and Roman-numbered centuries; Russian adds times, percents and ordinals
+- Sado starter voices: six ready-made Uzbek voices (three male, three female) that the Voices page offers to download when the library is empty; nothing is fetched until you click
 
 ### Changed
 

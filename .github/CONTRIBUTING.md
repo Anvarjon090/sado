@@ -366,7 +366,9 @@ hard rules from the first prompt.
     (gated on install state or an explicit user action).
   - **Galleries the user opens or enables:** the community gallery manifest
     from jsDelivr plus its GitHub-hosted previews
-    (`backend/api/routers/community.py`); the voice-preview gallery's signed
+    (`backend/api/routers/community.py`), including Sado's starter voices from
+    `Anvarjon090/sado-gallery`, fetched only after the user clicks Download on
+    the Voices page; the voice-preview gallery's signed
     downloads from `omnivoice-gallery` GitHub Releases, only after it is turned
     on in Settings (`backend/services/gallery.py`).
   - **Packaged-app update checks** against GitHub Releases; downloads wait for

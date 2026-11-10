@@ -45,7 +45,12 @@ logger = logging.getLogger("omnivoice.community")
 router = APIRouter()
 
 _CACHE_DIR = Path(DATA_DIR) / "gallery_cache"
-_DEFAULT_SOURCES = ["debpalash/omnivoice-gallery"]
+# Sado's own starter voices come first, so their profiles are owned by the
+# Sado source; the upstream VoiceStudio gallery stays available after it.
+_DEFAULT_SOURCES = ["Anvarjon090/sado-gallery", "debpalash/omnivoice-gallery"]
+#: The pack the Voices page offers on an empty library. Nothing is fetched
+#: until the user clicks Download: the card itself is static text.
+STARTER_PACK_ID = "sado-starter"
 _ALLOWED_AUDIO_HOSTS = {
     "cdn.jsdelivr.net", "github.com", "raw.githubusercontent.com",
     "objects.githubusercontent.com", "release-assets.githubusercontent.com",
@@ -809,6 +814,49 @@ def _heal_existing_profile(
             seed, personality, audio_filename, row["id"],
         ),
     )
+
+
+@router.post("/community/packs/{pack_id}/install")
+async def community_install_pack(pack_id: str):
+    """Materialize every item of a gallery pack into voice profiles.
+
+    This is the one call behind the "Download starter voices" button: the
+    manifest fetch and the audio downloads happen here, after the click, and
+    never before. Items are added one at a time so a single bad clip leaves
+    the rest installed; failures are reported, not raised.
+    """
+    _, items, packs, offline = await asyncio.to_thread(_load, False)
+    if not _ITEM_ID_RE.fullmatch(pack_id or ""):
+        raise HTTPException(status_code=404, detail="Pack not found in the gallery.")
+    pack = next((p for p in packs if p.get("id") == pack_id), None)
+    if pack is None:
+        if offline:
+            raise HTTPException(
+                status_code=503,
+                detail="The voice gallery is not reachable right now. Check your connection and try again.",
+            )
+        raise HTTPException(status_code=404, detail="Pack not found in the gallery.")
+    item_ids = [i for i in pack.get("item_ids") or [] if isinstance(i, str)]
+    known = {it["id"] for it in items}
+    installed, failed = [], []
+    for item_id in item_ids:
+        if item_id not in known:
+            failed.append({"item_id": item_id, "detail": "Item not found in the gallery."})
+            continue
+        try:
+            # Called as a function, not through FastAPI: pass the name
+            # explicitly or the `Query` default object stands in for it.
+            result = await community_use(item_id, None)
+        except HTTPException as e:
+            failed.append({"item_id": item_id, "detail": str(e.detail)})
+            continue
+        installed.append({"item_id": item_id, **result})
+    return {
+        "pack_id": pack_id,
+        "name": pack.get("name"),
+        "installed": installed,
+        "failed": failed,
+    }
 
 
 @router.post("/community/items/{item_id}/use")

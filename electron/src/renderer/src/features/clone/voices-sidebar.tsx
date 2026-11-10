@@ -37,6 +37,7 @@ import { selectCloneProfile } from '@/lib/store/reference';
 import { queryKeys } from '@/lib/query';
 import { cn } from '@/lib/utils';
 import { runRendererTask } from '@/lib/global-error-recovery';
+import { StarterVoicesCard } from './starter-voices-card';
 import { ConfirmDialog } from './confirm-dialog';
 import { displayTitle, formatRelative } from './format';
 import {
@@ -199,25 +200,28 @@ export function SavedVoices({
           {t('clone.no_profiles')}
         </p>
         {library ? (
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <Button
-              onClick={() =>
-                runRendererTask('Open voice cloning', () => navigate({ to: '/clone' }))
-              }
-            >
-              <FingerprintIcon />
-              {t('clone.title')}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() =>
-                runRendererTask('Open voice design', () => navigate({ to: '/design' }))
-              }
-            >
-              <WandSparklesIcon />
-              {t('designWorkspace.title')}
-            </Button>
-          </div>
+          <>
+            <StarterVoicesCard />
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Button
+                onClick={() =>
+                  runRendererTask('Open voice cloning', () => navigate({ to: '/clone' }))
+                }
+              >
+                <FingerprintIcon />
+                {t('clone.title')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  runRendererTask('Open voice design', () => navigate({ to: '/design' }))
+                }
+              >
+                <WandSparklesIcon />
+                {t('designWorkspace.title')}
+              </Button>
+            </div>
+          </>
         ) : null}
       </div>
     );

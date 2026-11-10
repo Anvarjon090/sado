@@ -211,6 +211,7 @@ POST /calls/{call_id}/say
 POST /calls/{call_id}/takeover
 POST /clean-audio
 POST /community/items/{item_id}/use
+POST /community/packs/{pack_id}/install
 POST /convert
 POST /design/describe
 POST /dictation/prefs

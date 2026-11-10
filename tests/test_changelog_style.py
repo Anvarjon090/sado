@@ -59,6 +59,7 @@ _REF_ALLOWLIST = (
     # owner-reported mixed-language number reading (2026-11-09), no issue
     "Numbers inside English or Russian sentences of an Uzbek script",
     "Uzbek number reading covers phone numbers",
+    "Sado starter voices: six ready-made Uzbek voices",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")
