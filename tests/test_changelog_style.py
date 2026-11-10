@@ -60,6 +60,7 @@ _REF_ALLOWLIST = (
     "Numbers inside English or Russian sentences of an Uzbek script",
     "Uzbek number reading covers phone numbers",
     "Sado starter voices: six ready-made Uzbek voices",
+    "`scripts/voice_intake.py` checks a human reference recording",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")
