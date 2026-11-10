@@ -201,7 +201,7 @@ export function SavedVoices({
         </p>
         {library ? (
           <>
-            <StarterVoicesCard />
+            <StarterVoicesCard profiles={allItems} />
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               <Button
                 onClick={() =>
@@ -267,6 +267,11 @@ export function SavedVoices({
               </ToggleGroupItem>
             </ToggleGroup>
           ) : null}
+        </div>
+      ) : null}
+      {library ? (
+        <div className="flex justify-center px-2 pt-2">
+          <StarterVoicesCard profiles={allItems} className="mb-2" />
         </div>
       ) : null}
       {items.length === 0 ? (

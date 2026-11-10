@@ -10,7 +10,7 @@ vi.mock('@/lib/api/client', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
-import { StarterVoicesCard } from './starter-voices-card';
+import { StarterVoicesCard, hasStarterVoices } from './starter-voices-card';
 import { parseStarterVoicesOffer, starterVoicesStore } from '@/lib/store/starter-voices';
 
 beforeEach(() => {
@@ -19,14 +19,30 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-function renderCard() {
+function renderCard(props: Parameters<typeof StarterVoicesCard>[0] = {}) {
   const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
-      <StarterVoicesCard />
+      <StarterVoicesCard {...props} />
     </QueryClientProvider>,
   );
 }
+
+it('retires itself when the library already holds a Sado gallery voice', () => {
+  const profiles = [
+    { personality: null },
+    { personality: 'community:debpalash/omnivoice-gallery:feat_00_the_librarian' },
+  ];
+  expect(hasStarterVoices(profiles)).toBe(false);
+  renderCard({ profiles });
+  expect(screen.getByText('clone.starter_title')).toBeVisible();
+  cleanup();
+  renderCard({
+    profiles: [...profiles, { personality: 'community:Anvarjon090/sado-gallery:sado_bobur' }],
+  });
+  expect(screen.queryByText('clone.starter_title')).toBeNull();
+  expect(starterVoicesStore.state.offer).toBe('installed');
+});
 
 it('fetches nothing until asked, then installs the pack and steps aside', async () => {
   mocks.api.mockResolvedValue({
