@@ -211,7 +211,9 @@ it('never declares an attached backend crashed from timeouts alone', async () =>
   } finally {
     await supervisor.shutdown();
   }
-});
+  // Six simulated hours are thousands of probe rounds of real CPU work; a slow
+  // runner (Intel macOS) needs more than the 5 s default to grind through them.
+}, 60_000);
 
 it('forgets a past refusal once the listener is back (classified from the latest probes)', async () => {
   const health: Health = { mode: 'up' };
