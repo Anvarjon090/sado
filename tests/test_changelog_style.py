@@ -72,7 +72,9 @@ _REF_ALLOWLIST = (
     "SSML on `/generate` and `/v1/audio/speech`",
     "Protected voices: `POST /profiles/{id}/protect`",
     "`[pause]`, paragraph and SSML spans are joined without the engine's",
-    "App icon set rebuilt from the brand spec by `scripts/brand_icons.py`",
+    "Sado app icon, favicon and installer icons come from the brand book",
+    # owner-directed Uzbek copy for the blank-window fallback (2026-11-11), no issue
+    "The blank-window fallback page, shown when the interface cannot load",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

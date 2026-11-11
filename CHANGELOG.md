@@ -6,14 +6,30 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com/).
 `package.json` is the maintained app-version source of truth; Electron package
 metadata and the backend fallback mirror it.
 
-## [Unreleased]
+## [0.5.8] — 2026-11-11
+
+**Sado speaks Uzbek and looks like itself.** The whole interface is in Uzbek, Navoiy-TTS brings a native Uzbek voice engine with ten emotion presets, and the studio has a new look: graphite and indigo, a frosted title bar, and the three-ring mark everywhere from the taskbar to the tray.
+
+Generated speech also sounds more like the voice you gave it: no hidden broadcast compression, pauses like a reader, clean references kept clean, and a take guard that re-renders a line that came back as someone else. SSML, pause control and protected voices arrive on the API.
+
+**Download**
+
+| Platform | Installer |
+| --- | --- |
+| Windows x64 | [Installer](https://github.com/Anvarjon090/sado/releases/download/v0.5.8/Sado-Electron-0.5.8-win-x64.exe) |
+| macOS Apple Silicon | [DMG](https://github.com/Anvarjon090/sado/releases/download/v0.5.8/Sado-Electron-0.5.8-mac-arm64.dmg) |
+| macOS Intel | [DMG](https://github.com/Anvarjon090/sado/releases/download/v0.5.8/Sado-Electron-0.5.8-mac-x64.dmg) |
+| Linux x64 | [AppImage](https://github.com/Anvarjon090/sado/releases/download/v0.5.8/Sado-Electron-0.5.8-linux-x64.AppImage) · [deb](https://github.com/Anvarjon090/sado/releases/download/v0.5.8/Sado-Electron-0.5.8-linux-x64.deb) |
+
+**Upgrading:** Install over your existing app; voices, projects and settings are kept. Navoiy-TTS is opt-in (`OMNIVOICE_NAVOIY_DIR`) and sets up its own sidecar environment the first time it is used.
 
 **Highlights**
 
-- Uzbek voice engine: Navoiy-TTS with ten emotion presets
-- Redesigned studio look: graphite and turquoise, Onest type, light and dark
+- Uzbek interface, and the Navoiy-TTS Uzbek voice engine with ten emotion presets
+- New studio look: graphite and indigo, a frosted title bar, light and dark, the three-ring mark from taskbar to tray
 - A Home that starts with your script, and a sidebar that lists each place once
-- Natural voice output: no hidden compression, pauses like a reader, clean references kept clean
+- Natural voice output: no hidden compression, pauses like a reader, clean references kept clean, flipped takes re-rendered
+- SSML, pause control and protected voices on the API
 
 ### Added
 
@@ -32,14 +48,16 @@ metadata and the backend fallback mirror it.
 ### Changed
 
 - The app is Sado everywhere: name, package ids, installer identity, environment variables, docs and error strings
-- Sado app icon, favicon and installer icons: a teal tile with four waveform bars (PNG, ICO and ICNS regenerated from one mark)
-- App icon set rebuilt from the brand spec by `scripts/brand_icons.py`: Windows ICO at 16, 20, 24, 32, 40, 48, 64 and 256 px with the two-ring mark under 32 px, macOS ICNS with the @2x entries on Apple's inset template, PNGs 16–1024 in indigo, dark and light
-- Sado brand accent: the default palette's primary is teal (deep on light, neon on dark) with dark ink on filled controls
+- Sado app icon, favicon and installer icons come from the brand book: the three-ring mark on the indigo tile (ICO, ICNS and PNG 16–1024 in indigo, dark and light), and all three rings stay visible at every size down to the 16 px taskbar icon
+- Sado brand accent: the default palette's primary is indigo (deep on light, bright on dark) with white ink on filled controls
 - Uzbek dubbing runs on Navoiy-TTS automatically once it is installed; a mixed-language job, an explicit engine pick or an env pin keeps the configured engine
 - Home no longer shows the contributor avatar cluster, and the top bar drops the Get Pro and GitHub Star shortcuts (and their star-count request)
-- New Sado look from the Neon studiya concept: graphite canvas with a turquoise accent in dark, cool paper in light, bundled Onest and Unbounded fonts, themed selection and scrollbars
+- New Sado look: graphite canvas with one indigo accent in dark, cool daylight paper in light, bundled Onest and Unbounded fonts, themed selection and scrollbars, and a frosted title bar on the OS material (Windows 11 acrylic, macOS vibrancy) whose caption buttons follow the theme
 - Home leads with a script box shared with the voice studio, then one strip of other workflows and lists of recent projects and voices; the nine feature cards and their illustrations are gone
 - Sidebar navigation lists each destination once under Create, Library and More, with monochrome icons
+- The voice library pane stays open only where voices are picked (Home, Voice cloning) and folds into the icon rail elsewhere; the library toggle in the title bar opens it on any page, and the Keep sidebar expanded setting is gone
+- The window and taskbar icon and the tray marks come from the brand pack, with a tray mark for dark and for light panels
+- The mark's processing state is an echo: rings grow out of the inner ring and fade
 - The sponsor footer (Become a Sponsor, social links) is removed from workspaces
 - Fresh installs follow the system light/dark setting, and the glass background effect is off by default
 - Voice avatars take initials from letters only (no more "A(")
@@ -53,6 +71,7 @@ metadata and the backend fallback mirror it.
 - Numbers inside English or Russian sentences of an Uzbek script are read in that sentence's language, not in Uzbek
 - Long words and file paths wrap instead of spilling out of setup steps, the tools list, donation amounts and settings rows (Russian, German and other languages)
 - `[pause]`, paragraph and SSML spans are joined without the engine's ~200 ms padding on each side, so a requested pause is the gap heard and spans joined without a pause no longer leave a 300–400 ms hole mid-sentence
+- The blank-window fallback page, shown when the interface cannot load, has Uzbek copy
 
 ## [0.5.7] — 2026-10-05
 
