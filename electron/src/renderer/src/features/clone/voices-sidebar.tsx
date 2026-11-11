@@ -230,7 +230,10 @@ export function SavedVoices({
   return (
     <>
       {showLibraryTools ? (
-        <div className="sticky top-0 z-20 space-y-2 bg-sidebar/95 px-2 pt-1 pb-2 backdrop-blur-xl">
+        <div
+          data-slot="library-tools"
+          className="sticky top-0 z-20 space-y-1.5 bg-sidebar/95 px-3 pt-1.5 pb-1.5 backdrop-blur-xl"
+        >
           <div className="relative">
             <SearchIcon
               className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground"
@@ -241,31 +244,39 @@ export function SavedVoices({
               onChange={(event) => setQuery(event.target.value)}
               aria-label={t('common.search')}
               placeholder={t('common.search')}
-              className="h-8 bg-sidebar-accent/25 pl-8"
+              className="h-8 rounded-lg border-sidebar-border/70 bg-sidebar-accent/30 pl-8 text-[13px] shadow-none"
             />
           </div>
           {hasBothKinds ? (
-            <ToggleGroup
-              value={[kind]}
-              onValueChange={(value) => {
-                const next = value[0];
-                if (next === 'all' || next === 'clone' || next === 'design') setKind(next);
-              }}
-              size="sm"
+            <div
+              role="radiogroup"
               aria-label={t('clone.saved_profiles')}
+              className="flex items-center gap-1"
             >
-              <ToggleGroupItem value="all">{t('clone.history_all')}</ToggleGroupItem>
-              <ToggleGroupItem value="clone" aria-label={t('clone.title')} title={t('clone.title')}>
-                <FingerprintIcon />
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="design"
-                aria-label={t('designWorkspace.title')}
-                title={t('designWorkspace.title')}
-              >
-                <WandSparklesIcon />
-              </ToggleGroupItem>
-            </ToggleGroup>
+              {(
+                [
+                  ['all', t('clone.history_all')],
+                  ['clone', t('nav.clone_short')],
+                  ['design', t('clone.design_short')],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={kind === value}
+                  onClick={() => setKind(value)}
+                  className={cn(
+                    'h-7 rounded-full px-3 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring',
+                    kind === value
+                      ? 'bg-sidebar-foreground text-sidebar'
+                      : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -325,7 +336,9 @@ export function SavedVoices({
                   imageUrl={profile.image_url}
                   className={cn('pointer-events-none shrink-0', library ? 'size-9' : 'size-6')}
                 />
-                <div className="pointer-events-none min-w-0 flex-1">
+                {/* The hover actions float over the row's right edge; the name
+                    truncates to leave them room instead of running underneath. */}
+                <div className="pointer-events-none min-w-0 flex-1 transition-[padding] duration-150 group-focus-within/profile:pr-20 group-hover/profile:pr-20">
                   <p className="flex min-w-0 items-center gap-1.5 text-sm font-medium">
                     <span className="truncate">{profile.name}</span>
                     <span
@@ -381,7 +394,9 @@ export function SavedVoices({
                     disabled={Boolean(profile.is_protected)}
                     title={profile.is_protected ? t('clone.protected') : undefined}
                     onClick={() => setPendingDelete(profile)}
-                    aria-label={profile.is_protected ? t('clone.protected') : t('clone.delete_profile')}
+                    aria-label={
+                      profile.is_protected ? t('clone.protected') : t('clone.delete_profile')
+                    }
                   >
                     <Trash2Icon />
                   </Button>
@@ -446,7 +461,7 @@ function TakeRow({ item, onStar, onReuse, onDelete }: TakeRowProps) {
             runRendererTask('Open cloned take', () => navigate({ to: '/clone' }));
           }
         }}
-        className="flex h-full min-w-0 flex-1 items-center gap-2 rounded text-left text-[length:var(--text-label)] outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex h-full min-w-0 flex-1 items-center gap-2 rounded text-left text-[length:var(--text-label)] outline-none transition-[padding] duration-150 group-focus-within:pr-28 group-hover:pr-28 focus-visible:ring-2 focus-visible:ring-ring"
         title={[
           item.text,
           workspaceLabel,
@@ -680,40 +695,24 @@ export function VoicesSidebar({
         }}
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
-        <div className="px-2 py-2">
-          <TabsList className="flex w-full min-w-0 gap-1 bg-transparent p-0">
-            <TabsTrigger
-              value="voices"
-              title={t('clone.saved_profiles')}
-              aria-label={t('clone.saved_profiles')}
-              className="min-w-0 flex-none data-active:flex-1 @[300px]/library:flex-1 rounded-lg text-sidebar-foreground/60 hover:bg-sidebar-accent/50 data-active:bg-[var(--sidebar-row-active)] data-active:text-sidebar-foreground dark:data-active:border-transparent dark:data-active:bg-[var(--sidebar-row-active)] dark:data-active:text-sidebar-foreground"
-            >
-              <FingerprintIcon data-icon="inline-start" />
-              <span
-                className={cn(
-                  'min-w-0 truncate',
-                  tab !== 'voices' && 'hidden @[300px]/library:inline',
-                )}
+        <div className="px-3 pt-1.5 pb-1.5">
+          <TabsList className="grid h-[30px] w-full min-w-0 grid-cols-2 gap-0 rounded-lg bg-sidebar-accent/40 p-0.5">
+            {(
+              [
+                ['voices', t('clone.saved_short'), t('clone.saved_profiles')],
+                ['takes', t('clone.history_title'), t('clone.history_title')],
+              ] as const
+            ).map(([value, label, full]) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                title={full}
+                aria-label={full}
+                className="h-full min-w-0 rounded-md px-1.5 text-xs font-medium text-muted-foreground hover:text-sidebar-foreground data-active:bg-[var(--sidebar-row-active)] data-active:text-sidebar-foreground data-active:shadow-sm dark:data-active:border-transparent dark:data-active:bg-[var(--sidebar-row-active)] dark:data-active:text-sidebar-foreground"
               >
-                {t('clone.saved_profiles')}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="takes"
-              title={t('clone.history_title')}
-              aria-label={t('clone.history_title')}
-              className="min-w-0 flex-none data-active:flex-1 @[300px]/library:flex-1 rounded-lg text-sidebar-foreground/60 hover:bg-sidebar-accent/50 data-active:bg-[var(--sidebar-row-active)] data-active:text-sidebar-foreground dark:data-active:border-transparent dark:data-active:bg-[var(--sidebar-row-active)] dark:data-active:text-sidebar-foreground"
-            >
-              <HistoryIcon data-icon="inline-start" />
-              <span
-                className={cn(
-                  'min-w-0 truncate',
-                  tab !== 'takes' && 'hidden @[300px]/library:inline',
-                )}
-              >
-                {t('clone.history_title')}
-              </span>
-            </TabsTrigger>
+                <span className="min-w-0 truncate">{label}</span>
+              </TabsTrigger>
+            ))}
           </TabsList>
         </div>
         <div
