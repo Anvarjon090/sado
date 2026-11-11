@@ -22,6 +22,10 @@ _RESERVED_DOMAIN = re.compile(r"(^|\.)(example\.(com|net|org)|example|test|inval
 # GitHub no-reply commit addresses are identities, not contact addresses.
 _NOREPLY_DOMAIN = "users.noreply.github.com"
 _TEST_PATH = re.compile(r"(^|/)(tests?|__tests__|fixtures)/|\.test\.[a-z]+$|_test\.py$")
+# Licence notices quote the licensor's own contact (the upstream company), not ours.
+_LICENSE_PATH = re.compile(r"(^|/)LICENSE[^/]*$")
+# Retina asset names (trayTemplate@2x.png) look like addresses to the regex.
+_RETINA_ASSET = re.compile(r"@[1-4]x\.(?:png|jpe?g|webp|gif|svg)$", re.I)
 
 
 def _tracked_text_files():
@@ -31,14 +35,20 @@ def _tracked_text_files():
     for name in filter(None, names):
         try:
             yield name, (_REPO / name).read_text(encoding="utf-8")
-        except (UnicodeDecodeError, FileNotFoundError, IsADirectoryError):
+        except (UnicodeDecodeError, FileNotFoundError, IsADirectoryError, PermissionError):
+            # A submodule gitlink is listed but is a directory: IsADirectoryError
+            # on POSIX, PermissionError on Windows.
             continue
 
 
 def test_only_project_contact_addresses_are_published():
     stray = []
     for name, text in _tracked_text_files():
+        if _LICENSE_PATH.search(name):
+            continue
         for address in _EMAIL.findall(text):
+            if _RETINA_ASSET.search(address):
+                continue
             domain = address.rsplit("@", 1)[1]
             if (address.lower() in _CONTACTS or _RESERVED_DOMAIN.search(domain) or domain.lower() == _NOREPLY_DOMAIN
                     or _TEST_PATH.search(name)):

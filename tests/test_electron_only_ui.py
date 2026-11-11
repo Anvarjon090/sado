@@ -56,16 +56,20 @@ def test_macos_dev_launcher_uses_maintained_electron_paths():
     assert "'frontend'" not in launcher
 
 
-def test_home_keeps_creation_actions_with_open_source_heading():
+def test_home_leads_with_the_script_box():
     home = (ROOT / "electron/src/renderer/src/features/home/home-page.tsx").read_text(
         encoding="utf-8"
     )
-    assert "t('nav.home')" in home
     assert "t('homeUi.title')" in home
     assert "t('homeUi.subtitle')" in home
-    assert "<HomeContributors />" in home
-    assert "group.map(" in home
-    assert "browser.open('https://sado.sh')" in home
+    assert 'className="home-composer"' in home
+    assert "t('homeUi.scriptLabel')" in home
+    # The script box hands over to the voice studio through the observed task runner.
+    assert "runRendererTask('Home script to voice studio', () => navigate({ to: '/clone' }))" in home
+    assert "t('homeUi.recent')" in home
+    # Gone with the redesign: the contributor cluster, the sponsor link, the sidebar toggle.
+    assert "<HomeContributors />" not in home
+    assert "browser.open('https://sado.sh')" not in home
     assert "PanelLeftOpenIcon" not in home
 
 

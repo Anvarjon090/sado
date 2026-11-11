@@ -162,7 +162,7 @@ def test_every_locale_discloses_hugging_face_model_access():
 
     locales = Path(__file__).resolve().parents[1] / "electron/src/shared/i18n/locales"
     paths = sorted(locales.glob("*.json"))
-    assert len(paths) == 21
+    assert len(paths) == 22
     for path in paths:
         strings = json.loads(path.read_text("utf-8"))
         footer = strings["license"]["pockettts_footer"]

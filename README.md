@@ -93,6 +93,14 @@ scripts/          Yig'ish va yordamchi skriptlar
 - [`docs/design/README.md`](docs/design/README.md) — Sado dizayn tizimi
 - [`CHANGELOG.md`](CHANGELOG.md) — o'zgarishlar tarixi
 
+## Agent ko'nikmalari
+
+Claude Code, Codex CLI yoki Cursor Sado bilan ishlashi uchun ko'nikmalar to'plamini o'rnating:
+
+```bash
+npx skills add Anvarjon090/sado
+```
+
 ## Hissa qo'shish
 
 Xato topsangiz yoki taklif bo'lsa — [issue](https://github.com/Anvarjon090/sado/issues)

@@ -58,6 +58,7 @@ _ALLOWED_FILES = {
     # Text-processing (CJK punctuation inside sentence/clause-splitting regexes)
     "backend/services/segmentation.py",
     "backend/services/sentence_chunker.py",       # streaming-TTS terminator tables (Patter port, Wave 1.4)
+    "backend/services/ssml.py",                   # sentence-end punctuation incl. CJK full stops (<s> auto-period)
     "backend/services/subtitle_segmenter.py",
     "backend/services/text_normalization.py",  # spoken range word per language ("20~30" must not read as one number)
     "backend/core/http_headers.py",               # docstring quotes the CJK filename that 500'd the header (#1262)
