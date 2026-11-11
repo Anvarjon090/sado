@@ -249,6 +249,10 @@ jobs:
         run: |
           python3 scripts/prepare_electron_release.py --assets release-assets --tag "$TAG"
       - name: Preserve the final Tauri updater feeds
+        # Only where Tauri clients ever existed: the upstream repository keeps
+        # TAURI_SUNSET_TAG=v0.5.3 and its v0.5.3 release. A repository without
+        # that history leaves the variable unset and ships Electron feeds only.
+        if: vars.TAURI_SUNSET_TAG != ''
         run: |
           test "$SUNSET_TAG" = "v0.5.3" || { echo "TAURI_SUNSET_TAG must be v0.5.3 before releasing"; exit 1; }
           # Every release carries copies pointing to immutable v0.5.3 payloads

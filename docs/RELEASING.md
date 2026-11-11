@@ -25,7 +25,10 @@ Tauri release can be audited. The Tauri release workflow has been removed; every
 new version ships through `electron-release.yml`. `TAURI_SUNSET_TAG` must continue to identify v0.5.3 so Electron releases
 can copy the final signed `latest.json` and `latest-user.json` feeds unchanged.
 Those feeds must always point to immutable v0.5.3 Tauri assets; old Tauri clients
-must never receive an Electron installer.
+must never receive an Electron installer. A repository without a Tauri history
+(this fork's first release was the Electron 0.5.7) leaves `TAURI_SUNSET_TAG`
+unset; the feed-preservation step is then skipped and the release carries
+Electron feeds only.
 
 ## Versioning
 
