@@ -221,7 +221,7 @@ describe('CaptureWidget', () => {
   const typeCalls = () => mocks.holder.calls.filter(([c]) => c === 'simulate_type');
 
   it('provides a translated Inserted outcome in every supported locale', () => {
-    expect(Object.keys(captureLocales)).toHaveLength(21);
+    expect(Object.keys(captureLocales)).toHaveLength(22);
     for (const [path, locale] of Object.entries(captureLocales)) {
       expect(locale.capture.inserted, path).toBeTruthy();
       if (!path.endsWith('/en.json')) expect(locale.capture.inserted, path).not.toBe('Inserted');
