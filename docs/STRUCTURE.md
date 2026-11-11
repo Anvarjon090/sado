@@ -128,7 +128,6 @@ Sado/
 │
 ├── notebooks/                   ⟵ OmniVoice_Studio_Colab.ipynb
 │
-│
 ├── omnivoice_data/              ⟵ Docker bind-mount target (gitignored)
 │                                   DB + HF cache live here when running via compose
 │
