@@ -83,8 +83,15 @@ jobs:
       - name: Linux native dependencies
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev libxdo-dev libxtst-dev libx11-dev libxkbcommon-dev libwayland-dev libssl-dev pkg-config xvfb zsync
+          # The runner's apt mirror (azure.archive.ubuntu.com) sometimes fails to
+          # resolve for minutes; retry the whole update+install before giving up.
+          for attempt in 1 2 3 4; do
+            if sudo apt-get update && sudo apt-get install -y libasound2-dev libxdo-dev libxtst-dev libx11-dev libxkbcommon-dev libwayland-dev libssl-dev pkg-config xvfb zsync; then
+              break
+            fi
+            if [ "$attempt" = 4 ]; then echo "apt failed after $attempt attempts"; exit 1; fi
+            echo "apt attempt $attempt failed; retrying in 30 s"; sleep 30
+          done
       - name: Bundle pinned uv for the host architecture
         run: |
           node --input-type=module <<'NODE'
