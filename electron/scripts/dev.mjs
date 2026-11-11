@@ -169,7 +169,7 @@ export function launchElectronVite(
       electronExecutable: env.ELECTRON_EXEC_PATH,
       electronVersion,
       appVersion,
-      iconPath: join(electronRoot, 'build', 'icons', 'icon.icns'),
+      iconPath: join(electronRoot, 'build', 'brand', 'icon', 'app-icon.icns'),
     });
   }
 

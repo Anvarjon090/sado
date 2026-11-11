@@ -22,10 +22,11 @@ export function PalettePicker({ appearance }: { appearance: ThemeAppearance }) {
         {options.map((option) => {
           const colors = paletteColors(option.id, appearance);
           const dark = appearance === 'dark';
-          const background = colors?.canvas ?? (dark ? '#0a0a0a' : '#fdfdfd');
-          const sidebar = colors?.sidebar ?? (dark ? '#111111' : '#fafafa');
-          const text = colors?.text ?? (dark ? '#f5f5f5' : '#27272a');
-          const accent = colors?.messageAction ?? (dark ? '#3268ef' : '#2449df');
+          // The default ("Studio") preview mirrors the built-in tokens in t3-theme.css.
+          const background = colors?.canvas ?? (dark ? '#15181c' : '#ffffff');
+          const sidebar = colors?.sidebar ?? (dark ? '#0e1013' : '#eef2f8');
+          const text = colors?.text ?? (dark ? '#e9ecef' : '#0a0c10');
+          const accent = colors?.messageAction ?? (dark ? '#5e5ce6' : '#5856d6');
           const selected = settings[appearance] === option.id;
           return (
             <button

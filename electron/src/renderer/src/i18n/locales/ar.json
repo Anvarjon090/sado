@@ -86,7 +86,12 @@
     "modelLabel": "النموذج",
     "runsOn": "يعمل على",
     "copyModel": "نسخ معرّف النموذج",
-    "copied": "تم النسخ"
+    "copied": "تم النسخ",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "الترجمة"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -481,6 +486,8 @@
     "starting_recording": "جارٍ البدء…",
     "unsupported_audio": "اختر ملفًا صوتيًا مدعومًا: WAV أو MP3 أو M4A أو FLAC أو OGG أو AAC أو WebM.",
     "saved_profiles": "الملفات الشخصية المحفوظة",
+    "saved_short": "المحفوظة",
+    "design_short": "تصميم",
     "transcript": "نسخة",
     "style": "النمط",
     "save_as_profile": "حفظ كملف تعريف صوتي",

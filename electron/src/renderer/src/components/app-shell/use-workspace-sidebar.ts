@@ -30,9 +30,13 @@ function routeHasSecondarySidebar(pathname: string): boolean {
   );
 }
 
-function routeOwnsVoiceLibrary(pathname: string): boolean {
+// The voice library is only open where voices are picked: Home and Voice
+// cloning. Every other workspace has its own side panel or none, so the
+// library folds into the rail there; the title-bar toggle brings it back on
+// that page when someone wants it.
+function routeShowsLibrary(pathname: string): boolean {
   const normalized = pathname.replace(/\/+$/, '') || '/';
-  return normalized === '/personas' || normalized.startsWith('/personas/');
+  return normalized === '/' || normalized === '/clone' || normalized.startsWith('/clone/');
 }
 
 function useCompactViewport(): boolean {
@@ -48,19 +52,12 @@ function useCompactViewport(): boolean {
 }
 
 export function useWorkspaceSidebarState() {
-  const { libraryOpen, expandedLibraryContext, autoCollapseSidebar } = useWorkspace();
+  const { libraryOpen, expandedLibraryContext } = useWorkspace();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const compactViewport = useCompactViewport();
   const compactContext = `${pathname}:${compactViewport}`;
   const forceExpanded = expandedLibraryContext === compactContext;
-  // Auto-collapse is a preference (Settings → Appearance → Keep sidebar
-  // expanded): off means a secondary workspace on a narrow window keeps the
-  // full sidebar. A workspace that shows the voice library itself still
-  // collapses the duplicate.
-  const autoCollapse =
-    autoCollapseSidebar !== false && compactViewport && routeHasSecondarySidebar(pathname);
-  const compact =
-    !libraryOpen || ((routeOwnsVoiceLibrary(pathname) || autoCollapse) && !forceExpanded);
+  const compact = !libraryOpen || (!routeShowsLibrary(pathname) && !forceExpanded);
   const setOpen = (open: boolean) =>
     setWorkspace({ libraryOpen: open, expandedLibraryContext: open ? compactContext : null });
   return {

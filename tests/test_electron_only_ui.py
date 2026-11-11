@@ -52,7 +52,7 @@ def test_docker_builds_the_electron_renderer():
 def test_macos_dev_launcher_uses_maintained_electron_paths():
     launcher = (ROOT / "electron/scripts/dev.mjs").read_text(encoding="utf-8")
     assert "join(repoRoot, 'package.json')" in launcher
-    assert "join(electronRoot, 'build', 'icons', 'icon.icns')" in launcher
+    assert "join(electronRoot, 'build', 'brand', 'icon', 'app-icon.icns')" in launcher
     assert "'frontend'" not in launcher
 
 

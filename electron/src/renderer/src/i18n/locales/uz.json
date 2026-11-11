@@ -86,7 +86,12 @@
     "modelLabel": "Model",
     "runsOn": "Qayerda ishlaydi",
     "copyModel": "Model ID nusxalash",
-    "copied": "Nusxalandi"
+    "copied": "Nusxalandi",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Tarjima"
+    }
   },
   "homeUi": {
     "subtitle": "Matn yozing va unga ovoz bering, ovozni klonlang yoki yarating, videoni dublyaj qiling. Hammasi shu kompyuterda ishlaydi.",
@@ -397,6 +402,8 @@
     "saved_profile": "Ovoz profili saqlandi.",
     "save_failed": "Ovoz profilini saqlab bo'lmadi: {{message}}",
     "saved_profiles": "Saqlangan ovozlar",
+    "saved_short": "Saqlangan",
+    "design_short": "Dizayn",
     "no_profiles": "Hali saqlangan ovoz yo'q. Namuna yuklang yoki yozib oling, keyin profil sifatida saqlang.",
     "starter_title": "Sado standart ovozlari",
     "starter_body": "{{count}} ta tayyor o'zbek ovozi (uch erkak, uch ayol): diktor, hikoyachi, ertakchi, reklama. Rus va ingliz tillarida ham gapiradi. Yuklab olish hajmi {{size}} MB; siz bosmaguningizcha hech narsa yuklanmaydi.",

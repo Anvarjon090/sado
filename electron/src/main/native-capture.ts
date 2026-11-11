@@ -7,12 +7,14 @@ import {
   BrowserWindow,
   ipcMain,
   Menu,
+  nativeTheme,
   screen,
   type Tray,
   type IpcMainInvokeEvent,
 } from 'electron';
 import { join } from 'node:path';
 import { backendRoot } from './backend';
+import { brandAssetPath, trayMarkFile } from './brand-assets';
 import { APP_ORIGIN } from './protocol';
 import { isTrustedRenderer } from './trusted-renderer';
 import { DictationOutputClient } from './dictation-output';
@@ -39,10 +41,19 @@ export function installNativeCapture(
   const executable = app.isPackaged
     ? join(process.resourcesPath, 'native', name)
     : join(backendRoot(), 'native', 'desktop-bridge', 'target', 'debug', name);
-  const trayIcon = (file: string) =>
-    app.isPackaged
-      ? join(process.resourcesPath, 'brand', file)
-      : join(backendRoot(), 'electron', 'build', 'icons', file);
+  const location = {
+    packaged: app.isPackaged,
+    resourcesPath: process.resourcesPath,
+    backendRoot: backendRoot(),
+  };
+  // The idle mark comes from the brand pack; the recording dot keeps its
+  // existing image (the pack has no recording variant).
+  const trayIcon = (recording: boolean) =>
+    recording
+      ? app.isPackaged
+        ? join(process.resourcesPath, 'brand', 'tray-recording.png')
+        : join(backendRoot(), 'electron', 'build', 'icons', 'tray-recording.png')
+      : brandAssetPath(trayMarkFile(process.platform, nativeTheme.shouldUseDarkColors), location);
   const settingsPath = join(app.getPath('userData'), 'dictation-shortcut.json');
   let saved: unknown;
   try {
@@ -90,7 +101,7 @@ export function installNativeCapture(
     if (!trayLabels) return;
     const labels = trayLabels;
     const shortcut = shortcuts.getState().accelerator;
-    tray.setImage(createTrayIcon(trayIcon(capturing ? 'tray-recording.png' : '32x32.png')));
+    tray.setImage(createTrayIcon(trayIcon(capturing)));
     tray.setContextMenu(
       Menu.buildFromTemplate([
         { label: labels.show, click: () => showMain() },
@@ -275,7 +286,11 @@ export function installNativeCapture(
     void output.request({ method: 'prime_tray' }).catch(() => {});
   };
   tray.on('mouse-enter', prime);
+  // Windows and Linux pick the light or dark mark for the panel colour.
+  const repaintTray = () => tray.setImage(createTrayIcon(trayIcon(capturing)));
+  nativeTheme.on('updated', repaintTray);
   return () => {
+    nativeTheme.off('updated', repaintTray);
     tray.removeListener('mouse-enter', prime);
     unregister?.();
     unregister = null;

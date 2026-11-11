@@ -86,7 +86,12 @@
     "modelLabel": "Model",
     "runsOn": "Draait op",
     "copyModel": "Model-ID kopiëren",
-    "copied": "Gekopieerd"
+    "copied": "Gekopieerd",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Vertaling"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "Starten…",
     "unsupported_audio": "Kies een ondersteund audiobestand: WAV, MP3, M4A, FLAC, OGG, AAC of WebM.",
     "saved_profiles": "Opgeslagen profielen",
+    "saved_short": "Opgeslagen",
+    "design_short": "Ontwerp",
     "transcript": "Afschrift",
     "style": "Stijl",
     "save_as_profile": "Opslaan als stemprofiel",

@@ -953,7 +953,7 @@ export function ModelLibrary({
               className="flex min-h-8 cursor-pointer list-none items-center gap-1.5 rounded-lg px-3 py-2 font-medium text-foreground outline-none marker:hidden hover:bg-warning/5 focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden"
             >
               {access?.ready && <CheckIcon className="size-3.5 text-emerald-500" />}
-              <span className="min-w-0 flex-1 truncate">
+              <span className="min-w-0 flex-1 leading-snug [overflow-wrap:anywhere]">
                 {t(
                   access?.ready
                     ? 'modelMaintenance.gatedAccessReady'

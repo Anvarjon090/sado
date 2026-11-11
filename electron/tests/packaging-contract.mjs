@@ -103,13 +103,25 @@ assert.equal(
   JSON.parse(readFileSync(resolve(root, '../package.json'))).version,
 );
 const platformIcons = {
-  win: 'build/icons/icon.ico',
-  mac: 'build/icons/icon.icns',
-  linux: 'build/icons/icon.png',
+  win: 'build/brand/icon/app-icon.ico',
+  mac: 'build/brand/icon/app-icon.icns',
+  linux: 'build/brand/icon/png/app-icon-indigo-1024.png',
 };
 for (const [platform, icon] of Object.entries(platformIcons)) {
   assert.equal(config[platform].icon, icon, `${platform} uses the shared Sado icon`);
   assert(existsSync(resolve(root, icon)), `${platform} Sado icon exists`);
+}
+// Window icon and tray marks resolve from resources/brand at runtime.
+const brandPack = config.extraResources.find((item) => item.from === 'build/brand');
+assert(brandPack && brandPack.to === 'brand', 'Brand pack ships to resources/brand');
+for (const file of [
+  'build/brand/icon/png/app-icon-indigo-512.png',
+  'build/brand/tray/trayTemplate.png',
+  'build/brand/tray/trayTemplate@2x.png',
+  'build/brand/tray/tray-white-16.png',
+  'build/brand/tray/tray-dark-16.png',
+]) {
+  assert(existsSync(resolve(root, file)), `Brand runtime file: ${file}`);
 }
 for (const icon of ['brand/icon.png', 'brand/icon.ico', 'brand/32x32.png']) {
   const entry = config.extraResources.find((item) => item.to === icon);

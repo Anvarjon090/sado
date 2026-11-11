@@ -54,7 +54,7 @@ backend on 127.0.0.1:3900 also serves an OpenAI-compatible API used by the Teleg
 - `docs/design/sado-ui.html`, `sado-desktop.png`, `sado-mobile.png`, local fonts Onest +
   Unbounded in `docs/design/fonts/`. Names in that mock (Dilnoza, project titles) are sample
   content, never real users.
-- App icons in `electron/build/icons/`, favicon `electron/public/favicon.svg`.
+- Brand pack (mark, app icons, tray marks, motion) in `electron/build/brand/` (see its README); favicon `electron/public/brand/favicon.svg`; in-app mark `<BrandMark />` (`electron/src/renderer/src/components/brand-mark.tsx`).
 
 ## Product Principles
 

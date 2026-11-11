@@ -86,7 +86,12 @@
     "modelLabel": "โมเดล",
     "runsOn": "ทำงานบน",
     "copyModel": "คัดลอก ID โมเดล",
-    "copied": "คัดลอกแล้ว"
+    "copied": "คัดลอกแล้ว",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "แปลภาษา"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "กำลังเริ่ม…",
     "unsupported_audio": "เลือกไฟล์เสียงที่รองรับ: WAV, MP3, M4A, FLAC, OGG, AAC หรือ WebM",
     "saved_profiles": "โปรไฟล์ที่บันทึกไว้",
+    "saved_short": "ที่บันทึกไว้",
+    "design_short": "ออกแบบ",
     "transcript": "การถอดเสียง",
     "style": "สไตล์",
     "save_as_profile": "บันทึกเป็นโปรไฟล์เสียง",

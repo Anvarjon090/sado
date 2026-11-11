@@ -86,7 +86,12 @@
     "modelLabel": "Модель",
     "runsOn": "Работает на",
     "copyModel": "Копировать ID модели",
-    "copied": "Скопировано"
+    "copied": "Скопировано",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Перевод"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -477,6 +482,8 @@
     "starting_recording": "Запуск…",
     "unsupported_audio": "Выберите поддерживаемый аудиофайл: WAV, MP3, M4A, FLAC, OGG, AAC или WebM.",
     "saved_profiles": "Сохраненные профили",
+    "saved_short": "Сохранённые",
+    "design_short": "Дизайн",
     "transcript": "Стенограмма",
     "style": "Стиль",
     "save_as_profile": "Сохранить как голосовой профиль",

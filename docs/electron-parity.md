@@ -86,4 +86,4 @@ In the compact rail, Voice, Stories and Dubbing open flyouts on mouse hover or c
 
 ## Sidebar expansion preference
 
-Settings → Appearance → Keep sidebar expanded persists the choice locally. It disables automatic compaction on narrower secondary-pane workspaces; the default remains automatic. The explicit close control still works, and the Profiles workspace still avoids duplicating its voice library. The header toggle and sidebar share one state. A compact rail can reopen itself on every desktop platform, using the brand icon on Windows/Linux.
+The voice library panel is open only on Home and Voice cloning, where voices are picked; on every other workspace it folds into the icon rail at any window size, so a workspace's own side panel never sits beside a second one. The library toggle at the left of the window-wide title bar opens or closes it on any page and works on every desktop platform. The former Settings → Appearance → Keep sidebar expanded switch was removed with this change.

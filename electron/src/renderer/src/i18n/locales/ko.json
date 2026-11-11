@@ -86,7 +86,12 @@
     "modelLabel": "모델",
     "runsOn": "실행 위치",
     "copyModel": "모델 ID 복사",
-    "copied": "복사됨"
+    "copied": "복사됨",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "번역"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "시작 중…",
     "unsupported_audio": "지원되는 오디오 파일을 선택하세요: WAV, MP3, M4A, FLAC, OGG, AAC 또는 WebM.",
     "saved_profiles": "저장된 프로필",
+    "saved_short": "저장됨",
+    "design_short": "디자인",
     "transcript": "전사본",
     "style": "스타일",
     "save_as_profile": "음성 프로필로 저장",

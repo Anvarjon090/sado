@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, expect, it, vi } from 'vitest';
 
-// The compact rail must be able to reopen the full sidebar on every platform;
-// on Windows/Linux it used to show only the brand icon with no control.
+// The window-wide title bar must be able to reopen the full sidebar on every
+// platform; on Windows/Linux the rail used to show only the brand icon.
 
 const layout = vi.hoisted(() => ({
   state: {
@@ -36,7 +36,7 @@ vi.mock('@/features/clone/voices-sidebar', () => ({ VoicesSidebar: () => <div />
 vi.mock('./workspace-menu', () => ({ WorkspaceNavigation: () => <nav /> }));
 vi.mock('./status-bar', () => ({ StatusBar: () => null }));
 vi.mock('./system-notifications', () => ({ SystemNotifications: () => null }));
-import { WorkspaceSidebar } from './workspace-sidebar';
+import { AppTitlebar } from './app-titlebar';
 
 beforeEach(() => {
   layout.setWorkspace.mockClear();
@@ -47,8 +47,8 @@ beforeEach(() => {
   }));
 });
 
-it('lets the rail reopen the full sidebar on non-macOS', () => {
-  render(<WorkspaceSidebar />);
+it('lets the title bar reopen the full sidebar on non-macOS', () => {
+  render(<AppTitlebar slotRef={() => {}} />);
   fireEvent.click(screen.getByRole('button', { name: 'clone.toggle_sidebar' }));
   expect(layout.setWorkspace).toHaveBeenCalledWith(
     expect.objectContaining({ libraryOpen: true, expandedLibraryContext: '/projects:true' }),

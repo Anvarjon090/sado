@@ -86,7 +86,12 @@
     "modelLabel": "Model",
     "runsOn": "Çalıştığı yer",
     "copyModel": "Model kimliğini kopyala",
-    "copied": "Kopyalandı"
+    "copied": "Kopyalandı",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Çeviri"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "Başlatılıyor…",
     "unsupported_audio": "Desteklenen bir ses dosyası seçin: WAV, MP3, M4A, FLAC, OGG, AAC veya WebM.",
     "saved_profiles": "Kayıtlı Profiller",
+    "saved_short": "Kayıtlı",
+    "design_short": "Tasarım",
     "transcript": "Transkript",
     "style": "Stil",
     "save_as_profile": "Ses Profili olarak kaydet",

@@ -64,6 +64,13 @@ export default {
   // The Python backend + engine sources ride along as plain resources (same as
   // the installer): the shell bootstraps a uv venv on first run.
   extraResources: [
+    // Brand pack (window icon, tray marks); the legacy files below stay for the
+    // recording tray dot and older references.
+    {
+      from: 'build/brand',
+      to: 'brand',
+      filter: ['icon/app-icon.ico', 'icon/png/app-icon-indigo-*.png', 'tray/**'],
+    },
     { from: 'build/icons/icon.png', to: 'brand/icon.png' },
     { from: 'build/icons/icon.ico', to: 'brand/icon.ico' },
     { from: 'build/icons/32x32.png', to: 'brand/32x32.png' },
@@ -95,7 +102,7 @@ export default {
   asar: true,
   afterPack: packageNativeHelper,
   win: {
-    icon: 'build/icons/icon.ico',
+    icon: 'build/brand/icon/app-icon.ico',
     // The CLI matrix selects one architecture per runner and updater feed
     // (--x64 / --arm64); an unflagged local build uses the host's. Never pin
     // `arch` here: electron-builder unions it with the CLI flag, so
@@ -108,7 +115,7 @@ export default {
     perMachine: false,
   },
   mac: {
-    icon: 'build/icons/icon.icns',
+    icon: 'build/brand/icon/app-icon.icns',
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
     // Keep unsigned artifact rehearsals at their existing signing defaults;
@@ -127,7 +134,7 @@ export default {
   linux: {
     // Linux targets rewrite ${arch} to x86_64/amd64; feeds use Node's x64.
     artifactName: 'Sado-Electron-${version}-linux-x64.${ext}',
-    icon: 'build/icons/icon.png',
+    icon: 'build/brand/icon/png/app-icon-indigo-1024.png',
     syncDesktopName: true,
     target: ['AppImage', 'deb'],
     category: 'Audio',

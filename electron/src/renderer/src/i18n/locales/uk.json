@@ -86,7 +86,12 @@
     "modelLabel": "Модель",
     "runsOn": "Працює на",
     "copyModel": "Копіювати ID моделі",
-    "copied": "Скопійовано"
+    "copied": "Скопійовано",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Переклад"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -477,6 +482,8 @@
     "starting_recording": "Запуск…",
     "unsupported_audio": "Виберіть підтримуваний аудіофайл: WAV, MP3, M4A, FLAC, OGG, AAC або WebM.",
     "saved_profiles": "Збережені профілі",
+    "saved_short": "Збережені",
+    "design_short": "Дизайн",
     "transcript": "Стенограма",
     "style": "Стиль",
     "save_as_profile": "Зберегти як голосовий профіль",

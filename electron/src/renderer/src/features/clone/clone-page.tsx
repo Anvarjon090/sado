@@ -1,4 +1,4 @@
-import { SidebarToggle } from '@/components/app-shell/sidebar-toggle';
+import { WorkspaceHeader } from '@/components/app-shell/workspace-header';
 import { EditProfile } from './edit-profile';
 import { ProfileAvatar } from '@/components/profile-avatar';
 import { VoiceSetup } from './voice-setup';
@@ -11,15 +11,7 @@ import { TakeDetails } from './take-details';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import {
-  HistoryIcon,
-  AudioLinesIcon,
-  ChevronDownIcon,
-  PencilIcon,
-  SearchIcon,
-} from 'lucide-react';
-import { isMac } from '@/components/bridge';
-import { cn } from '@/lib/utils';
+import { HistoryIcon, AudioLinesIcon, ChevronDownIcon, PencilIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WorkspacePane } from '@/components/workspace-pane';
 import { useProfiles } from '@/hooks/use-profiles';
@@ -143,43 +135,22 @@ export function ClonePage() {
     <div className="flex h-full min-h-0 overflow-hidden">
       <div className="flex min-w-0 flex-1">
         <section className="flex min-w-0 flex-1 flex-col">
-          <header
-            className={cn(
-              'workspace-titlebar flex shrink-0 items-center justify-between gap-3 px-5',
-              !editingProfile &&
-                !selectedTake &&
-                (!panel || choosingVoice) &&
-                !isMac() &&
-                'native-controls-right',
-            )}
-          >
-            <div className="flex min-w-0 items-center gap-2">
-              <SidebarToggle />
-              <h1 className="truncate text-sm font-medium">{t('clone.title')}</h1>
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t('preferences.search')}
-                title="Ctrl/Cmd + K"
-                onClick={() => window.dispatchEvent(new Event('sado:commands'))}
-              >
-                <SearchIcon />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setLibraryTab('takes');
-                  setWorkspace({ libraryOpen: true });
-                }}
-              >
-                <HistoryIcon data-icon="inline-start" />
-                {t('clone.history_title')}
-              </Button>
-            </div>
-          </header>
+          <WorkspaceHeader>
+            <h1 className="truncate">{t('clone.title')}</h1>
+            <span className="flex-1" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="shrink-0"
+              onClick={() => {
+                setLibraryTab('takes');
+                setWorkspace({ libraryOpen: true });
+              }}
+            >
+              <HistoryIcon data-icon="inline-start" />
+              {t('clone.history_title')}
+            </Button>
+          </WorkspaceHeader>
           <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-5 overflow-y-auto px-6 pt-6 pb-4">
             <EngineNotice operation="clone" />
             {choosingVoice ? (

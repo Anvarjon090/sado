@@ -1,3 +1,5 @@
+import { release } from 'node:os';
+import { windowMaterial } from '../main/window-material';
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import type {
   BackendStatus,
@@ -56,8 +58,7 @@ const bridge: SadoBridge = {
     download: () => ipcRenderer.invoke('updates:download') as Promise<UpdateState>,
     dismiss: () => ipcRenderer.invoke('updates:dismiss') as Promise<UpdateState>,
     install: () => ipcRenderer.invoke('updates:install') as Promise<void>,
-    listReleases: () =>
-      ipcRenderer.invoke('updates:listReleases') as Promise<UpdateReleaseInfo[]>,
+    listReleases: () => ipcRenderer.invoke('updates:listReleases') as Promise<UpdateReleaseInfo[]>,
     onState: (cb) => subscribe<UpdateState>('updates:state', cb),
   },
   watch: {
@@ -69,6 +70,7 @@ const bridge: SadoBridge = {
   app: {
     version: __APP_VERSION__,
     platform: process.platform,
+    nativeMaterial: windowMaterial(process.platform, release()) !== null,
     isDev: process.env.NODE_ENV === 'development' || !!process.env.ELECTRON_RENDERER_URL,
     onNavigate: (callback) => subscribe<string>('app:navigate', callback),
     onPersistenceFlush: (callback) => {

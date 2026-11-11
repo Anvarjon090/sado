@@ -2,6 +2,8 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import './t3-theme.css';
+/* Brand mark motion, shipped with the brand pack in build/brand. */
+@import '../../../../build/brand/motion/mark-motion.css';
 
 @source '../../../shared/components/SearchableSelect.jsx';
 @source '../../../shared/components/VirtualSearchableSelect.tsx';
@@ -605,40 +607,66 @@
       --material-sheen: rgb(255 255 255 / 5%);
       --material-shadow: rgb(0 0 0 / 22%);
     }
-    html[data-glass='true'] .app-surface {
-      background:
-        radial-gradient(
-          ellipse at 2% 4%,
-          color-mix(in srgb, var(--primary) 10%, transparent),
-          transparent 48%
-        ),
-        radial-gradient(
-          ellipse at 96% 96%,
-          color-mix(in srgb, var(--primary) 6%, transparent),
-          transparent 52%
-        ),
-        radial-gradient(
-          ellipse at 80% 0%,
-          color-mix(in srgb, var(--glass-light-color, var(--primary)) 3%, transparent),
-          transparent 42%
-        ),
-        var(--background);
+    /* Sado shell: the sidebar and toolbars are lightly frosted so the desktop
+       behind the window shows through (OS material: macOS vibrancy, Windows 11
+       acrylic). The work area stays an opaque card. Edge blur and density were
+       tuned with the owner (dark 5px / 55%, light 15px / 79%). Without the OS
+       material (Windows 10, Linux, browser) the edges sit on the normal
+       background, so nothing is ever drawn in place of the desktop. */
+    html[data-glass='true'] {
+      --edge-fill: rgb(238 242 248 / 79%);
+      --edge-blur: 15px;
+    }
+    html.dark[data-glass='true'] {
+      --edge-fill: rgb(14 16 19 / 55%);
+      --edge-blur: 5px;
+    }
+    html[data-glass='true'][data-native-material='true'],
+    html[data-glass='true'][data-native-material='true'] body,
+    html[data-glass='true'][data-native-material='true'] .app-surface {
+      background: transparent;
+    }
+    html[data-glass='true'] main[data-slot='workspace-content'],
+    html[data-glass='true'] [data-slot='gate-surface'] {
+      /* The same 12px gap on every side, on every platform: the caption
+         buttons live in the window title bar now, not over the card. */
+      margin: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      background: var(--card);
+      box-shadow: 0 24px 60px -30px rgb(0 0 0 / 45%);
     }
     html[data-glass='true'] .app-surface .bg-background {
       background: transparent;
     }
     html[data-glass='true'] .app-surface aside {
-      background:
-        linear-gradient(155deg, var(--material-sheen), transparent 44%),
-        color-mix(in srgb, var(--sidebar) var(--material-fill), transparent);
-      backdrop-filter: blur(24px) saturate(130%);
-      border-color: var(--material-edge);
-      box-shadow: inset -1px 0 0 rgb(255 255 255 / 3%);
+      background: var(--edge-fill);
+      backdrop-filter: blur(var(--edge-blur)) saturate(150%);
+      border-color: var(--border);
     }
     html[data-glass='true'] .workspace-titlebar {
-      background: color-mix(in srgb, var(--toolbar-background) 42%, transparent);
-      backdrop-filter: blur(20px) saturate(130%);
-      box-shadow: inset 0 1px 0 var(--material-edge);
+      background: transparent;
+    }
+    /* The window-wide title bar is an edge like the sidebar: frosted, so the
+       title, search and caption buttons stay readable over any desktop. */
+    /* Sticky rows inside a frosted panel (the library search) must not paint
+       an opaque band: they stay clear like the rest of the panel. */
+    html[data-glass='true'] .app-surface aside [data-slot='library-tools'] {
+      background: transparent;
+      /* A backdrop filter nested in the frosted panel only sees the panel's
+         own fill, not the desktop, so it reads as a dark slab. */
+      backdrop-filter: none;
+    }
+    html[data-glass='true'] .app-surface .app-titlebar {
+      background: var(--edge-fill);
+      backdrop-filter: blur(var(--edge-blur)) saturate(150%);
+    }
+    /* Gate screens sit straight on the landscape: their header and step list
+       get the same frosted edge as the sidebar so text stays readable. */
+    html[data-glass='true'] [data-slot='gate-header'],
+    html[data-glass='true'] .app-surface nav.bg-sidebar {
+      background: var(--edge-fill);
+      backdrop-filter: blur(var(--edge-blur)) saturate(150%);
     }
     /* A frosted pane already composites its header; avoid nested backdrop work. */
     html[data-glass='true'] aside .workspace-titlebar {
@@ -703,4 +731,26 @@ html[data-theme-id='heritage'] {
   [data-slot='switch'].app-switch {
     transition: none;
   }
+}
+
+/* Accent-coloured words (a ready state, an active link) need more contrast
+   than the solid accent: lift it toward the text colour in either theme. */
+.accent-ink {
+  color: color-mix(in oklab, var(--primary) 72%, var(--foreground));
+}
+
+/* The window-wide title bar: the page title reads as the heading of the
+   window, its actions sit beside it. */
+.app-titlebar [data-slot='titlebar-content'] > :is(h1, h2) {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+html:not([data-platform='darwin']) .app-titlebar {
+  height: 44px;
+}
+
+/* The brand mark's success flash uses the palette accent, not a fixed indigo. */
+.mark {
+  --mark-accent: var(--primary);
 }

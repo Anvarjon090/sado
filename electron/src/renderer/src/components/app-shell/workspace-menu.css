@@ -9,6 +9,30 @@
 .workspace-nav-item:is([aria-current='page'], [data-active='true']) .workspace-nav-icon {
   color: var(--primary);
 }
+/* The rail: 40px squares, the current place lifted to full contrast with an
+   accent bar on the window edge, thin rules between the groups. */
+.workspace-rail-item {
+  border-radius: 0.5rem;
+}
+.workspace-rail-item:is([aria-current='page'], [data-active='true']) .workspace-nav-icon {
+  color: var(--sidebar-foreground);
+}
+.workspace-rail-item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -0.75rem;
+  top: 0.625rem;
+  width: 3px;
+  height: 1.25rem;
+  border-radius: 1px;
+  background: var(--primary);
+}
+.workspace-rail-divider {
+  width: 1.5rem;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--sidebar-border);
+}
 .workspace-nav-item[aria-current='page'] {
   background: var(--sidebar-row-active);
   color: var(--sidebar-foreground);

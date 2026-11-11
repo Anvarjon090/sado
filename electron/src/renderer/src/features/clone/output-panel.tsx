@@ -1,11 +1,12 @@
-import { AudioLinesIcon, XIcon } from 'lucide-react';
+import { BrandMark } from '@/components/brand-mark';
+import { XIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { SaveAudioButton } from '@/components/save-audio-button';
 import { WaveformPlayer } from '@/components/waveform-player';
 import { audioUrl } from '@/lib/api/client';
 import { clearLatestOutput, useLatestOutput } from '@/lib/store/output';
-import { activePlaybackSource, stopActivePlayback } from '@/lib/audio/playback';
+import { activePlaybackSource, stopActivePlayback, usePlaybackSource } from '@/lib/audio/playback';
 import { formatSeconds } from './format';
 import { AudioQuality } from './audio-quality';
 import { AudioFileDetails } from './audio-file-details';
@@ -14,6 +15,7 @@ import { SectionLabel } from './section-label';
 export function OutputPanel() {
   const { t } = useTranslation();
   const { result, objectUrl, text } = useLatestOutput();
+  const playingOutput = usePlaybackSource() === 'output';
   if (!result || !objectUrl) return null;
 
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
@@ -26,7 +28,11 @@ export function OutputPanel() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
           <SectionLabel>
-            <AudioLinesIcon aria-hidden="true" />
+            <BrandMark
+              size={24}
+              state={playingOutput ? 'speaking' : 'idle'}
+              className="text-current"
+            />
             {t('clone.output_title')}
           </SectionLabel>
           <div className="flex items-center gap-1">

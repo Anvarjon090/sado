@@ -86,7 +86,12 @@
     "modelLabel": "Model",
     "runsOn": "Berjalan di",
     "copyModel": "Salin ID model",
-    "copied": "Disalin"
+    "copied": "Disalin",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Terjemahan"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "Memulai…",
     "unsupported_audio": "Pilih berkas audio yang didukung: WAV, MP3, M4A, FLAC, OGG, AAC, atau WebM.",
     "saved_profiles": "Profil Tersimpan",
+    "saved_short": "Tersimpan",
+    "design_short": "Desain",
     "transcript": "Transkrip",
     "style": "Gaya",
     "save_as_profile": "Simpan sebagai Profil Suara",

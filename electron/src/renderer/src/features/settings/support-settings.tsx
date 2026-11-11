@@ -1,3 +1,4 @@
+import { BrandMark } from '@/components/brand-mark';
 import { runRendererTask } from '@/lib/global-error-recovery';
 import {
   ArrowUpRightIcon,
@@ -16,16 +17,11 @@ import {
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { brandIcon } from '@/lib/brand';
 import { DonationGoal } from './donation-goal';
 import { ReportBug } from '@/components/report-bug';
 import { ExternalLink } from '@/components/external-link';
 import { KOFI_URL, PAYPAL_URL } from '@shared/utils/donateLinks';
-import {
-  SPONSORS,
-  SPONSOR_TIERS,
-  SPONSOR_CONTACT,
-} from '@shared/config/sponsors';
+import { SPONSORS, SPONSOR_TIERS, SPONSOR_CONTACT } from '@shared/config/sponsors';
 import {
   ISSUES_URL,
   DISCORD_URL,
@@ -61,7 +57,7 @@ export function SupportSettings() {
     <div className="support-studio">
       <header className="support-intro">
         <div className="support-emblem" aria-hidden="true">
-          <img src={brandIcon} alt="" width={100} height={100} />
+          <BrandMark size={96} className="text-muted-foreground" />
         </div>
         <h1>{t('donate.hero_title')}</h1>
         <p>{t('donate.footer')}</p>

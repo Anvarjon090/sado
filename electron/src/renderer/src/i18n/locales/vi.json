@@ -86,7 +86,12 @@
     "modelLabel": "Mô hình",
     "runsOn": "Chạy trên",
     "copyModel": "Sao chép ID mô hình",
-    "copied": "Đã sao chép"
+    "copied": "Đã sao chép",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Dịch thuật"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "Đang bắt đầu…",
     "unsupported_audio": "Chọn tệp âm thanh được hỗ trợ: WAV, MP3, M4A, FLAC, OGG, AAC hoặc WebM.",
     "saved_profiles": "Hồ sơ đã lưu",
+    "saved_short": "Đã lưu",
+    "design_short": "Thiết kế",
     "transcript": "bảng điểm",
     "style": "phong cách",
     "save_as_profile": "Lưu dưới dạng hồ sơ giọng nói",

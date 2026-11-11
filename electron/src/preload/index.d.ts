@@ -344,6 +344,8 @@ export interface SadoBridge {
     /** From the root package.json via __APP_VERSION__ / extraMetadata. */
     version: string;
     platform: NodeJS.Platform;
+    /** True when the window uses the OS see-through material (macOS, Windows 11). */
+    nativeMaterial?: boolean;
     isDev: boolean;
     onNavigate(callback: (path: string) => void): () => void;
     onPersistenceFlush(callback: () => void | Promise<void>): () => void;

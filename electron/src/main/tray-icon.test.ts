@@ -24,3 +24,9 @@ it.each(['win32', 'linux'] as const)('preserves the existing %s tray image', (pl
   expect(createTrayIcon('32x32.png', platform)).toBe(mocks.source);
   expect(mocks.source.resize).not.toHaveBeenCalled();
 });
+
+it('leaves macOS template marks as loaded so the menu bar can tint them', () => {
+  mocks.source.resize.mockClear();
+  expect(createTrayIcon('/brand/tray/trayTemplate.png', 'darwin')).toBe(mocks.source);
+  expect(mocks.source.resize).not.toHaveBeenCalled();
+});

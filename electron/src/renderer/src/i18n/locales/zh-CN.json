@@ -86,7 +86,12 @@
     "modelLabel": "模型",
     "runsOn": "运行于",
     "copyModel": "复制模型 ID",
-    "copied": "已复制"
+    "copied": "已复制",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "翻译"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -486,6 +491,8 @@
     "starting_recording": "正在启动…",
     "unsupported_audio": "请选择支持的音频文件：WAV、MP3、M4A、FLAC、OGG、AAC 或 WebM。",
     "saved_profiles": "已保存的配置",
+    "saved_short": "已保存",
+    "design_short": "设计",
     "transcript": "参考文本",
     "style": "风格",
     "save_as_profile": "保存为声音配置",

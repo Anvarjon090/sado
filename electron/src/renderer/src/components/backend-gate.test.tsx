@@ -75,20 +75,10 @@ it('keeps branded chrome outside the scrolling installer content', () => {
   expect(scrollRegion).not.toContainElement(header);
 });
 
-it('keeps the startup brand clear of macOS traffic lights only on macOS', () => {
+it('sits below the window title bar, so it never pads for macOS traffic lights', () => {
   backendStatus.stage = 'starting';
   platform.current = 'darwin';
-
-  const { rerender } = render(
-    <BackendGate>
-      <div>workspace</div>
-    </BackendGate>,
-  );
-
-  expect(screen.getByRole('banner')).toHaveClass('pl-24');
-
-  platform.current = 'win32';
-  rerender(
+  render(
     <BackendGate>
       <div>workspace</div>
     </BackendGate>,
@@ -162,7 +152,8 @@ it('still takes over the workspace for a real failure', () => {
 });
 
 it('describes a backend that answers unhealthy from the catalog, not the English detail', () => {
-  backendStatus.message = 'The backend at http://x answers /health but reports that it is not healthy.';
+  backendStatus.message =
+    'The backend at http://x answers /health but reports that it is not healthy.';
   backendStatus.diagnosis = 'unhealthy';
 
   renderGate('failed');
@@ -241,9 +232,7 @@ it('explains unsupported Windows proxy bypass rules before retrying setup', () =
     </BackendGate>,
   );
   expect(screen.getByText(i18n.t('backend.proxy_bypass_help'))).toBeVisible();
-  expect(i18n.t('backend.proxy_bypass_help')).toMatch(
-    /quit Sado.*launch Sado from that terminal/,
-  );
+  expect(i18n.t('backend.proxy_bypass_help')).toMatch(/quit Sado.*launch Sado from that terminal/);
 });
 
 const RELEASES_URL = 'https://github.com/Anvarjon090/sado/releases/latest';
@@ -273,7 +262,8 @@ it('sends Apple Silicon users on the Intel build to the arm64 download (#2598)',
 });
 
 it('shows a populated, usable reconnect form for an expired remote session while queries are paused', async () => {
-  backendStatus.message = 'The remote backend at http://gpu-box:3900 no longer accepts this app’s credentials.';
+  backendStatus.message =
+    'The remote backend at http://gpu-box:3900 no longer accepts this app’s credentials.';
   backendStatus.diagnosis = 'auth_required';
   backendStatus.remote = true;
   // A failed backend takes React Query offline (use-backend-status); the saved
@@ -293,7 +283,9 @@ it('shows a populated, usable reconnect form for an expired remote session while
     expect(screen.getByText(i18n.t('backend.auth_required'))).toBeVisible();
     // Fresh renderer: the URL arrives from the saved connection, and Test/Save work.
     expect(await screen.findByDisplayValue('http://gpu-box:3900')).toBeEnabled();
-    expect(screen.getByRole('button', { name: i18n.t('settings.remote_backend_test') })).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: i18n.t('settings.remote_backend_test') }),
+    ).toBeEnabled();
   } finally {
     backendStatus.remote = false;
   }
@@ -329,14 +321,17 @@ it.each([
     'Backend did not answer on port 3900 within 600 s (OMNIVOICE_STARTUP_BUDGET_S). It printed no output.',
     'backend.hint_slow_start',
   ],
-])('adds localized, actionable advice under a recognised failure (#2440, #2445)', (message, key) => {
-  backendStatus.message = message;
+])(
+  'adds localized, actionable advice under a recognised failure (#2440, #2445)',
+  (message, key) => {
+    backendStatus.message = message;
 
-  renderGate('failed');
+    renderGate('failed');
 
-  expect(screen.getByText(message)).toBeInTheDocument();
-  expect(screen.getByTestId('backend-hint')).toHaveTextContent(i18n.t(key));
-});
+    expect(screen.getByText(message)).toBeInTheDocument();
+    expect(screen.getByTestId('backend-hint')).toHaveTextContent(i18n.t(key));
+  },
+);
 
 it('shows no advice for a failure it cannot classify', () => {
   backendStatus.message = 'Backend exited unexpectedly (exit code 1).';

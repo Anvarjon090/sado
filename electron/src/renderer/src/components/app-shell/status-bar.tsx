@@ -5,7 +5,7 @@ import {
 } from '@/hooks/use-performance-profile';
 import { presetEngineFeedback } from './preset-engine-feedback';
 import { engineDetailLevels, useEngineDetailLevel } from './use-engine-detail-level';
-import { EngineRow } from './engine-row';
+import { EngineRow, compactEngineName } from './engine-row';
 import { useTranslationEngines } from '@/features/settings/translation-settings';
 import { Link } from '@tanstack/react-router';
 import {
@@ -36,6 +36,7 @@ import { useAppActivities } from '@/lib/app-activity';
 import {
   resolveRemoteRuntime,
   resolveRuntimeHealth,
+  sidebarToolState,
   type SidebarModelStatus,
 } from './status-runtime';
 import { PerformanceProfile } from '@/components/performance-profile';
@@ -405,12 +406,8 @@ export function StatusBar({
     : stageText;
   const formatMemory = (used: number, total?: number) =>
     total && total > 0 ? `${used.toFixed(1)} / ${total.toFixed(1)} GB` : `${used.toFixed(1)} GB`;
-  const deviceContent = (
-    <PopoverContent
-      side={compact ? 'right' : 'top'}
-      align="start"
-      className="w-[min(18rem,calc(100vw-2rem))] space-y-3 p-3"
-    >
+  const deviceBody = (
+    <>
       <div className="flex items-center gap-2">
         <span className={cn('size-2 shrink-0 rounded-full', deviceDot)} aria-hidden="true" />
         <div className="min-w-0 flex-1">
@@ -556,6 +553,15 @@ export function StatusBar({
           aria-hidden="true"
         />
       </Link>
+    </>
+  );
+  const deviceContent = (
+    <PopoverContent
+      side={compact ? 'right' : 'top'}
+      align="start"
+      className="w-[min(18rem,calc(100vw-2rem))] space-y-3 p-3"
+    >
+      {deviceBody}
     </PopoverContent>
   );
   const engines = [
@@ -745,78 +751,101 @@ export function StatusBar({
       </footer>
     );
   }
+  const online = isBackendReachable(status.stage);
+  const summary = (['tts', 'asr', 'translation'] as const).flatMap((family) =>
+    displayEngines.filter((row) => row.family === family),
+  );
   return (
-    <footer className="@container/engines max-h-[55dvh] w-full min-w-0 max-w-full overflow-y-auto overscroll-contain border-t border-border/50 px-3 py-1.5 text-[length:var(--text-caption)] text-muted-foreground">
-      <div>
-        {!footerLeading && (
-          <div className="flex items-center gap-0.5">
-            <Popover open={deviceOpen} onOpenChange={setDeviceOpen}>
-              <PopoverTrigger
-                render={
-                  <button
-                    type="button"
-                    aria-label={`${deviceLabel}: ${deviceStageText}`}
-                    className="group/status flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-left outline-none transition-[background-color,box-shadow,backdrop-filter] duration-150 hover:bg-sidebar-accent/65 hover:backdrop-blur-xl hover:shadow-[inset_0_1px_0_rgb(255_255_255/8%),0_5px_14px_rgb(0_0_0/10%)] hover:ring-1 hover:ring-inset hover:ring-sidebar-border/60 focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                }
-              >
-                <span
-                  className={cn('size-1.5 shrink-0 rounded-full', deviceDot)}
-                  aria-hidden="true"
-                />
-                <CpuIcon className="size-3.5 shrink-0" aria-hidden="true" />
-                <span className="min-w-0 flex-1 truncate" role="status">
-                  {deviceLabel}
-                </span>
-              </PopoverTrigger>
-              {deviceContent}
-            </Popover>
-            {viewControl}
-          </div>
-        )}
-        {isBackendReachable(status.stage) && (
-          <PerformanceProfile
-            onApplied={(applied) => {
-              appliedRefreshStarted.current = presetRefreshing;
-              setAppliedProfile(applied);
-              if (level === 'simple') chooseLevel('models');
-            }}
-          />
-        )}
-        <div
-          id="sidebar-engine-details"
-          data-detail-level={level}
-          className={cn(
-            'min-w-0',
-            level === 'simple'
-              ? 'rounded-lg bg-sidebar-accent/20'
-              : 'max-h-[32dvh] space-y-0.5 overflow-y-auto overscroll-contain',
-          )}
-        >
-          {displayEngines
-            .filter(({ family }) => level !== 'simple' || family === 'tts')
-            .map((row) => (
-              <EngineRow
-                key={row.family}
-                row={row}
-                level={level}
-                online={isBackendReachable(status.stage)}
-                dotClass={engineStateClass(row.state)}
-                open={selectedDetail === row.family}
-                onToggle={() =>
-                  setSelectedDetail((current) => (current === row.family ? null : row.family))
-                }
+    <footer className="w-full min-w-0 shrink-0 p-3 text-[12px] text-muted-foreground">
+      {footerLeading && <div className="mb-2 flex items-center gap-1">{footerLeading}</div>}
+      <div
+        data-slot="engine-card"
+        className="space-y-2 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/40 p-3"
+      >
+        <Popover open={deviceOpen} onOpenChange={setDeviceOpen}>
+          <PopoverTrigger
+            render={
+              <button
+                type="button"
+                aria-label={`${deviceLabel}: ${deviceStageText}`}
+                className="-m-1 flex w-[calc(100%+0.5rem)] min-w-0 items-center gap-2 rounded-md p-1 text-left outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring"
               />
-            ))}
-        </div>
-
-        {footerLeading && (
-          <div className="sticky bottom-0 mt-1.5 flex items-center gap-1 border-t border-border/50 bg-sidebar pt-1.5">
-            {footerLeading}
-            <div className="min-w-0 flex-1">{iconDevicePopover}</div>
-            {viewControl}
-          </div>
-        )}
+            }
+          >
+            <span className={cn('size-2 shrink-0 rounded-full', deviceDot)} aria-hidden="true" />
+            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-sidebar-foreground">
+              {deviceLabel}
+            </span>
+            <ChevronRightIcon className="size-3.5 shrink-0" aria-hidden="true" />
+          </PopoverTrigger>
+          <PopoverContent
+            side="right"
+            align="end"
+            className="max-h-[min(36rem,calc(100dvh-2rem))] w-[min(20rem,calc(100vw-2rem))] space-y-3 overflow-y-auto overscroll-contain p-3"
+          >
+            {deviceBody}
+            {online && (
+              <PerformanceProfile
+                onApplied={(applied) => {
+                  appliedRefreshStarted.current = presetRefreshing;
+                  setAppliedProfile(applied);
+                  if (level === 'simple') chooseLevel('models');
+                }}
+              />
+            )}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium text-muted-foreground">
+                {t('sidebarTools.title')}
+              </span>
+              {viewControl}
+            </div>
+            <div
+              id="sidebar-engine-details"
+              data-detail-level={level}
+              className="min-w-0 space-y-0.5"
+            >
+              {displayEngines
+                .filter(({ family }) => level !== 'simple' || family === 'tts')
+                .map((row) => (
+                  <EngineRow
+                    key={row.family}
+                    row={row}
+                    level={level}
+                    online={online}
+                    dotClass={engineStateClass(row.state)}
+                    open={selectedDetail === row.family}
+                    onToggle={() =>
+                      setSelectedDetail((current) => (current === row.family ? null : row.family))
+                    }
+                  />
+                ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+        <p className="truncate" role="status">
+          {deviceStageText}
+        </p>
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1.5">
+          {summary.map((row) => {
+            const ready = online && row.state === 'engineRuntime.ready';
+            return (
+              <div key={row.family} data-family={row.family} className="contents">
+                <dt className="min-w-[44px]">{t('sidebarTools.short.' + row.family)}</dt>
+                <dd
+                  className="min-w-0 truncate font-semibold text-sidebar-foreground"
+                  title={row.title ?? row.detail}
+                >
+                  {compactEngineName(row.detail.slice(row.detail.lastIndexOf('/') + 1))}
+                </dd>
+                <dd
+                  className={cn('text-right', ready ? 'accent-ink font-semibold' : 'font-medium')}
+                >
+                  {t(sidebarToolState(row.state, online))}
+                </dd>
+              </div>
+            );
+          })}
+        </dl>
       </div>
     </footer>
   );

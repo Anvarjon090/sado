@@ -1,3 +1,4 @@
+import { BrandMark, BrandMarkReveal } from '@/components/brand-mark';
 import { ModelLibrary, PerformanceModelPacks } from '@/features/settings/model-library';
 import { AnalyticsConsent } from './analytics-consent';
 import { SetupRecovery } from './setup-recovery';
@@ -15,7 +16,6 @@ import { modelFamilies, type ModelFamily } from '@/features/settings/model-famil
 import { MirrorSettings } from '@/features/settings/mirror-settings';
 import { PrivacySettings } from '@/features/settings/privacy-settings';
 import { ShortcutSettings } from '@/features/settings/shortcut-settings';
-import { brandIcon } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 import { appearanceScales, useAppearance } from '@/hooks/use-appearance';
 import { FIRST_SOUND_EVENT } from '@/lib/first-sound';
@@ -81,8 +81,8 @@ export function SetupGate({ children }: { children: ReactNode }) {
   if (needed === null)
     return (
       <div className="flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-4">
-        <div className="flex items-center gap-2.5">
-          <img src={brandIcon} alt="" className="size-9" />
+        <div className="flex flex-col items-center gap-6">
+          <BrandMarkReveal size={112} />
           <span className="text-lg font-semibold tracking-tight">{t('app.name')}</span>
         </div>
         <Button variant="ghost" disabled={!status.isError} onClick={() => void status.refetch()}>
@@ -102,12 +102,13 @@ export function SetupGate({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
       <header
+        data-slot="gate-header"
         className={cn(
           'workspace-titlebar flex shrink-0 items-center gap-2 border-b border-border/50 px-5',
           isMac() && 'pl-24',
         )}
       >
-        <img src={brandIcon} alt="" className="size-6" />
+        <BrandMark size={24} />
         <h1 className="text-sm font-medium">{t('app.name')}</h1>
         {advanced && (
           <div className="ml-auto flex items-center gap-1" aria-label={t('preferences.ui_scale')}>
@@ -148,7 +149,7 @@ export function SetupGate({ children }: { children: ReactNode }) {
             </Button>
           ))}
         </nav>
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div data-slot="gate-surface" className="flex min-h-0 min-w-0 flex-1 flex-col">
           <main key={step} className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
             <div className="mx-auto max-w-3xl space-y-6">
               <div className="flex items-center justify-between gap-3">

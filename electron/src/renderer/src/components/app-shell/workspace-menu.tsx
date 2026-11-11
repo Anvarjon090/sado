@@ -3,20 +3,20 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/popover';
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
   AudioLinesIcon,
-  FingerprintIcon,
   BookOpenIcon,
   FolderIcon,
   WrenchIcon,
   LayersIcon,
-  LibraryIcon,
   FilmIcon,
   WandSparklesIcon,
   MicIcon,
-  UsersRoundIcon,
+  UsersIcon,
+  CaptionsIcon,
+  LayoutGridIcon,
+  ListIcon,
   ChevronRightIcon,
   BlocksIcon,
   WorkflowIcon,
-  EllipsisIcon,
   HouseIcon,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -52,16 +52,16 @@ const openSaved = () => setWorkspace({ libraryOpen: true, libraryTab: 'voices' }
 // then the rarer tools folded under "More".
 const homeDestination: Destination = ['/', 'nav.home', HouseIcon];
 const createDestinations: Destination[] = [
-  ['/clone', 'nav.clone', FingerprintIcon, openSaved],
+  ['/clone', 'nav.clone', MicIcon, openSaved],
   ['/design', 'designWorkspace.title', WandSparklesIcon],
   ['/dub', 'dubWorkspace.title', FilmIcon],
   ['/stories', 'nav.stories', AudioLinesIcon],
   ['/audiobook', 'audiobook.title', BookOpenIcon],
-  ['/transcriptions', 'nav.transcribe', MicIcon],
+  ['/transcriptions', 'nav.transcribe', CaptionsIcon],
 ];
 const libraryDestinations: Destination[] = [
-  ['/personas', 'nav.saved', UsersRoundIcon, openSaved],
-  ['/gallery', 'nav.gallery', LibraryIcon],
+  ['/personas', 'nav.saved', UsersIcon, openSaved],
+  ['/gallery', 'nav.gallery', LayoutGridIcon],
   ['/projects', 'projects.title', FolderIcon],
 ];
 const moreDestinations: Destination[] = [
@@ -100,7 +100,7 @@ function NavigationLink({
       className={cn(
         itemClass,
         compact
-          ? 'h-10 justify-center px-0'
+          ? 'workspace-rail-item size-10 shrink-0 justify-center px-0'
           : flyout
             ? 'h-10 gap-2 px-3 text-sm'
             : nested
@@ -111,7 +111,7 @@ function NavigationLink({
       activeProps={{ 'aria-current': 'page' }}
     >
       <Icon
-        className={cn(iconClass, nested && 'size-3.5')}
+        className={cn(iconClass, nested && 'size-3.5', compact && 'size-5')}
         aria-hidden="true"
       />
       {!compact && <span className="truncate">{t(label)}</span>}
@@ -176,7 +176,7 @@ function NavigationGroup({
   const triggerClass = cn(
     itemClass,
     'w-full',
-    compact ? 'h-10 justify-center' : 'gap-2.5 px-2.5 font-medium',
+    compact ? 'workspace-rail-item size-10 shrink-0 justify-center' : 'gap-2.5 px-2.5 font-medium',
     active && 'text-sidebar-foreground',
   );
   if (compact)
@@ -221,10 +221,7 @@ function NavigationGroup({
             if (popupOpen && event.detail > 0) event.stopPropagation();
           }}
         >
-          <Icon
-            className={iconClass}
-            aria-hidden="true"
-          />
+          <Icon className={cn(iconClass, 'size-5')} aria-hidden="true" />
         </PopoverTrigger>
         <PopoverContent
           ref={popupRef}
@@ -268,10 +265,7 @@ function NavigationGroup({
         onClick={() => setExpanded((value) => !value)}
         className={triggerClass}
       >
-        <Icon
-          className={iconClass}
-          aria-hidden="true"
-        />
+        <Icon className={iconClass} aria-hidden="true" />
         <span className="truncate">{t(label)}</span>
         <ChevronRightIcon
           aria-hidden="true"
@@ -313,25 +307,32 @@ export function WorkspaceNavigation({ compact = false }: { compact?: boolean }) 
       aria-label={t('nav.workspaces')}
       className={cn(
         'min-h-0 overflow-y-auto overscroll-contain py-2',
-        compact ? 'space-y-0.5 px-1.5' : 'shrink-0 space-y-px px-3 pt-0',
+        compact
+          ? 'flex flex-col items-center gap-1.5 overflow-x-hidden px-3 py-3'
+          : 'shrink-0 space-y-px px-3 pt-0',
       )}
     >
       <NavigationLink destination={homeDestination} compact={compact} />
-      {!compact && <div className="workspace-nav-section">{t('nav.section_create')}</div>}
+      {compact ? (
+        <div aria-hidden="true" className="workspace-rail-divider" />
+      ) : (
+        <div className="workspace-nav-section">{t('nav.section_create')}</div>
+      )}
       {createDestinations.map((destination) => (
         <NavigationLink key={destination[0]} destination={destination} compact={compact} />
       ))}
       {compact ? (
-        <div aria-hidden="true" className="mx-2 my-2 h-px bg-sidebar-border" />
+        <div aria-hidden="true" className="workspace-rail-divider" />
       ) : (
         <div className="workspace-nav-section">{t('nav.section_library')}</div>
       )}
       {libraryDestinations.map((destination) => (
         <NavigationLink key={destination[0]} destination={destination} compact={compact} />
       ))}
+      {compact && <div aria-hidden="true" className="workspace-rail-divider" />}
       <NavigationGroup
         label="nav.more"
-        icon={EllipsisIcon}
+        icon={ListIcon}
         children={moreDestinations}
         compact={compact}
         pathname={pathname}

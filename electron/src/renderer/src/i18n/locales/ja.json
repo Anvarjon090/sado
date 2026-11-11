@@ -86,7 +86,12 @@
     "modelLabel": "モデル",
     "runsOn": "実行環境",
     "copyModel": "モデル ID をコピー",
-    "copied": "コピーしました"
+    "copied": "コピーしました",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "翻訳"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "開始しています…",
     "unsupported_audio": "対応する音声ファイルを選択してください：WAV、MP3、M4A、FLAC、OGG、AAC、WebM。",
     "saved_profiles": "保存されたプロファイル",
+    "saved_short": "保存済み",
+    "design_short": "デザイン",
     "transcript": "成績証明書",
     "style": "スタイル",
     "save_as_profile": "音声プロファイルとして保存",

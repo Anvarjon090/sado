@@ -116,11 +116,14 @@ export function SettingsRow({
             </div>
           )}
         </div>
+        {/* Controls never outgrow the row: a flex item's default minimum is its
+            min-content width, so a long one-line notice used to push past the
+            card edge. */}
         <div
           role="group"
           aria-labelledby={id}
           className={cn(
-            'flex min-w-0 max-w-full flex-wrap items-center gap-2 [&_input]:max-w-full [&_button]:max-w-full',
+            'flex min-w-0 max-w-full flex-wrap items-center gap-2 [&>*]:min-w-0 [&>*]:max-w-full [&_input]:max-w-full [&_button]:max-w-full',
             variant === 'row' ? '@2xl:justify-end' : 'mt-auto justify-start',
           )}
         >

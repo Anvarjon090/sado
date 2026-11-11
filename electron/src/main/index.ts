@@ -3,11 +3,24 @@ import { installWatchFolders } from './watch-folders';
 import { installNativeCapture } from './native-capture';
 import { isTrustedRenderer } from './trusted-renderer';
 import { dirname, join } from 'node:path';
+import { release } from 'node:os';
+import { windowMaterial, windowMaterialOptions } from './window-material';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { app, BrowserWindow, ipcMain, Menu, nativeImage, session, shell, Tray } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  nativeImage,
+  nativeTheme,
+  session,
+  shell,
+  Tray,
+} from 'electron';
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
 import { BackendSupervisor, backendRoot } from './backend';
+import { brandAssetPath, trayMarkFile, windowIconFile } from './brand-assets';
 import { registerIpc, wireWindowMaximizeEvents } from './ipc';
 import { APP_ORIGIN, installAppProtocol, registerAppScheme } from './protocol';
 import { startDevBackendProxy } from './dev-backend-proxy';
@@ -38,7 +51,13 @@ const RENDERER_DIR = join(here, '../renderer');
 
 // Neutral startup surface; transparent caption controls follow the CSS title bar.
 const BACKGROUND = '#0a0a0a';
-const OVERLAY = { color: '#00000000', symbolColor: '#737373', height: 52 };
+// The caption buttons sit on the frosted title bar, so their glyphs follow the
+// theme instead of a mid grey that disappears over a bright desktop.
+const overlay = () => ({
+  color: '#00000000',
+  symbolColor: nativeTheme.shouldUseDarkColors ? '#E9ECEF' : '#0A0C10',
+  height: 44,
+});
 
 installAppIdentity(app);
 registerAppScheme();
@@ -118,10 +137,12 @@ function beginOrderlyQuit(flushPersistence = true): Promise<void> {
   return quitPreparation;
 }
 
-function brandIconPath(file: string): string {
-  return app.isPackaged
-    ? join(process.resourcesPath, 'brand', file)
-    : join(backendRoot(), 'electron', 'build', 'icons', file);
+function brandIconPath(relative: string): string {
+  return brandAssetPath(relative, {
+    packaged: app.isPackaged,
+    resourcesPath: process.resourcesPath,
+    backendRoot: backendRoot(),
+  });
 }
 
 function createWindow(): BrowserWindow {
@@ -130,7 +151,7 @@ function createWindow(): BrowserWindow {
       ? process.env.ELECTRON_RENDERER_URL
       : `${APP_ORIGIN}/index.html`;
   const win = new BrowserWindow({
-    icon: brandIconPath(process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
+    icon: brandIconPath(windowIconFile(process.platform)),
     width: 1280,
     height: 820,
     minWidth: 960,
@@ -139,8 +160,11 @@ function createWindow(): BrowserWindow {
     backgroundColor: BACKGROUND,
     titleBarStyle: 'hidden',
     ...(process.platform === 'darwin'
-      ? { trafficLightPosition: { x: 12, y: 10 } }
-      : { titleBarOverlay: OVERLAY }),
+      ? { trafficLightPosition: { x: 18, y: 20 } }
+      : { titleBarOverlay: overlay() }),
+    // Frosted edges use the OS material (macOS vibrancy, Windows 11 acrylic);
+    // other systems keep the opaque background above.
+    ...windowMaterialOptions(windowMaterial(process.platform, release())),
     webPreferences: {
       preload: PRELOAD_PATH,
       contextIsolation: true,
@@ -151,6 +175,13 @@ function createWindow(): BrowserWindow {
   });
 
   win.on('ready-to-show', () => activateLiveWindow(win));
+  if (process.platform !== 'darwin') {
+    const syncOverlay = () => {
+      if (!win.isDestroyed()) win.setTitleBarOverlay(overlay());
+    };
+    nativeTheme.on('updated', syncOverlay);
+    win.on('closed', () => nativeTheme.off('updated', syncOverlay));
+  }
   win.on('close', (event) => {
     if (quitting) return;
     event.preventDefault();
@@ -304,9 +335,13 @@ if (process.env.SADO_ALLOW_MULTIPLE_INSTANCES !== '1' && !app.requestSingleInsta
         () => backend.baseUrl,
         () => backend.requestHeaders(),
       );
-      const icon = nativeImage.createFromPath(brandIconPath('icon.png'));
+      const icon = nativeImage.createFromPath(brandIconPath('icon/png/app-icon-indigo-512.png'));
       if (process.platform === 'darwin') app.dock?.setIcon(icon);
-      tray = new Tray(createTrayIcon(brandIconPath('32x32.png')));
+      tray = new Tray(
+        createTrayIcon(
+          brandIconPath(trayMarkFile(process.platform, nativeTheme.shouldUseDarkColors)),
+        ),
+      );
       tray.setToolTip('Sado');
       closeCapture = installNativeCapture(PRELOAD_PATH, tray, () => mainWindow);
       tray.on('click', () => {

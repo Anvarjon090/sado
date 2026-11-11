@@ -3,8 +3,8 @@
 :root {
   color-scheme: light;
   --radius: 0.75rem;
-  /* Sado light: cool studio paper, graphite ink, deep turquoise. */
-  --background: oklch(0.982 0.004 215);
+  /* Sado light: cool daylight paper, crisp ink, indigo action colour. */
+  --background: #eef2f8;
   --app-chrome-background: var(--background);
   --toolbar-background: var(--app-chrome-background);
   --toolbar-foreground: var(--foreground);
@@ -13,18 +13,18 @@
   --toolbar-control-foreground: var(--foreground);
   --toolbar-control-hover: var(--accent);
   --surface-raised: color-mix(in srgb, var(--card) 20%, transparent);
-  --foreground: oklch(0.2 0.015 250);
+  --foreground: #0a0c10;
   --card: var(--color-white);
-  --card-foreground: oklch(0.2 0.015 250);
+  --card-foreground: #0a0c10;
   --popover: var(--color-white);
-  --popover-foreground: oklch(0.2 0.015 250);
-  /* Sado brand accent: deep teal on light surfaces (white text keeps >4.5:1). */
-  --primary: oklch(0.55 0.11 175);
+  --popover-foreground: #0a0c10;
+  /* Sado brand accent: indigo on light surfaces (white text keeps >4.5:1). */
+  --primary: #5856d6;
   --primary-foreground: var(--color-white);
-  --secondary: oklch(0.96 0.006 215);
-  --secondary-foreground: oklch(0.2 0.015 250);
-  --muted: oklch(0.96 0.006 215);
-  --muted-foreground: oklch(0.48 0.02 250);
+  --secondary: #e4e8f0;
+  --secondary-foreground: #0a0c10;
+  --muted: #e9edf4;
+  --muted-foreground: #464c57;
   --placeholder: var(--muted-foreground);
   --secondary-label: var(--muted-foreground);
   --icon-muted: var(--muted-foreground);
@@ -33,15 +33,15 @@
   --message-action: var(--primary);
   --message-action-foreground: var(--primary-foreground);
   --message-action-hover: color-mix(in srgb, var(--primary) 90%, var(--background));
-  --accent: oklch(0.945 0.012 200);
-  --accent-foreground: oklch(0.18 0.015 250);
+  --accent: rgb(14 17 22 / 6%);
+  --accent-foreground: #0a0c10;
   --error: var(--color-red-500);
   --error-foreground: var(--color-red-700);
   --tool-error-icon: var(--error);
   --error-surface: color-mix(in srgb, var(--error) 8%, transparent);
   --destructive: var(--error);
-  --border: oklch(0.9 0.008 230);
-  --input: oklch(0.86 0.01 230);
+  --border: rgb(14 17 22 / 10%);
+  --input: rgb(14 17 22 / 16%);
   --ring: var(--primary);
   --destructive-foreground: var(--error-foreground);
   --info: var(--color-blue-500);
@@ -56,11 +56,11 @@
   --update-surface: color-mix(in srgb, var(--update) 12%, transparent);
   /* Keep every sidebar primitive on the same light surface hierarchy, including
      portaled mobile sheets and settings navigation outside the app sidebar. */
-  --sidebar: oklch(0.962 0.006 215);
+  --sidebar: #eef2f8;
   --sidebar-foreground: var(--foreground);
   --sidebar-muted-foreground: var(--muted-foreground);
-  --sidebar-control-surface: oklch(0.935 0.008 215);
-  --sidebar-row-hover: oklch(0.935 0.008 215);
+  --sidebar-control-surface: rgb(14 17 22 / 6%);
+  --sidebar-row-hover: rgb(14 17 22 / 6%);
   --sidebar-row-active: var(--color-white);
   --sidebar-row-selected: var(--color-white);
   --sidebar-border: var(--border);
@@ -76,41 +76,41 @@
     color-scheme: dark;
     /* Keep controls and floating surfaces close to the neutral-black canvas.
        Borders and hover states provide separation without milky gray fills. */
-    /* Sado dark: graphite studio, neon turquoise (docs/design "Neon studiya"). */
-    --background: #07090c;
-    --surface-raised: #111721;
-    --foreground: #e9f0f9;
-    --card: #0d1117;
-    --card-foreground: #e9f0f9;
-    --popover: #111721;
-    --popover-foreground: #e9f0f9;
-    --primary: #35f0c6;
-    /* Dark ink on the neon teal: white would sit at ~1.9:1. */
-    --primary-foreground: #03211b;
+    /* Sado dark: graphite studio with an indigo action colour. */
+    --background: #0e1013;
+    --surface-raised: #1b1e23;
+    --foreground: #e9ecef;
+    --card: #15181c;
+    --card-foreground: #e9ecef;
+    --popover: #1b1e23;
+    --popover-foreground: #e9ecef;
+    --primary: #5e5ce6;
+    /* White on indigo keeps >4.5:1. */
+    --primary-foreground: var(--color-white);
     --secondary: --alpha(var(--color-white) / 3%);
     --secondary-foreground: var(--color-neutral-100);
     --muted: --alpha(var(--color-white) / 3%);
-    --muted-foreground: #93a1b5;
-    --accent: rgb(233 240 249 / 6%);
-    --accent-foreground: #e9f0f9;
+    --muted-foreground: #8b929a;
+    --accent: rgb(255 255 255 / 8%);
+    --accent-foreground: #e9ecef;
     --error: color-mix(in srgb, var(--color-red-500) 90%, var(--color-white));
     --error-foreground: var(--color-red-400);
     --tool-error-icon: #fca5a5;
     --error-surface: color-mix(in srgb, var(--error) 16%, transparent);
-    --border: rgb(233 240 249 / 8%);
-    --input: rgb(233 240 249 / 14%);
+    --border: rgb(255 255 255 / 8%);
+    --input: rgb(255 255 255 / 14%);
     --info-foreground: var(--color-blue-400);
     --success-foreground: var(--color-emerald-400);
     --warning-foreground: var(--color-amber-400);
     --warning-surface: color-mix(in srgb, var(--warning) 16%, transparent);
     --update-foreground: var(--color-blue-400);
     --update-surface: color-mix(in srgb, var(--update) 18%, transparent);
-    --sidebar: #0b0e13;
-    --sidebar-control-surface: rgb(233 240 249 / 5%);
-    --sidebar-row-hover: rgb(233 240 249 / 5%);
-    --sidebar-row-active: rgb(233 240 249 / 8%);
-    --sidebar-row-selected: rgb(233 240 249 / 6%);
-    --sidebar-stage-fade: #0b0e13;
+    --sidebar: #0e1013;
+    --sidebar-control-surface: rgb(255 255 255 / 6%);
+    --sidebar-row-hover: rgb(255 255 255 / 6%);
+    --sidebar-row-active: rgb(255 255 255 / 9%);
+    --sidebar-row-selected: rgb(255 255 255 / 8%);
+    --sidebar-stage-fade: #0e1013;
     --terminal-cursor: rgb(180 203 255);
     --terminal-selection-background: rgb(180 203 255 / 25%);
   }

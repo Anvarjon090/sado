@@ -1,3 +1,4 @@
+import { BrandMark, BrandMarkReveal } from '@/components/brand-mark';
 import { SetupGate } from './setup-gate';
 import { ReportBug } from './report-bug';
 import { CrashDetails } from './crash-details';
@@ -29,10 +30,9 @@ import { isBackendBusy } from '@shared/utils/backendStage';
 import { backendFailureHints } from '@shared/utils/backendHint';
 import { scrubText } from '@shared/utils/scrub';
 import i18n, { APP_LANGUAGE_ITEMS, APP_LANGUAGES, setAppLanguage, type AppLocale } from '@/i18n';
-import { brandIcon } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 import type { RuntimeRegion } from '../../../preload/index.d';
-import { getBridge, isMac } from './bridge';
+import { getBridge } from './bridge';
 import { ExternalLink } from './external-link';
 
 interface BackendGateProps {
@@ -198,18 +198,17 @@ export function BackendGate({ children, repairDock }: BackendGateProps) {
       )}
     >
       <header
-        className={cn(
-          'workspace-titlebar flex shrink-0 items-center gap-2 border-b border-border/50 px-5',
-          isMac() && 'pl-24',
-        )}
+        data-slot="gate-header"
+        className="workspace-titlebar flex shrink-0 items-center gap-2 border-b border-border/50 px-5"
       >
-        <img src={brandIcon} alt="" className="size-6 shrink-0" />
+        <BrandMark size={24} />
         <span className="whitespace-nowrap text-sm font-medium tracking-tight">
           {t('app.name')}
         </span>
       </header>
       <div
         data-testid="backend-gate-scroll"
+        data-slot="gate-surface"
         className="studio-scrollbar min-h-0 flex-1 overflow-y-auto p-6"
       >
         <div className="mx-auto flex min-h-full w-full max-w-lg shrink-0 flex-col items-center justify-start gap-4 py-[clamp(1.5rem,8vh,5rem)] text-center">
@@ -223,7 +222,9 @@ export function BackendGate({ children, repairDock }: BackendGateProps) {
               !
             </div>
           ) : (
-            <Spinner className="size-8 text-primary" aria-label={t('common.loading')} />
+            <span role="status" aria-label={t('common.loading')}>
+              <BrandMarkReveal size={96} />
+            </span>
           )}
           <div className="space-y-1">
             <p className={cn('text-base font-medium', failed && 'text-destructive')}>{stageText}</p>

@@ -14,6 +14,10 @@ vi.mock('./workspace-sidebar', () => ({
   WorkspaceSidebar: () => <aside data-testid="main-sidebar" />,
 }));
 vi.mock('./repair-agent-dock', () => ({ RepairAgentDock: () => null }));
+vi.mock('./app-titlebar', () => ({
+  AppTitlebar: () => null,
+  TitlebarSlotProvider: ({ children }: any) => <>{children}</>,
+}));
 vi.mock('./system-notifications', () => ({ SystemNotifications: () => null }));
 vi.mock('@/components/command-palette', () => ({ CommandPalette: () => null }));
 vi.mock('../backend-gate', () => ({ BackendGate: ({ children }: any) => <>{children}</> }));

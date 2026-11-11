@@ -86,7 +86,12 @@
     "modelLabel": "मॉडल",
     "runsOn": "चलता है",
     "copyModel": "मॉडल ID कॉपी करें",
-    "copied": "कॉपी हो गया"
+    "copied": "कॉपी हो गया",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "अनुवाद"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "शुरू हो रहा है…",
     "unsupported_audio": "कोई समर्थित ऑडियो फ़ाइल चुनें: WAV, MP3, M4A, FLAC, OGG, AAC या WebM।",
     "saved_profiles": "सहेजे गए प्रोफ़ाइल",
+    "saved_short": "सहेजी गई",
+    "design_short": "डिज़ाइन",
     "transcript": "प्रतिलिपि",
     "style": "अंदाज",
     "save_as_profile": "वॉइस प्रोफ़ाइल के रूप में सहेजें",

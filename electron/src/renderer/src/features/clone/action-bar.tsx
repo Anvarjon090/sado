@@ -1,3 +1,4 @@
+import { BrandMark } from '@/components/brand-mark';
 import { PipelineFailure } from '@/components/pipeline-failure';
 import { openTake } from '@/lib/store/takes';
 import { setWorkspace } from '@/lib/store/workspace';
@@ -10,7 +11,6 @@ import {
   GaugeIcon,
   LayersIcon,
   PlayIcon,
-  LoaderCircleIcon,
   PauseIcon,
   RotateCcwIcon,
   Settings2Icon,
@@ -22,7 +22,7 @@ import {
   XIcon,
   type LucideIcon,
 } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -396,6 +396,17 @@ export function ActionBar() {
     clearError,
     cloneBlocker: blocker,
   } = useGenerateClone();
+  // The mark flashes "done" once when a take finishes without an error.
+  const [justFinished, setJustFinished] = useState(false);
+  const wasGenerating = useRef(isGenerating);
+  useEffect(() => {
+    const finished = wasGenerating.current && !isGenerating && !error;
+    wasGenerating.current = isGenerating;
+    if (!finished) return;
+    setJustFinished(true);
+    const timer = setTimeout(() => setJustFinished(false), 600);
+    return () => clearTimeout(timer);
+  }, [isGenerating, error]);
   const generationLabel = isGenerating
     ? t(
         stage === 'loading'
@@ -488,8 +499,12 @@ export function ActionBar() {
               aria-keyshortcuts="Control+Enter Meta+Enter"
             >
               <span className="flex min-w-0 items-center gap-2">
-                {isGenerating ? (
-                  <LoaderCircleIcon className="shrink-0 animate-spin motion-reduce:animate-none" />
+                {isGenerating || justFinished ? (
+                  <BrandMark
+                    size={20}
+                    state={isGenerating ? 'processing' : 'success'}
+                    className="text-current"
+                  />
                 ) : (
                   <PlayIcon className="shrink-0" />
                 )}

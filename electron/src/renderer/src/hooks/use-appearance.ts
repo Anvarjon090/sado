@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { getBridge } from '@/components/bridge';
 
 type Appearance = { font: 'inter' | 'system'; scale: number; glass: boolean };
 export const appearanceScales = [90, 100, 110, 125] as const;
@@ -9,11 +10,12 @@ export function parseAppearance(raw: string | null): Appearance {
     const value = JSON.parse(raw ?? '{}');
     return {
       font: value?.font === 'system' ? 'system' : 'inter',
-      glass: value?.glass === true,
+      // The landscape glass shell is Sado's default look; only an explicit off sticks.
+      glass: value?.glass !== false,
       scale: appearanceScales.includes(value?.scale) ? value.scale : 100,
     };
   } catch {
-    return { font: 'inter', scale: 100, glass: false };
+    return { font: 'inter', scale: 100, glass: true };
   }
 }
 let current: Appearance;
@@ -24,6 +26,11 @@ try {
 }
 function apply() {
   document.documentElement.dataset.glass = String(current.glass);
+  document.documentElement.dataset.platform = getBridge()?.app?.platform ?? 'web';
+  // The see-through edges need the OS window material (macOS, Windows 11).
+  document.documentElement.dataset.nativeMaterial = String(
+    getBridge()?.app?.nativeMaterial === true,
+  );
   document.documentElement.style.fontSize = `${current.scale}%`;
   document.documentElement.style.setProperty(
     '--font-sans',

@@ -86,7 +86,12 @@
     "modelLabel": "Modell",
     "runsOn": "Läuft auf",
     "copyModel": "Modell-ID kopieren",
-    "copied": "Kopiert"
+    "copied": "Kopiert",
+    "short": {
+      "tts": "TTS",
+      "asr": "ASR",
+      "translation": "Übersetzung"
+    }
   },
   "homeUi": {
     "subtitle": "Write a script and give it a voice, clone or design a voice, or dub a video. Everything runs on this computer.",
@@ -473,6 +478,8 @@
     "starting_recording": "Wird gestartet…",
     "unsupported_audio": "Wähle eine unterstützte Audiodatei: WAV, MP3, M4A, FLAC, OGG, AAC oder WebM.",
     "saved_profiles": "Gespeicherte Profile",
+    "saved_short": "Gespeichert",
+    "design_short": "Design",
     "transcript": "Transkript",
     "style": "Stil",
     "save_as_profile": "Als Sprachprofil speichern",

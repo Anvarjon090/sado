@@ -1,6 +1,7 @@
+import { BrandMark } from '@/components/brand-mark';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyIcon, MicIcon, PauseIcon, PlayIcon, SquareIcon, XIcon } from 'lucide-react';
+import { CopyIcon, PauseIcon, PlayIcon, SquareIcon, XIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBackendStatus } from '@/hooks/use-backend-status';
 import { isBackendReachable } from '@shared/utils/backendStage';
@@ -167,8 +168,24 @@ export function CaptureWidget() {
         if (event.key === 'Escape') cancel();
       }}
     >
-      <div className="app-drag flex items-center gap-2">
-        <MicIcon className="size-4 shrink-0 text-primary" />
+      <div className="app-drag flex items-center gap-3">
+        <BrandMark
+          size={40}
+          state={
+            state.paused || state.stage === 'error'
+              ? 'muted'
+              : state.stage === 'done'
+                ? state.text
+                  ? 'success'
+                  : 'idle'
+                : state.stage === 'transcribing' ||
+                    state.stage === 'starting' ||
+                    state.stage === 'idle' ||
+                    state.modelStage === 'loading'
+                  ? 'processing'
+                  : 'listening'
+          }
+        />
         <span role="status" className="min-w-0 flex-1 text-sm font-medium">
           {label}
         </span>
