@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EEF2F8"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="1.05" r="0.8" gradientTransform="translate(0 0.23) scale(1 0.78)"><stop offset="0" stop-color="#5E5CE6" stop-opacity="0.25"/><stop offset="1" stop-color="#5E5CE6" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hi" cx="0.3" cy="0" r="0.7"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <clipPath id="shape"><rect width="1024" height="1024" rx="230"/></clipPath>
+  </defs>
+  <g clip-path="url(#shape)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <rect width="1024" height="1024" fill="url(#glow)"/>
+    <rect width="1024" height="1024" fill="url(#hi)"/>
+  </g>
+  <g transform="translate(213.33 213.33) scale(4.2667)" fill="none" stroke="#0A0C10" stroke-width="11">
+    <circle cx="70" cy="70" r="64.5" opacity="0.35"/>
+    <circle cx="49" cy="70" r="43.5" opacity="0.65"/>
+    <circle cx="28" cy="70" r="22.5"/>
+  </g>
+</svg>

@@ -1,28 +1,27 @@
 # Sado brand
 
-Sado uses a waveform-and-spark mark. The waveform identifies audio; the
-spark identifies creation. The product voice is clear, calm, and direct.
+Sado's mark is three rings that meet at one point on the left edge: a voice
+and its two echoes. It carries no letters, so it never depends on the product
+name. The product voice is clear, calm, and direct.
 
 ## Assets
 
+The brand pack lives in `electron/build/brand/`; its `README.md` is the
+reference for geometry, files, and motion states.
+
 | Surface | Source |
 |---|---|
-| Primary vector mark | `docs/logo.svg` |
-| README mark | `docs/logo.png` and `docs/logo-256.png` |
-| Browser icon | `electron/public/favicon.svg` |
-| In-app mark | `frontend/src/components/brand/SadoMark.jsx` |
-| Desktop/platform icons | `electron/build/icons/` |
-| Electron sidebar and browser icon | `electron/public/favicon.svg` via `electron/src/renderer/src/lib/brand.ts` |
-| Sidebar/launchpad artwork | `electron/public/signal-field.webp` |
+| In-app mark (Electron) | `<BrandMark />` in `electron/src/renderer/src/components/brand-mark.tsx` (inline SVG, `currentColor`, states from `build/brand/motion/mark-motion.css`) |
+| Vector mark files | `electron/build/brand/logo/` (`mark.svg`; `mark-small.svg` below 32 px) |
+| Browser icon | `electron/public/brand/favicon.svg` |
+| App icons | `electron/build/brand/icon/` (`app-icon.ico`, `app-icon.icns`, `png/app-icon-indigo-*.png`), rebuilt by `scripts/brand_icons.py` |
+| Tray | `electron/build/brand/tray/` (`trayTemplate.png` on macOS; `tray-white-16.png` / `tray-dark-16.png` on Windows and Linux); the recording dot is still `electron/build/icons/tray-recording.png` |
+| Legacy mark (README, shared modules) | `docs/logo.svg`, `electron/public/favicon.svg`, `electron/build/icons/` |
 
-Regenerate every desktop icon from the canonical vector after changing the
-mark:
-
-Export the canonical vector to the required PNG, ICO, and ICNS sizes under
-`electron/build/icons/`, then run the Electron packaging contract.
-
-Do not redraw the waveform per screen. Use `SadoMark` in React and the
-canonical SVG elsewhere so the silhouette stays recognizable at 16–512 px.
+Use `<BrandMark />` in the app; never redraw the rings per screen. Do not
+stretch or rotate the mark, add shadows or glows, recolour single rings, change
+the ring opacities, or put letters inside it. Leave at least 20% of the mark's
+width clear around it.
 
 ## Palette
 

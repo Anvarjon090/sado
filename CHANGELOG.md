@@ -33,6 +33,7 @@ metadata and the backend fallback mirror it.
 
 - The app is Sado everywhere: name, package ids, installer identity, environment variables, docs and error strings
 - Sado app icon, favicon and installer icons: a teal tile with four waveform bars (PNG, ICO and ICNS regenerated from one mark)
+- App icon set rebuilt from the brand spec by `scripts/brand_icons.py`: Windows ICO at 16, 20, 24, 32, 40, 48, 64 and 256 px with the two-ring mark under 32 px, macOS ICNS with the @2x entries on Apple's inset template, PNGs 16–1024 in indigo, dark and light
 - Sado brand accent: the default palette's primary is teal (deep on light, neon on dark) with dark ink on filled controls
 - Uzbek dubbing runs on Navoiy-TTS automatically once it is installed; a mixed-language job, an explicit engine pick or an env pin keeps the configured engine
 - Home no longer shows the contributor avatar cluster, and the top bar drops the Get Pro and GitHub Star shortcuts (and their star-count request)

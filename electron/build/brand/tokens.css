@@ -1,0 +1,30 @@
+/* Brend ranglari: ilovada ishlatilgan qiymatlar. Tungi rejim asosiy. */
+:root {
+  --brand-indigo: #5E5CE6;
+  --brand-indigo-soft: #8E8CFF;
+
+  --bg: #0E1013;
+  --card: #15181C;
+  --popover: #1B1E23;
+  --fg: #E9ECEF;
+  --fg-muted: #8B929A;
+  --border: rgb(255 255 255 / 8%);
+  --row-hover: rgb(255 255 255 / 6%);
+  --row-selected: rgb(255 255 255 / 9%);
+  --glass-blur: 5px;
+  --glass-density: 55%;
+
+  --mark-ink: #E9ECEF;
+}
+:root[data-theme="light"] {
+  --bg: #EEF2F8;
+  --card: #FFFFFF;
+  --popover: #FFFFFF;
+  --fg: #0A0C10;
+  --fg-muted: #464C57;
+  --border: rgb(0 0 0 / 10%);
+  --glass-blur: 15px;
+  --glass-density: 79%;
+
+  --mark-ink: #0A0C10;
+}
