@@ -10,7 +10,23 @@ Maketlar: MEDEO, `sado-indigo.dsai`, «Brend-buk» sahifasi.
 - To'r: 140×140 (1 birlik u = 14). Halqa diametrlari 4u, 7u, 10u; chap chetdagi bitta nuqtada tutashadi.
 - Chiziq qalinligi: 11 (0,8u). Shaffoflik: 100% / 65% / 35% (ichkaridan tashqariga).
 - Himoya maydoni: har tomondan 2u.
-- Eng kichik o'lcham: to'liq belgi 32 px. 16–31 px uchun `logo/mark-small.svg` (ikki halqa, chiziq 18).
+- Eng kichik o'lcham: 16 px, har doim uchala halqa bilan (ilova belgisi uchun quyidagi jadval). `logo/mark-small.svg` (ikki halqa, chiziq 18) faqat bir rangli, 16 px dan kichik joylar uchun.
+
+### Ilova belgisi kichik o'lchamlarda
+
+`icon/make-icons.py` (Pillow + numpy) to'plamni `app-icon-*.svg` geometriyasidan yig'adi. 128 px va undan kattada SVG aynan chiziladi; kichikroqda 35 % li tashqi halqa yo'qolib ketmasligi uchun belgi bir oz kattaroq, chiziq qalinroq va tashqi halqalar ravshanroq:
+
+| px | Belgi kengligi | Chiziq | Shaffoflik (ichkaridan tashqariga) |
+| --- | --- | --- | --- |
+| 64 | 60 % | 12 | 100 / 70 / 42 % |
+| 48 | 62 % | 13 | 100 / 72 / 46 % |
+| 40 | 63 % | 14 | 100 / 75 / 50 % |
+| 32 | 64 % | 14,5 | 100 / 76 / 52 % |
+| 24 | 66 % | 16 | 100 / 80 / 58 % |
+| 20 | 67 % | 17 | 100 / 82 / 60 % |
+| 16 | 68 % | 18 | 100 / 85 / 65 % |
+
+128 px va undan katta: belgi 58 %, chiziq 11, 100 / 65 / 35 %.
 
 ## Fayllar
 
@@ -18,10 +34,10 @@ Maketlar: MEDEO, `sado-indigo.dsai`, «Brend-buk» sahifasi.
 | --- | --- | --- |
 | `logo/` | `mark.svg` | Interfeys ichida; rangni `currentColor` dan oladi |
 | `logo/` | `mark-on-dark.svg`, `mark-on-light.svg`, `mark-white.svg`, `mark-indigo.svg` | Tayyor rangli variantlar |
-| `logo/` | `mark-small.svg` | 16–31 px |
+| `logo/` | `mark-small.svg` | Bir rangli, 16 px dan kichik joylar; ilova belgisida ishlatilmaydi |
 | `logo/png/` | `mark-*-256.png`, `mark-*-1024.png` | SVG ishlamaydigan joylar |
-| `icon/` | `app-icon.ico` | Windows: 16, 20, 24, 32, 40, 48, 64, 256 px (32 dan kichigi — ikki halqali belgi) |
-| `icon/` | `app-icon.icns` | macOS: 16–1024, @1x va @2x; shakl 824/1024 ga kichraytirilgan, ostida yumshoq soya |
+| `icon/` | `app-icon.ico` | Windows (16, 20, 24, 32, 40, 48, 64, 128, 256 px) |
+| `icon/` | `app-icon.icns` | macOS (shakl 824/1024 ga kichraytirilgan) |
 | `icon/png/` | `app-icon-indigo-*.png` | Linux va boshqa o'lchamlar; `dark` va `light` muqobil variantlar |
 | `icon/` | `favicon.svg`, `favicon-32.png` | Veb |
 | `tray/` | `trayTemplate.png`, `trayTemplate@2x.png` | macOS tray (tizim o'zi bo'yaydi) |
@@ -54,7 +70,7 @@ new Tray(path.join(__dirname, process.platform === "darwin" ? "brand/tray/trayTe
 | --- | --- | --- | --- |
 | `reveal` | Paydo bo'lish | 700 ms + 220 ms, bir marta | Ilova ochilishi, o'rnatish ekrani |
 | `listening` | Tinglash | 1,6 s, takrorlanadi | Diktovka oynasi, yozish |
-| `processing` | Ishlov berish | 1,1 s, takrorlanadi | Generatsiya, model yuklash |
+| `processing` | Ishlov berish: ichki halqadan aks-sado halqalari chiqib so'nadi | 1,8 s, takrorlanadi | Generatsiya, model yuklash |
 | `speaking` | Gapirish | 520 ms, takrorlanadi | Natijani tinglash |
 | `speaking-live` | Gapirish, haqiqiy ovoz bilan | `--mark-amp` (0..1) | Pleyer |
 | `success` | Tayyor | 480 ms, bir marta | Jarayon yakuni |
@@ -66,14 +82,12 @@ new Tray(path.join(__dirname, process.platform === "darwin" ? "brand/tray/trayTe
 
 Cho'zish, aylantirish, shaffoflikni tenglashtirish, halqalarni har xil rangga bo'yash, soya yoki nur qo'shish, ichiga harf yozish.
 
-## Qayta yig'ish
+## Manba
 
-`icon/` dagi PNG, ICO va ICNS fayllari `scripts/brand_icons.py` dan chiqadi
-(`uv run python scripts/brand_icons.py`): belgi geometriyasi va plita ranglari
-skriptda shu README bilan bir xil; SVG manbalar qo'lda saqlanadi. Har o'lcham
-4–8× supersampling bilan alohida chiziladi, kichraytirilgan nusxa emas.
+`icon/` dagi barcha fayllar brend-bukdan (`sado logo/brand/icon`) aynan ko'chirilgan, u yerda `icon/make-icons.py` yig'adi;
+ilovada boshqa render ishlatilmaydi. Brend-buk yangilansa, papkani qaytadan nusxalang.
 
 ## Tekshirilmagan
 
-- `.icns` va `.ico` fayllari Windows ish stolida tekshirildi (yorliq ikonkasi); macOS Dock va haqiqiy o'rnatuvchilarda sinab ko'rilmagan.
+- `.ico` Windows ish stolida (yorliq) tekshirildi; `.icns` macOS Dock va haqiqiy o'rnatuvchilarda sinab ko'rilmagan.
 - Holat ranglari (yashil, sariq, qizil) uchun aniq kodlar berilmagan, shuning uchun bu to'plamga kiritilmadi.

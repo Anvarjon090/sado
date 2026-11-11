@@ -43,14 +43,10 @@
 .mark[data-state="listening"] .mark__r3 { animation: mark-wave-3 1.6s ease-in-out .36s infinite; }
 
 /* 3. Ishlov berish: generatsiya, model yuklash. 1.1 s, takrorlanadi */
-@keyframes mark-spin { to { transform: rotate(360deg); } }
-.mark[data-state="processing"] .mark__r3 {
-  stroke-dasharray: 300 105.3;         /* aylana uzunligi 405.3 */
-  stroke-linecap: round;
-  opacity: .8;
-  transform-origin: 70px 70px;
-  animation: mark-spin 1.1s linear infinite;
-}
+/* Aks-sado: ichki halqa joyida turadi, undan yangi halqalar chiqib, tashqi halqa o'lchamigacha kattalashadi va so'nadi */
+@keyframes mark-ping { 0% { r: 22.5px; cx: 28px; opacity: 0; } 18% { opacity: .85; } 100% { r: 64.5px; cx: 70px; opacity: 0; } }
+.mark[data-state="processing"] .mark__r2 { animation: mark-ping 1.8s cubic-bezier(.3, 0, .5, 1) infinite; }
+.mark[data-state="processing"] .mark__r3 { animation: mark-ping 1.8s cubic-bezier(.3, 0, .5, 1) -.9s infinite; }
 
 /* 4. Gapirish: natija ijro etilayotganda. 520 ms, takrorlanadi */
 @keyframes mark-talk-2 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
@@ -74,5 +70,4 @@
 /* Harakatni kamaytirish yoqilgan bo'lsa: animatsiya yo'q, holat faqat shaffoflik bilan */
 @media (prefers-reduced-motion: reduce) {
   .mark circle { animation: none !important; transition: none !important; transform: none !important; }
-  .mark[data-state="processing"] .mark__r3 { stroke-dasharray: none; }
 }

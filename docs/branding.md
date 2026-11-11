@@ -12,9 +12,9 @@ reference for geometry, files, and motion states.
 | Surface | Source |
 |---|---|
 | In-app mark (Electron) | `<BrandMark />` in `electron/src/renderer/src/components/brand-mark.tsx` (inline SVG, `currentColor`, states from `build/brand/motion/mark-motion.css`) |
-| Vector mark files | `electron/build/brand/logo/` (`mark.svg`; `mark-small.svg` below 32 px) |
+| Vector mark files | `electron/build/brand/logo/` (`mark.svg`; `mark-small.svg` is a two-ring glyph for monochrome spots under 16 px, not used by the app) |
 | Browser icon | `electron/public/brand/favicon.svg` |
-| App icons | `electron/build/brand/icon/` (`app-icon.ico`, `app-icon.icns`, `png/app-icon-indigo-*.png`), rebuilt by `scripts/brand_icons.py` |
+| App icons | `electron/build/brand/icon/` (`app-icon.ico`, `app-icon.icns`, `png/app-icon-indigo-*.png`), copied verbatim from the brand book, which builds them with `icon/make-icons.py`; every size keeps all three rings (64 px and below use thicker strokes and brighter outer rings) |
 | Tray | `electron/build/brand/tray/` (`trayTemplate.png` on macOS; `tray-white-16.png` / `tray-dark-16.png` on Windows and Linux); the recording dot is still `electron/build/icons/tray-recording.png` |
 | Legacy mark (README, shared modules) | `docs/logo.svg`, `electron/public/favicon.svg`, `electron/build/icons/` |
 

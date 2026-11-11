@@ -28,14 +28,10 @@
 .mark[data-state="listening"] .mark__r1 { animation: mark-beat 1.6s ease-in-out infinite; }
 .mark[data-state="listening"] .mark__r2 { animation: mark-wave-2 1.6s ease-in-out .18s infinite; }
 .mark[data-state="listening"] .mark__r3 { animation: mark-wave-3 1.6s ease-in-out .36s infinite; }
-@keyframes mark-spin { to { transform: rotate(360deg); } }
-.mark[data-state="processing"] .mark__r3 {
-  stroke-dasharray: 300 105.3;         
-  stroke-linecap: round;
-  opacity: .8;
-  transform-origin: 70px 70px;
-  animation: mark-spin 1.1s linear infinite;
-}
+/* Aks-sado: ichki halqa joyida turadi, undan yangi halqalar chiqib, tashqi halqa o'lchamigacha kattalashadi va so'nadi */
+@keyframes mark-ping { 0% { r: 22.5px; cx: 28px; opacity: 0; } 18% { opacity: .85; } 100% { r: 64.5px; cx: 70px; opacity: 0; } }
+.mark[data-state="processing"] .mark__r2 { animation: mark-ping 1.8s cubic-bezier(.3, 0, .5, 1) infinite; }
+.mark[data-state="processing"] .mark__r3 { animation: mark-ping 1.8s cubic-bezier(.3, 0, .5, 1) -.9s infinite; }
 @keyframes mark-talk-2 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 @keyframes mark-talk-3 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.09); } }
 .mark[data-state="speaking"] .mark__r2 { animation: mark-talk-2 520ms ease-in-out infinite; }
@@ -50,7 +46,6 @@
 .mark[data-state="muted"] .mark__r3 { opacity: .15; }
 @media (prefers-reduced-motion: reduce) {
   .mark circle { animation: none !important; transition: none !important; transform: none !important; }
-  .mark[data-state="processing"] .mark__r3 { stroke-dasharray: none; }
 }
 </style>
 <svg class="mark" data-state="processing" viewBox="0 0 140 140" x="0" y="0" width="140" height="140">
