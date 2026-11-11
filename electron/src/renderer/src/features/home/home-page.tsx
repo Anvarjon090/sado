@@ -11,6 +11,7 @@ import type { DubProject } from '@/features/projects/project-format';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { apiJson } from '@/lib/api/client';
+import { runRendererTask } from '@/lib/global-error-recovery';
 import { ArrowRightIcon, AudioLinesIcon, BookOpenIcon, FilmIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -86,7 +87,7 @@ export function HomePage() {
               className="home-composer"
               onSubmit={(event) => {
                 event.preventDefault();
-                void navigate({ to: '/clone' });
+                runRendererTask('Home script to voice studio', () => navigate({ to: '/clone' }));
               }}
             >
               <label htmlFor="home-script" className="sr-only">
@@ -130,9 +131,7 @@ export function HomePage() {
                     </>
                   )}
                 </span>
-                <span className="home-count">
-                  {t('clone.characters', { count: text.length })}
-                </span>
+                <span className="home-count">{t('clone.characters', { count: text.length })}</span>
                 <button type="submit" className="home-go">
                   {t('homeUi.continue')}
                   <ArrowRightIcon aria-hidden="true" className="size-4" />
@@ -176,8 +175,7 @@ export function HomePage() {
               </ul>
             ) : (
               <p className="home-empty">
-                {t('homeUi.noProjects')}{' '}
-                <Link to="/dub">{t('dubWorkspace.title')}</Link>
+                {t('homeUi.noProjects')} <Link to="/dub">{t('dubWorkspace.title')}</Link>
                 {' · '}
                 <Link to="/audiobook">{t('audiobook.title')}</Link>
               </p>

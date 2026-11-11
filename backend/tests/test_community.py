@@ -171,7 +171,7 @@ def test_sources_endpoint(client):
 def test_submit_url(client):
     preset = client.get("/community/submit-url", params={"type": "preset"}).json()["url"]
     voice = client.get("/community/submit-url", params={"type": "voice"}).json()["url"]
-    assert "preset-submission.yml" in preset and "omnivoice-gallery" in preset
+    assert "preset-submission.yml" in preset and "sado-gallery" in preset
     assert "voice-submission.yml" in voice
 
 
