@@ -14,10 +14,7 @@ const targetArch = process.env.SADO_RUST_TARGET?.startsWith('aarch64')
 const defaultExecutableCandidates =
   process.platform === 'win32'
     ? targetArch === 'arm64'
-      ? [
-          'electron/release/win-arm64-unpacked/Sado.exe',
-          'electron/release/win-unpacked/Sado.exe',
-        ]
+      ? ['electron/release/win-arm64-unpacked/Sado.exe', 'electron/release/win-unpacked/Sado.exe']
       : ['electron/release/win-unpacked/Sado.exe']
     : process.platform === 'darwin'
       ? targetArch === 'arm64'
@@ -169,7 +166,12 @@ try {
       BrowserWindow.getAllWindows()[0]?.setSize(960, 640);
     });
     const setupLayout = await window.evaluate(() => {
-      const header = document.querySelector('header.workspace-titlebar');
+      // The window-wide title bar is also a workspace-titlebar; the gate's own
+      // branded header is the one that must stay pinned above the scroller.
+      const header =
+        [...document.querySelectorAll('header.workspace-titlebar')].find((candidate) =>
+          candidate.textContent?.includes('Sado'),
+        ) ?? null;
       const scroller = document.querySelector('[data-testid="backend-gate-scroll"]');
       const brand = header?.textContent?.includes('Sado') ? header : null;
       const headerRect = header?.getBoundingClientRect();
@@ -186,9 +188,10 @@ try {
     });
     assert.equal(setupLayout.brandVisible, true, 'Setup branding must remain visible');
     assert.equal(setupLayout.headerTop, 0, 'Setup header must stay pinned to the window top');
-    assert.equal(
-      setupLayout.scrollTop,
-      setupLayout.headerBottom,
+    // The gate surface sits as an inset card under the header, so it starts at
+    // or below the header's bottom edge, never under it.
+    assert(
+      setupLayout.scrollTop >= setupLayout.headerBottom,
       'Setup content must scroll below the fixed branding',
     );
     assert(
@@ -200,7 +203,10 @@ try {
       'Setup gate must not overflow horizontally',
     );
     const setupStatus = await waitForRuntimeGate(window, 30_000);
-    const installButton = window.getByRole('button', { name: 'Install local runtime', exact: true });
+    const installButton = window.getByRole('button', {
+      name: 'Install local runtime',
+      exact: true,
+    });
     if (process.platform === 'darwin' && targetArch === 'x64') {
       assert.equal(setupStatus.setupIssue, 'unsupported_platform');
       await window.getByRole('textbox', { name: 'Backend URL', exact: true }).waitFor();
@@ -213,9 +219,7 @@ try {
       await window.evaluate(() => typeof window.sado.backend.cleanSetupRuntime),
       'function',
     );
-    const stage = await window.evaluate(
-      async () => (await window.sado.backend.getStatus()).stage,
-    );
+    const stage = await window.evaluate(async () => (await window.sado.backend.getStatus()).stage);
     assert.equal(stage, 'setup_required');
     assert.equal(
       existsSync(join(profile, 'runtime')),
@@ -240,9 +244,7 @@ try {
       (await window.evaluate(() => window.sado.backend.getStatus())).runtimeCustom,
       true,
     );
-    const restored = await window.evaluate(() =>
-      window.sado.backend.useDefaultRuntimeLocation(),
-    );
+    const restored = await window.evaluate(() => window.sado.backend.useDefaultRuntimeLocation());
     assert.equal(restored.custom, false);
     assert.equal(
       (await window.evaluate(() => window.sado.backend.getStatus())).runtimeCustom,
@@ -333,10 +335,7 @@ try {
           exact: true,
         });
         await activate(download);
-        await waitForSetupModels(
-          window,
-          Number(process.env.SADO_MODEL_TIMEOUT_MS) || 3_600_000,
-        );
+        await waitForSetupModels(window, Number(process.env.SADO_MODEL_TIMEOUT_MS) || 3_600_000);
       }
       await assertEventually(
         async () => continueButton.isEnabled(),
