@@ -6,6 +6,16 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com/).
 `package.json` is the maintained app-version source of truth; Electron package
 metadata and the backend fallback mirror it.
 
+## [Unreleased]
+
+**Highlights**
+
+- The OmniVoice engine is listed as Sado Pro
+
+### Changed
+
+- The OmniVoice voice engine shows as **Sado Pro** in Settings → Engines, the performance panel and the API's engine list; its id stays `omnivoice`, so saved projects, env pins and API calls keep working
+
 ## [0.5.8] — 2026-11-11
 
 **Sado speaks Uzbek and looks like itself.** The whole interface is in Uzbek, Navoiy-TTS brings a native Uzbek voice engine with ten emotion presets, and the studio has a new look: graphite and indigo, a frosted title bar, and the three-ring mark everywhere from the taskbar to the tray.

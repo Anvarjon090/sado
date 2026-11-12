@@ -1480,7 +1480,7 @@ class OmniVoiceBackend(TTSBackend):
     """
 
     id = "omnivoice"
-    display_name = "Sado (k2-fsa/OmniVoice, 600+ languages)"
+    display_name = "Sado Pro"
     instruct_vocabulary = "tags"
     supports_voice_design = True
     gpu_compat = ("cuda", "rocm", "mps", "cpu")

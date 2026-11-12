@@ -42,7 +42,7 @@ def profile_plan(choice: str, overrides: dict, selections: dict) -> dict:
         tts = []
         # Never replace a cloning engine with a preset-voice-only engine.
         omni_runtime = current_tts if current_tts.startswith("omnivoice") else "omnivoice"
-        choices = [(omni_runtime, "k2-fsa/OmniVoice", 4, 8, 6, "OmniVoice")]
+        choices = [(omni_runtime, "k2-fsa/OmniVoice", 4, 8, 6, "Sado Pro")]
         if current_tts == "kittentts":
             choices.append(("kittentts", "KittenML/kitten-tts-mini-0.8", 1, .5, 0, "KittenTTS"))
         for engine, repo, rank, ram, vram, label in choices:

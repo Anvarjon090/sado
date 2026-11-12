@@ -1,7 +1,8 @@
 # Sado — OmniVoice Engine (default)
 
 OmniVoice (k2-fsa/OmniVoice) is Sado's default TTS engine — the one a
-fresh install uses without any configuration. It does zero-shot voice cloning
+fresh install uses without any configuration. The app lists it as **Sado Pro**
+(engine id `omnivoice`). It does zero-shot voice cloning
 across 600+ languages and outputs 24 kHz mono audio. Voice cloning, dubbing,
 and dictation all run on it out of the box.
 

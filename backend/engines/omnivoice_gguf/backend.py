@@ -358,7 +358,7 @@ def _make_backend_class():
         """
 
         id = "omnivoice-gguf"
-        display_name = "OmniVoice (GGUF, hardware-adaptive)"
+        display_name = "Sado Pro (GGUF, hardware-adaptive)"
         instruct_vocabulary = "tags"
         gpu_compat = ("cuda", "mps", "cpu")
         supports_voice_design = False
