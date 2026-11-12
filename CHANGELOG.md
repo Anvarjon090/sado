@@ -11,9 +11,11 @@ metadata and the backend fallback mirror it.
 **Highlights**
 
 - The OmniVoice engine is listed as Sado Pro
+- Pauses stay at the punctuation: the pause control no longer breaks speech inside a phrase
 
 ### Added
 
+- Rhythm measurements (`services/speech_rhythm.py`, and a rhythm section in `scripts/human_likeness.py`): breaks a take makes where the text has no punctuation, sentence-sized stops beyond its sentence ends, and the drift of the syllable rate from the first third of the take to the last
 - `scripts/human_likeness.py` scores a voice_bench run against the human reference recording — MFCC timbre similarity, pitch, pause, loudness-range and voicing-texture deltas, the STT's word confusions — and writes a side-by-side listening page with a 1–5 rating sheet; nothing is downloaded unless `--with-models` asks for the ECAPA embedding
 
 ### Changed
@@ -22,6 +24,7 @@ metadata and the backend fallback mirror it.
 
 ### Fixed
 
+- The pause control lengthened every gap of 150 ms, so the gaps an engine leaves inside a phrase became breaks; it now lengthens only as many gaps as the text has sentence ends (up to 0.6 s) and clause marks (half the extension, up to 0.3 s) — on ten benchmark takes that is 46 breaks instead of 52 and no 0.6 s stop the text did not ask for, where there were seven
 - `scripts/voice_bench.py` hands the STT a take trimmed to its speech and padded with digital silence — Whisper invented repeated words on the room-tone tail of short takes and reported 169 % CER for a clean "Salom! Qalaysiz?" — and `--rescore` re-measures a finished run without rendering
 
 ## [0.5.8] — 2026-11-11

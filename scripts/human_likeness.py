@@ -17,7 +17,10 @@ once CER is already near zero:
 * prosody distance — pitch median (semitones), pitch spread, pause length and
   loudness range of the take minus the reference,
 * pronunciation — the CER the bench already has, plus the word confusions the
-  local STT heard (``xo'jayli`` → ``hojayli`` …), so a fix can target words.
+  local STT heard (``xo'jayli`` → ``hojayli`` …), so a fix can target words,
+* rhythm — breaks the text gave no punctuation for, sentence-sized stops beyond
+  the sentence ends, and how far the syllable rate drifts across the take
+  (``services.speech_rhythm``): the numbers behind "it breaks" and "it rushes".
 
 Nothing is downloaded by default (similarity = MFCC signature); ``--with-models``
 fetches the ECAPA speaker embedding from Hugging Face once (~80 MB). The
@@ -42,7 +45,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
-from services.speech_metrics import analyze_file  # noqa: E402
+from services.chunked_tts import text_segments
+from services.speech_metrics import analyze_file
+from services.speech_rhythm import rhythm_file
+
+#: Takes shorter than this are left out of the mean CER (see the summary).
+SHORT_TAKE_S = 3.5
 
 ASPECTS = [("talaffuz", "Talaffuz"), ("ohang", "Ohang / urg'u"), ("pauza", "Pauzalar"),
            ("tembr", "Tembr o'xshashligi"), ("artefakt", "Artefaktsiz")]
@@ -134,6 +142,16 @@ class Models:
         return {"hnr_db": m.get("hnr_db"), "cpp_db": m.get("cpp_db"), "f0_micro_st": m.get("f0_micro_st")}
 
 
+def take_rhythm(path: Path, text: str | None) -> dict:
+    """Pauses and pace of a take against its text, span by span (a paragraph
+    break is stitched silence, not a pause the engine placed)."""
+    spans = [segment[0] for segment in text_segments(text)[0]] if text else None
+    beat = rhythm_file(str(path), spans)
+    return {"breaks": beat.breaks, "extra_breaks": beat.extra_breaks, "extra_long": beat.extra_long_pauses,
+            "tempo_drift": beat.tempo_drift_pct, "tempo_spread": beat.tempo_spread_pct,
+            "syllable_rate": beat.syllable_rate}
+
+
 def similarity(a, b) -> float | None:
     if a is None or b is None:
         return None
@@ -207,8 +225,8 @@ audio{width:260px;display:block}select{margin:2px 4px 2px 0}.ref{background:#f0f
 textarea{width:100%;min-height:40px}button{padding:8px 14px;font-size:14px}.conf{color:#a33;font-size:12px}</style>
 <body><h1>Odamga o'xshashlik — tinglash varag'i</h1>"""
     parts = [head, '<div class="ref"><b>Inson yozuvi (referens)</b> ', audio(reference.name),
-             f'<div class="m">F0 {num(ref_metrics.get("f0_median_hz"), " Hz")} ±{num(ref_metrics.get("f0_std_st"), " st")} · '
-             f'LRA {num(ref_metrics.get("lra_lu"), " LU")} · pauza {num(ref_metrics.get("pause_mean_s"), " s")}</div></div>',
+             (f'<div class="m">F0 {num(ref_metrics.get("f0_median_hz"), " Hz")} ±{num(ref_metrics.get("f0_std_st"), " st")} · '
+              f'LRA {num(ref_metrics.get("lra_lu"), " LU")} · pauza {num(ref_metrics.get("pause_mean_s"), " s")}</div></div>'),
              "<p>Har bir ustun bitta tizim. Har take uchun 1 (yomon) – 5 (odamdek) baho bering, so'ng pastdagi tugma bilan JSON eksport qiling.</p>"]
     for case, text in cases.items():
         parts.append(f'<table><tr><th class="text">{html.escape(case)}</th>' +
@@ -228,7 +246,8 @@ textarea{width:100%;min-height:40px}button{padding:8px 14px;font-size:14px}.conf
             parts.append(
                 f'<td>{audio(src)}'
                 f'<div class="m">o\'xshashlik {num(row["sim"])} · CER {num(row["cer_pct"], "%")} · ΔHNR {num(row["d_hnr"], " dB")} · ΔCPP {num(row["d_cpp"], " dB")}<br>'
-                f'ΔF0 {num(row["d_f0_st"], " st")} · ΔF0 yoyilma {num(row["d_f0_std"], " st")} · Δpauza {num(row["d_pause_s"], " s")} · ΔLRA {num(row["d_lra"], " LU")}</div>'
+                f'ΔF0 {num(row["d_f0_st"], " st")} · ΔF0 yoyilma {num(row["d_f0_std"], " st")} · Δpauza {num(row["d_pause_s"], " s")} · ΔLRA {num(row["d_lra"], " LU")}<br>'
+                f'ortiqcha tanaffus {num(row["extra_breaks"])} · ortiqcha uzun pauza {num(row["extra_long"])} · temp siljishi {num(row["tempo_drift"], "%")} · temp yoyilmasi {num(row["tempo_spread"], "%")}</div>'
                 + (f'<div class="conf">STT: {html.escape(conf)}</div>' if conf else "")
                 + f'<div>{selects}</div>'
                 f'<textarea data-run="{html.escape(run["name"])}" data-case="{html.escape(case)}" placeholder="Izoh"></textarea></td>')
@@ -246,6 +265,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="a voice_bench --out folder (repeatable)")
     parser.add_argument("--profile", help="profile id whose reference recording is the human")
     parser.add_argument("--ref-audio", type=Path, help="reference WAV instead of --profile")
+    parser.add_argument("--ref-text", help="transcript of the reference, for its own rhythm baseline")
     parser.add_argument("--backend", default="http://127.0.0.1:3900")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--models", type=Path, default=Path("D:/Cache/human-likeness"),
@@ -254,11 +274,13 @@ def main(argv: list[str] | None = None) -> int:
                         help="download and use the ECAPA speaker embedding (Hugging Face, ~80 MB)")
     args = parser.parse_args(argv)
     args.out.mkdir(parents=True, exist_ok=True)
+    ref_text = args.ref_text
     if args.ref_audio:
         reference = args.out / "reference.wav"
         shutil.copyfile(args.ref_audio, reference)
     elif args.profile:
-        reference, _ = fetch_reference(args.backend, args.profile, args.out)
+        reference, profile_text = fetch_reference(args.backend, args.profile, args.out)
+        ref_text = ref_text or profile_text
     else:
         parser.error("give --profile or --ref-audio")
 
@@ -266,6 +288,7 @@ def main(argv: list[str] | None = None) -> int:
     ref_metrics = metrics_dict(reference)
     ref_embedding = models.embed(reference)
     ref_texture = models.texture(reference)
+    ref_rhythm = take_rhythm(reference, ref_text)
     runs = []
     for spec in args.run:
         name, _, folder = spec.partition("=")
@@ -294,6 +317,7 @@ def main(argv: list[str] | None = None) -> int:
                 cer = item.get("cer")
                 rows.append({
                     "case": case, "text": item.get("text", ""),
+                    "duration_s": float(m.get("duration_s") or 0.0),
                     "sim": similarity(models.embed(wav), ref_embedding),
                     "d_hnr": delta(m.get("hnr_db"), ref_texture.get("hnr_db"), 1),
                     "d_cpp": delta(m.get("cpp_db"), ref_texture.get("cpp_db"), 1),
@@ -304,23 +328,44 @@ def main(argv: list[str] | None = None) -> int:
                     "d_pause_s": delta(m.get("pause_mean_s"), ref_metrics.get("pause_mean_s")),
                     "d_lra": delta(m.get("lra_lu"), ref_metrics.get("lra_lu")),
                     "confusions": confusions(item.get("text", ""), item.get("transcript")),
+                    **take_rhythm(wav, item.get("text")),
                 })
-                print(f"  {name:<10} {case:<14} sim {rows[-1]['sim']}  ΔHNR {rows[-1]['d_hnr']}  ΔCPP {rows[-1]['d_cpp']}  CER {rows[-1]['cer_pct']}%")
-        summary = {key: mean([r[key] for r in rows]) for key in ("sim", "cer_pct", "d_f0_st", "d_f0_std", "d_pause_s", "d_lra", "d_hnr", "d_cpp", "d_micro")}
+                print(f"  {name:<10} {case:<14} sim {rows[-1]['sim']}  ΔHNR {rows[-1]['d_hnr']}  ΔCPP {rows[-1]['d_cpp']}  CER {rows[-1]['cer_pct']}%"
+                      f"  extra breaks {rows[-1]['extra_breaks']}  drift {rows[-1]['tempo_drift']}%")
+        summary = {key: mean([r[key] for r in rows]) for key in ("sim", "cer_pct", "d_f0_st", "d_f0_std", "d_pause_s", "d_lra", "d_hnr", "d_cpp", "d_micro", "tempo_spread")}
         summary["abs_d_f0_st"] = mean([abs(r["d_f0_st"]) for r in rows if r["d_f0_st"] is not None])
+        # A Whisper-style STT still invents words on takes of a couple of seconds
+        # even when they are trimmed, so their CER is shown per take but kept out
+        # of the mean.
+        summary["cer_pct"] = mean([r["cer_pct"] for r in rows if r["duration_s"] >= SHORT_TAKE_S])
+        summary["extra_breaks"] = sum(r["extra_breaks"] for r in rows)
+        summary["extra_long"] = sum(r["extra_long"] for r in rows)
+        summary["tempo_drift"] = mean([r["tempo_drift"] for r in rows])
         runs.append({"name": name, "slug": slug, "source": str(folder_path), "rows": rows, "summary": summary})
 
-    scorecard = {"reference": {"path": str(reference), "metrics": ref_metrics, "texture": ref_texture},
+    scorecard = {"reference": {"path": str(reference), "metrics": ref_metrics, "texture": ref_texture,
+                               "rhythm": ref_rhythm},
                  "runs": runs, "notes": models.notes}
     (args.out / "scorecard.json").write_text(json.dumps(scorecard, ensure_ascii=False, indent=1), encoding="utf-8")
     lines = ["# Odamga o'xshashlik", "",
              f"Referens: `{reference.name}` — F0 {ref_metrics.get('f0_median_hz')} Hz, LRA {ref_metrics.get('lra_lu')} LU, pauza {ref_metrics.get('pause_mean_s')} s, HNR {ref_texture.get('hnr_db')} dB, CPP {ref_texture.get('cpp_db')} dB", "",
-             "Δ = take − referens; nolga yaqin = odamga yaqin.", "",
+             ("Δ = take − referens; nolga yaqin = odamga yaqin. "
+              f"CER o'rtachasi {SHORT_TAKE_S:g} s dan qisqa take'larsiz (STT ularda so'z to'qiydi)."), "",
              "| Tizim | O'xshashlik (1=o'zi) | CER % | \\|ΔF0\\| st | ΔF0 yoyilma st | Δpauza s | ΔLRA LU | ΔHNR dB | ΔCPP dB | Δmikro st |",
              "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for run in runs:
         s = run["summary"]
         lines.append(f"| {run['name']} | {s['sim']} | {s['cer_pct']} | {s['abs_d_f0_st']} | {s['d_f0_std']} | {s['d_pause_s']} | {s['d_lra']} | {s['d_hnr']} | {s['d_cpp']} | {s['d_micro']} |")
+    lines += ["", "## Ritm: uzilish va temp", "",
+              ("Ortiqcha tanaffus = matnda tinish belgisi bo'lmagan joydagi 0,2 s dan uzun pauza; "
+               "temp siljishi = oxirgi uchdan birdagi bo'g'in tezligi boshidagiga nisbatan (+ = tezlashadi)."), "",
+              (f"Referens: ortiqcha tanaffus {ref_rhythm['extra_breaks']}, temp siljishi {ref_rhythm['tempo_drift']} %, "
+               f"temp yoyilmasi {ref_rhythm['tempo_spread']} %"), "",
+              "| Tizim | Ortiqcha tanaffus (jami) | Ortiqcha uzun pauza (jami) | Temp siljishi % (o'rtacha) | Temp yoyilmasi % (o'rtacha) |",
+              "| --- | --- | --- | --- | --- |"]
+    for run in runs:
+        s = run["summary"]
+        lines.append(f"| {run['name']} | {s['extra_breaks']} | {s['extra_long']} | {s['tempo_drift']} | {s['tempo_spread']} |")
     lines += ["", "## Eng ko'p STT chalkashuvlari", ""]
     for run in runs:
         counter: dict[tuple[str, str], int] = {}

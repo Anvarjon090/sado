@@ -71,12 +71,18 @@ Three controls follow from the same measurements:
 
 - **Pauses** (`pause_scale`, Voice controls → Pauses). OmniVoice leaves about
   0.17 s between sentences; the human readers it was compared with left about
-  0.38 s. The control lengthens each pause the engine already produced by the
-  factor, filling with that pause's own room tone and never past 0.9 s. It
-  adds nothing where the engine put no pause and never shortens one. The app
-  defaults to 1.6×; the API defaults to 1× so scripted callers keep their
-  timing. A blank line between paragraphs becomes a 650 ms breath in every
-  path (`[pause Nms]` markers still win when present).
+  0.38 s. The control lengthens the pauses the text asks for, filling with
+  each pause's own room tone: as many of the engine's gaps as the text has
+  sentence ends grow by the factor (the longest first, up to 0.6 s), as many
+  as it has commas and other clause marks grow by half the extension (up to
+  0.3 s), and every other gap is one the engine left inside a phrase and
+  stays as spoken. Before that rule every gap of 150 ms grew, which on ten
+  benchmark takes turned 45 gaps into 52 audible breaks and made sixteen
+  pauses of 0.6 s or more where the engine had made none. It adds nothing
+  where the engine put no pause and never shortens one. The app defaults to
+  1.6×; the API defaults to 1× so scripted callers keep their timing. A blank
+  line between paragraphs becomes a 650 ms breath in every path
+  (`[pause Nms]` markers still win when present).
 - **Reference cleanup** (`denoise`, Voice controls → Clean reference noise).
   The model's `<|denoise|>` token asks for clean speech regardless of the
   reference's acoustics. On a clean recording that discards the room and
@@ -137,7 +143,11 @@ rendering. `scripts/human_likeness.py` then scores one or more runs against
 the human reference recording — timbre similarity, pitch, pause, loudness-range
 and voicing-texture deltas, the STT's word confusions — and writes a listening
 page that puts the reference and every run's take side by side with a 1–5
-rating sheet, because the ear decides. Dubbing keeps its own per-segment preset (broadcast unless a segment says
+rating sheet, because the ear decides. Its rhythm section
+(`services/speech_rhythm.py`) counts the breaks a take makes where the text
+has no punctuation, the sentence-sized stops beyond its sentence ends, and
+the drift of the syllable rate from the first third of the take to the last —
+the numbers behind "it breaks" and "it rushes". Dubbing keeps its own per-segment preset (broadcast unless a segment says
 otherwise) because its loudness is set against the programme mix.
 
 The final playback response uses the saved WAV itself. Streaming previews still

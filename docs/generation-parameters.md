@@ -69,7 +69,7 @@ For an in-app recording, choose the microphone and Auto, Mono, or Stereo in the 
 | Field | Default | Description |
 |---|---|---|
 | `effect_preset` | `natural` | `natural` matches integrated loudness to −18 LUFS under a −1.5 dBTP ceiling and changes nothing else; `broadcast`, `podcast`, `cinematic`, `warm`, `bright` add their chains; `raw` returns the engine output as is. |
-| `pause_scale` | `1.0` (app: `1.6`) | Lengthens the engine's own pauses of 150 ms or more by this factor with their room tone, capped at 0.9 s; range 1–3. Never adds or shortens a pause. |
+| `pause_scale` | `1.0` (app: `1.6`) | Lengthens the pauses the text asks for with their own room tone: as many of the engine's gaps as the text has sentence ends grow by this factor (longest first, up to 0.6 s), as many as it has clause marks by half the extension (up to 0.3 s); gaps inside a phrase stay as spoken. Range 1–3. Never adds or shortens a pause. |
 | `denoise` | unset | Unset = measured per reference: the `<|denoise|>` token is used when the clip's speech-to-floor ratio is under 28 dB, otherwise the recording's acoustics are kept. `true`/`false` force it. Voice design has no reference and never uses it. |
 | `num_step` | performance tier (16 / 32 / 64) | The app sends 32 unless you move the slider. |
 | `retake` | `true` | With a reference clip: a chunk whose median pitch lands more than 6 semitones from the reference's, or that has no harmonic structure, is rendered once more with a retake seed and the closer take is kept (`backend/services/take_guard.py`). `false` keeps the first take. |

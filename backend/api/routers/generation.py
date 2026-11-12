@@ -681,11 +681,32 @@ def _sanitize_audio(audio_out):
     return audio_out
 
 
+def _pause_sites(text, spans=None):
+    """``(sentence, clause)`` places the text about to be spoken gives a reader
+    to pause, counted span by span: the silence between paragraphs, ``[pause]``
+    markers and SSML spans is stitched in by the renderer, so only the marks
+    inside a span are the engine's to pause at. The pause shaper lengthens no
+    more gaps than this (``services.speech_rhythm``)."""
+    from services.speech_rhythm import pause_site_counts
+
+    if spans is not None:
+        return pause_site_counts((sp.get("text") or "") for sp in spans)
+    try:
+        from services.chunked_tts import text_segments
+
+        segments, _ = text_segments(text or "")
+        return pause_site_counts(segment[0] for segment in segments)
+    except Exception:  # noqa: BLE001 — counting pauses must never fail a render
+        return pause_site_counts(text)
+
+
 @_render_timed('effects')
 def _apply_effect_chain(audio_out, sample_rate, effect_preset, *, skip_mastering=False,
-                        pause_scale=1.0):
+                        pause_scale=1.0, pause_sites=None):
     """Shared post-DSP for /generate: sanitize, then
     ``services.audio_dsp.finalize_output`` (pause shaping → preset).
+    ``pause_sites`` (:func:`_pause_sites`) keeps the shaper to the pauses the
+    text asked for.
 
     The default preset is ``natural``: a BS.1770 loudness match and nothing
     else, because the old broadcast chain measurably compressed and
@@ -705,7 +726,7 @@ def _apply_effect_chain(audio_out, sample_rate, effect_preset, *, skip_mastering
     audio_out = _sanitize_audio(audio_out)
     return finalize_output(
         audio_out, sample_rate, effect_preset,
-        skip_mastering=skip_mastering, pause_scale=pause_scale,
+        skip_mastering=skip_mastering, pause_scale=pause_scale, pause_sites=pause_sites,
     )
 
 
@@ -1344,7 +1365,8 @@ def _run_inference(
                                  duration=duration, dropped_sink=dropped_sink,
                                  guard=_take_guard_for(ref_audio_path, sr, retake), spans=spans)
         # The Sado model never masters its own output; the preset tail runs here.
-        return _apply_effect_chain(audio_out, sr, effect_preset, pause_scale=pause_scale)
+        return _apply_effect_chain(audio_out, sr, effect_preset, pause_scale=pause_scale,
+                                   pause_sites=_pause_sites(text, spans))
 
     except ValueError as e:
         # Don't wrap validation errors in OOM message
@@ -1426,7 +1448,7 @@ def _run_backend_inference(
         return _apply_effect_chain(
             audio_out, sr, effect_preset,
             skip_mastering=getattr(backend, "applies_own_mastering", False),
-            pause_scale=pause_scale,
+            pause_scale=pause_scale, pause_sites=_pause_sites(text, spans),
         )
 
     except ValueError as e:
@@ -2681,7 +2703,8 @@ async def generate_speech(
                     sr = _model.sampling_rate if hasattr(_model, "sampling_rate") else 24000
                     skip = False
                 preview = _apply_effect_chain(raw, sr, effect_preset, skip_mastering=skip,
-                                              pause_scale=pause_scale)
+                                              pause_scale=pause_scale,
+                                              pause_sites=_pause_sites(chunk_text))
                 # The STREAMED copy is provenance-marked by the caller (#1169
                 # mark, moved off this GPU job in #1190): the preview PCM
                 # leaves the app the moment it's yielded, before
@@ -2708,7 +2731,8 @@ async def generate_speech(
                 skip = (getattr(_backend, "applies_own_mastering", False)
                         if _backend is not None else False)
                 return _apply_effect_chain(audio_out, sr, effect_preset, skip_mastering=skip,
-                                           pause_scale=pause_scale)
+                                           pause_scale=pause_scale,
+                                           pause_sites=_pause_sites(" ".join(_text_chunks)))
             except ValueError:
                 raise
             except Exception as e:

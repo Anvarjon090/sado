@@ -364,6 +364,12 @@ def loudness_normalize(
 PAUSE_MIN_MS = 150
 #: No pause is stretched past this, whatever the scale.
 PAUSE_MAX_MS = 900
+#: With the text's pause sites known, a sentence pause is not stretched past
+#: this and a clause pause not past the second: a reader's full stop is about
+#: 0.4-0.6 s and a comma about 0.2 s (0.58 s and 0.17 s in the human reference
+#: measured on 2026-11-12), and a paragraph break is PARAGRAPH_PAUSE_MS = 650.
+PAUSE_SENTENCE_MAX_MS = 600
+PAUSE_CLAUSE_MAX_MS = 300
 _PAUSE_JOIN_S = 0.005
 
 
@@ -385,6 +391,7 @@ def shape_pauses(
     *,
     min_pause_ms: int = PAUSE_MIN_MS,
     max_pause_ms: int = PAUSE_MAX_MS,
+    sites: tuple[int, int] | None = None,
 ) -> torch.Tensor:
     """Lengthen the pauses the engine already left, each by ``scale``.
 
@@ -396,6 +403,16 @@ def shape_pauses(
     zero padding at a chunk boundary) and are left alone. Nothing is
     added where the engine put no pause, no gap is shortened, and ``scale <= 1``
     returns the input itself. Accepts ``(n,)`` or ``(channels, n)``.
+
+    ``sites`` — ``(sentence, clause)``, how many places the text itself gives a
+    reader to pause (``speech_rhythm.pause_site_counts``). With it, only that
+    many gaps are lengthened, the longest first: the ``sentence`` longest by
+    ``scale`` up to :data:`PAUSE_SENTENCE_MAX_MS`, the next ``clause`` by half
+    the extension up to :data:`PAUSE_CLAUSE_MAX_MS`, and every other gap is one
+    the engine left *inside* a phrase and stays as spoken. Without it every gap
+    is a pause, which on ten benchmark takes turned 45 gaps into 52 audible
+    breaks and made sixteen of them 0.6 s or longer where the engine had made
+    none (2026-11-12).
     """
     if scale <= 1.0 or audio_tensor.numel() == 0:
         return audio_tensor
@@ -412,19 +429,35 @@ def shape_pauses(
         return audio_tensor
     first, last = int(idx[0]), int(idx[-1])
     xf = int(_PAUSE_JOIN_S * sample_rate)
-    pieces = []
-    cursor = 0
+    eligible = []
     for a, b in runs(~active[first:last + 1]):
         start, end = (a + first) * hop, min((b + first) * hop, x.shape[1])
         gap_s = (end - start) / sample_rate
         if gap_s * 1000.0 < min_pause_ms:
             continue
-        gap = x[:, start:end]
-        if np.mean(gap == 0) > 0.5:
+        if np.mean(x[:, start:end] == 0) > 0.5:
             # Mostly exact zeros: a [pause]/paragraph buffer or an engine's
             # edge padding at a chunk boundary, not a pause the model spoke.
             continue
-        extra = int(round((min(max_pause_ms / 1000.0, gap_s * scale) - gap_s) * sample_rate))
+        eligible.append((start, end, gap_s))
+    # (scale, ceiling in seconds) per gap; without sites every gap is a pause.
+    plans = [(scale, max_pause_ms / 1000.0)] * len(eligible)
+    if sites is not None:
+        sentence, clause = max(0, int(sites[0])), max(0, int(sites[1]))
+        soft = 1.0 + (scale - 1.0) / 2.0
+        by_length = sorted(range(len(eligible)), key=lambda i: -eligible[i][2])
+        for rank, i in enumerate(by_length):
+            if rank < sentence:
+                plans[i] = (scale, min(max_pause_ms, PAUSE_SENTENCE_MAX_MS) / 1000.0)
+            elif rank < sentence + clause:
+                plans[i] = (soft, min(max_pause_ms, PAUSE_CLAUSE_MAX_MS) / 1000.0)
+            else:
+                plans[i] = (1.0, 0.0)
+    pieces = []
+    cursor = 0
+    for (start, end, gap_s), (gap_scale, ceiling_s) in zip(eligible, plans):
+        gap = x[:, start:end]
+        extra = int(round((min(ceiling_s, gap_s * gap_scale) - gap_s) * sample_rate))
         if extra < xf * 2:
             continue
         mid = (start + end) // 2
@@ -458,6 +491,7 @@ def finalize_output(
     *,
     skip_mastering: bool = False,
     pause_scale: float = 1.0,
+    pause_sites: tuple[int, int] | None = None,
 ) -> torch.Tensor:
     """The one tail every synthesis runs: pause shaping, then the preset.
 
@@ -467,6 +501,10 @@ def finalize_output(
     * any coloured preset — :func:`shape_pauses`, the mastering pre-stage
       (unless ``skip_mastering``, for engines that master their own output),
       the preset's chain, then a −2 dBFS peak normalization.
+
+    ``pause_sites`` is the text's ``(sentence, clause)`` pause count
+    (``speech_rhythm.pause_site_counts``); a caller that knows the text passes
+    it so only pauses the text asked for are lengthened.
 
     Raises ``ValueError`` for an unknown preset id so a typo is a 4xx, not
     silently "natural".
@@ -479,7 +517,7 @@ def finalize_output(
     if preset == "raw":
         return audio_tensor
     if pause_scale and pause_scale != 1.0:
-        audio_tensor = shape_pauses(audio_tensor, sample_rate, pause_scale)
+        audio_tensor = shape_pauses(audio_tensor, sample_rate, pause_scale, sites=pause_sites)
     if preset == "natural":
         return loudness_normalize(audio_tensor, sample_rate)
     if not skip_mastering:

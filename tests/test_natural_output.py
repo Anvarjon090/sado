@@ -112,6 +112,63 @@ def test_shape_pauses_caps_skips_explicit_silence_and_is_identity_at_one():
     assert audio_dsp.shape_pauses(plain, SR, 2.0) is plain
 
 
+def _phrases(*gaps_s: float) -> np.ndarray:
+    """Speech bursts of 1.2 s separated by room-tone gaps of the given lengths."""
+    rng = np.random.default_rng(5)
+    room = lambda s: rng.standard_normal(int(s * SR)).astype(np.float32) * 1e-4
+    burst = lambda: rng.standard_normal(int(1.2 * SR)).astype(np.float32) * 0.2
+    parts = [room(0.3), burst()]
+    for gap in gaps_s:
+        parts += [room(gap), burst()]
+    parts.append(room(0.3))
+    return np.concatenate(parts)
+
+
+def _gaps(audio) -> list[float]:
+    from services.speech_rhythm import inner_silences
+
+    return [end - start for start, end in inner_silences(audio.numpy(), SR)]
+
+
+def test_shape_pauses_with_sites_lengthens_only_the_pauses_the_text_asked_for():
+    """Fail-before: every gap of 150 ms or more grew by the scale, so the gaps an
+    engine leaves inside a phrase became breaks (52 audible breaks from 45 gaps
+    and sixteen pauses of 0.6 s on the 2026-11-12 benchmark takes)."""
+    # A sentence pause, two gaps inside phrases, a clause pause.
+    x = torch.from_numpy(_phrases(0.40, 0.20, 0.21, 0.26))
+    before = _gaps(x)
+    assert len(before) == 4
+
+    # Without the text every gap is taken for a pause and grows by the scale.
+    legacy = _gaps(audio_dsp.shape_pauses(x, SR, 1.6))
+    assert all(after > was * 1.45 for after, was in zip(legacy, before))
+
+    # One sentence end and one comma in the text.
+    after = _gaps(audio_dsp.shape_pauses(x, SR, 1.6, sites=(1, 1)))
+    # The longest gap is the sentence pause: by the scale, up to its ceiling.
+    assert after[0] == pytest.approx(audio_dsp.PAUSE_SENTENCE_MAX_MS / 1000, abs=0.03)
+    # The next longest is the clause pause: half the extension, up to its ceiling.
+    assert before[3] + 0.03 < after[3] < before[3] * 1.6 - 0.03
+    assert after[3] <= audio_dsp.PAUSE_CLAUSE_MAX_MS / 1000 + 0.03
+    # The gaps inside phrases stay exactly as the engine spoke them.
+    assert after[1] == pytest.approx(before[1], abs=0.011)
+    assert after[2] == pytest.approx(before[2], abs=0.011)
+
+
+def test_shape_pauses_with_sites_respects_the_ceilings_and_zero_sites():
+    # A text with no pause site keeps every gap: same object back.
+    x = torch.from_numpy(_phrases(0.40, 0.25))
+    assert audio_dsp.shape_pauses(x, SR, 2.0, sites=(0, 0)) is x
+    # A sentence pause the engine already made long is not stretched further,
+    # and a clause pause stops at its own ceiling.
+    long_take = torch.from_numpy(_phrases(0.70, 0.28))
+    before = _gaps(long_take)
+    after = _gaps(audio_dsp.shape_pauses(long_take, SR, 2.0, sites=(1, 1)))
+    assert after[0] == pytest.approx(before[0], abs=0.011)
+    assert after[1] == pytest.approx(audio_dsp.PAUSE_CLAUSE_MAX_MS / 1000, abs=0.03)
+    assert audio_dsp.PAUSE_CLAUSE_MAX_MS < audio_dsp.PAUSE_SENTENCE_MAX_MS < audio_dsp.PAUSE_MAX_MS
+
+
 def test_shape_pauses_handles_channel_first_audio():
     mono = speechlike(5.0, gap_at=2.5, gap_s=0.3)
     stereo = torch.from_numpy(np.stack([mono, mono * 0.5]))
@@ -197,19 +254,29 @@ def _wav_bytes(x: np.ndarray) -> bytes:
 def test_generate_defaults_to_natural_and_forwards_pause_scale(client, monkeypatch):
     seen = {}
 
-    def _finalize(audio, sr, preset=audio_dsp.DEFAULT_EFFECT_PRESET, *, skip_mastering=False, pause_scale=1.0):
-        seen.update(preset=preset, pause_scale=pause_scale, skip=skip_mastering)
+    def _finalize(audio, sr, preset=audio_dsp.DEFAULT_EFFECT_PRESET, *, skip_mastering=False, pause_scale=1.0,
+                  pause_sites=None):
+        seen.update(preset=preset, pause_scale=pause_scale, skip=skip_mastering, sites=pause_sites)
         return audio
 
     monkeypatch.setattr(audio_dsp, "finalize_output", _finalize)
     res = client.post("/generate", data={"text": "Salom dunyo", "engine": "fake-natural"})
     assert res.status_code == 200, res.text
-    assert seen == {"preset": "natural", "pause_scale": 1.0, "skip": False}
+    assert seen == {"preset": "natural", "pause_scale": 1.0, "skip": False, "sites": (0, 0)}
 
     res = client.post("/generate", data={"text": "Salom dunyo", "engine": "fake-natural",
                                          "effect_preset": "broadcast", "pause_scale": "1.6"})
     assert res.status_code == 200, res.text
     assert seen["preset"] == "broadcast" and seen["pause_scale"] == 1.6
+
+    # The shaper is told how many pauses the text asks for, span by span: one
+    # sentence end and one comma in the first paragraph, two commas in the second;
+    # the full stops that end the paragraphs are stitched silence, not sites.
+    paragraphs = ["Salom, dunyo. Bugun havo yaxshi.", "Ertaga, balki, yomg'ir yog'adi."]
+    res = client.post("/generate", data={"text": (chr(10) * 2).join(paragraphs),
+                                         "engine": "fake-natural", "pause_scale": "1.6"})
+    assert res.status_code == 200, res.text
+    assert seen["sites"] == (1, 3)
 
     res = client.post("/generate", data={"text": "Salom", "engine": "fake-natural", "pause_scale": "0.5"})
     assert res.status_code == 422
