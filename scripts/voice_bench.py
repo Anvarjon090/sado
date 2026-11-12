@@ -151,6 +151,10 @@ def render(args, voice: dict, case_id: str, text: str, out: Path) -> Path:
     }
     if args.denoise != "auto":
         fields["denoise"] = "true" if args.denoise == "on" else "false"
+    if args.max_chunk_chars is not None:
+        fields["max_chunk_chars"] = str(args.max_chunk_chars)
+    if args.speed is not None:
+        fields["speed"] = str(args.speed)
     files: dict[str, tuple[str, bytes, str]] = {}
     if voice.get("profile_id"):
         fields["profile_id"] = voice["profile_id"]
@@ -246,6 +250,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cfg", type=float, default=2.0)
     parser.add_argument("--denoise", choices=("auto", "on", "off"), default="auto")
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument("--max-chunk-chars", type=int,
+                        help="engine call size in characters (backend default 800); ~140 renders sentence by sentence")
+    parser.add_argument("--speed", type=float, help="speaking-rate factor (backend default 1.0); below 1 gives more time")
     parser.add_argument("--language", default="Uzbek")
     parser.add_argument("--engine", default="omnivoice")
     parser.add_argument("--backend", default=os.environ.get("SADO_URL", "http://127.0.0.1:3900"))
@@ -285,7 +292,8 @@ def main(argv: list[str] | None = None) -> int:
     args.out.mkdir(parents=True, exist_ok=True)
 
     report = {"settings": {"preset": args.preset, "pause_scale": args.pause_scale, "steps": args.steps,
-                           "cfg": args.cfg, "denoise": args.denoise, "seed": args.seed, "engine": args.engine},
+                           "cfg": args.cfg, "denoise": args.denoise, "seed": args.seed, "engine": args.engine,
+                           "max_chunk_chars": args.max_chunk_chars, "speed": args.speed},
               "voices": {}}
     for voice in voices:
         vdir = args.out / vi.slug(voice["name"])
