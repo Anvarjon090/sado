@@ -12,9 +12,17 @@ metadata and the backend fallback mirror it.
 
 - The OmniVoice engine is listed as Sado Pro
 
+### Added
+
+- `scripts/human_likeness.py` scores a voice_bench run against the human reference recording — MFCC timbre similarity, pitch, pause, loudness-range and voicing-texture deltas, the STT's word confusions — and writes a side-by-side listening page with a 1–5 rating sheet; nothing is downloaded unless `--with-models` asks for the ECAPA embedding
+
 ### Changed
 
 - The OmniVoice voice engine shows as **Sado Pro** in Settings → Engines, the performance panel and the API's engine list; its id stays `omnivoice`, so saved projects, env pins and API calls keep working
+
+### Fixed
+
+- `scripts/voice_bench.py` hands the STT a take trimmed to its speech and padded with digital silence — Whisper invented repeated words on the room-tone tail of short takes and reported 169 % CER for a clean "Salom! Qalaysiz?" — and `--rescore` re-measures a finished run without rendering
 
 ## [0.5.8] — 2026-11-11
 

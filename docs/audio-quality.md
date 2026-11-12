@@ -130,7 +130,14 @@ English / Russian line, two-paragraph narration and the hard phonemes
 (LUFS, loudness range, crest, pauses, F0 spread, spectral tilt), checks it
 with the local Uzbek STT and, with `--baseline`, prints the deltas against an
 earlier run. The numbers are proxies; the report ends with the files to listen
-to. Dubbing keeps its own per-segment preset (broadcast unless a segment says
+to. The STT sees each take trimmed to its speech and padded with digital
+silence: a Whisper-style recogniser invents words on the room-tone tail of a
+short take, and `--rescore OUT` re-measures a finished run that way without
+rendering. `scripts/human_likeness.py` then scores one or more runs against
+the human reference recording — timbre similarity, pitch, pause, loudness-range
+and voicing-texture deltas, the STT's word confusions — and writes a listening
+page that puts the reference and every run's take side by side with a 1–5
+rating sheet, because the ear decides. Dubbing keeps its own per-segment preset (broadcast unless a segment says
 otherwise) because its loudness is set against the programme mix.
 
 The final playback response uses the saved WAV itself. Streaming previews still

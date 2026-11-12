@@ -76,6 +76,9 @@ _REF_ALLOWLIST = (
     "Sado app icon, favicon and installer icons come from the brand book",
     # owner-directed Uzbek copy for the blank-window fallback (2026-11-11), no issue
     "The blank-window fallback page, shown when the interface cannot load",
+    # owner-directed voice quality tooling (2026-11-12), no issue
+    "`scripts/human_likeness.py` scores a voice_bench run",
+    "`scripts/voice_bench.py` hands the STT a take trimmed",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")

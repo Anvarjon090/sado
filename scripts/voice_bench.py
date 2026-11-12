@@ -99,10 +99,44 @@ def _post(url: str, fields: dict[str, str], files: dict[str, tuple[str, bytes, s
         return response.read()
 
 
+#: Frames quieter than this are room tone, not speech, when trimming for the STT.
+STT_TRIM_FLOOR_DBFS = -45.0
+STT_TRIM_MARGIN_S = 0.15
+STT_PAD_S = 0.3
+
+
+def stt_clip_bytes(path: Path) -> bytes:
+    """The take trimmed to its speech (with a small margin) and padded with digital
+    silence. Whisper-style STT invents words on the room-tone tail of a short
+    take — "salom. qalaysiz?" came back three times with "uyoq" and "musiqa" on
+    2026-11-12 — and the same take trimmed by 20 ms transcribed cleanly, so the
+    CER must be measured on what the model actually said."""
+    import io
+
+    import numpy as np
+    import soundfile as sf
+
+    x, sr = sf.read(str(path), dtype="float32")
+    if x.ndim > 1:
+        x = x.mean(axis=1)
+    hop = max(1, int(sr * 0.02))
+    frames = np.lib.stride_tricks.sliding_window_view(x, hop)[::hop] if len(x) >= hop else x[None, :]
+    level = 20 * np.log10(np.sqrt((frames ** 2).mean(axis=1)) + 1e-9)
+    loud = np.where(level > STT_TRIM_FLOOR_DBFS)[0]
+    if len(loud):
+        start = max(0, loud[0] * hop - int(STT_TRIM_MARGIN_S * sr))
+        end = min(len(x), (loud[-1] + 1) * hop + int(STT_TRIM_MARGIN_S * sr))
+        x = x[start:end]
+    pad = np.zeros(int(STT_PAD_S * sr), dtype=np.float32)
+    buf = io.BytesIO()
+    sf.write(buf, np.concatenate([pad, x, pad]), sr, format="WAV", subtype="PCM_16")
+    return buf.getvalue()
+
+
 def transcribe(stt_url: str, path: Path) -> str | None:
     try:
         raw = _post(stt_url.rstrip("/") + "/v1/audio/transcriptions", {"language": "uz"},
-                    {"file": (path.name, path.read_bytes(), "audio/wav")}, timeout=300)
+                    {"file": (path.name, stt_clip_bytes(path), "audio/wav")}, timeout=300)
         return json.loads(raw.decode("utf-8")).get("text")
     except (urllib.error.URLError, OSError, ValueError) as exc:
         print(f"  STT ishlamadi: {exc}", file=sys.stderr)
@@ -172,6 +206,27 @@ def write_report(out: Path, report: dict, baseline: dict | None) -> None:
     (out / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+def rescore(out: Path, stt_url: str) -> int:
+    """Measure the CER of an existing run again with the trimmed, padded clips."""
+    report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    check = {case_id: check_cer for case_id, _, check_cer in CASES}
+    for name, voice in report["voices"].items():
+        print(f"\n== {name}")
+        for r in voice["cases"]:
+            path = Path(r["file"])
+            if not path.is_file() or not check.get(r["case"], True):
+                continue
+            transcript = transcribe(stt_url, path)
+            r["transcript"] = transcript
+            r["cer"] = vi.cer(vi.ascii_apostrophes(r["text"]), transcript) if transcript else None
+            print(f"  {r['case']:<14} CER {r['cer']:.1%}  {(transcript or '')[:70]}" if r["cer"] is not None
+                  else f"  {r['case']:<14} STT yo'q")
+        voice["summary"] = summarize(voice["cases"])
+    write_report(out, report, None)
+    print(f"\nHisobot: {out / 'report.md'}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--voice", action="append", default=[], help="profile id (repeatable)")
@@ -179,9 +234,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ref-text", help="exact transcript of --ref-audio")
     parser.add_argument("--design", action="append", default=[], metavar="NAME=INSTRUCT",
                         help="voice-design voice, e.g. 'diktor=female, middle-aged, moderate pitch' (repeatable)")
-    parser.add_argument("--out", type=Path, required=True, help="output folder (created)")
+    parser.add_argument("--out", type=Path, help="output folder (created)")
     parser.add_argument("--baseline", type=Path, help="an earlier --out folder to diff against")
     parser.add_argument("--compare", type=Path, help="only diff --out against --baseline, render nothing")
+    parser.add_argument("--rescore", type=Path, metavar="OUT",
+                        help="re-transcribe a finished run's takes (trimmed, padded) and rewrite its CER; render nothing")
     parser.add_argument("--cases", default="all", help="comma-separated case ids, default all")
     parser.add_argument("--preset", default="natural", help="effect preset: natural | broadcast | raw | …")
     parser.add_argument("--pause-scale", type=float, default=1.6)
@@ -195,6 +252,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stt", default=os.environ.get("UZ_STT_URL", "http://127.0.0.1:3910"))
     parser.add_argument("--no-stt", action="store_true")
     args = parser.parse_args(argv)
+    if args.rescore:
+        return rescore(args.rescore, args.stt)
+    if args.out is None:
+        parser.error("--out is required")
 
     baseline = None
     if args.baseline:
