@@ -98,11 +98,22 @@ _GENDER_RULES = [
         "feminine", "gal", "grandma", "grandmother", "granny", "mother",
         "mom", "mum", "aunt", "auntie", "queen", "princess", "actress",
         "she", "her",
+        # Uzbek — the UI's own language; an Uzbek description used to match
+        # nothing and fall back to the engine's default (feminine) timbre.
+        "ayol", "ayollar", "xotin", "qiz", "qizlar", "ona", "buvi", "opa",
+        "singil", "xola", "amma",
+        # Russian, still widely written by Uzbek users.
+        "женский", "женщина", "девушка", "бабушка", "мать", "тётя",
     ]),
     ("male", [
         "male", "man", "men", "guy", "guys", "boy", "boys", "masculine",
         "gentleman", "gentlemen", "dude", "grandpa", "grandfather", "father",
         "dad", "uncle", "king", "prince", "actor", "he", "him", "his",
+        # Uzbek
+        "erkak", "erkaklar", "yigit", "yigitlar", "o'g'il", "aka", "uka",
+        "dada", "ota", "amaki", "bobo",
+        # Russian
+        "мужской", "мужчина", "парень", "дедушка", "отец", "дядя",
     ]),
 ]
 
@@ -114,21 +125,27 @@ _AGE_RULES = [
     ("child", [
         "child", "children", "kid", "kiddo", "toddler", "little boy",
         "little girl", "young boy", "young girl", "small child", "childlike",
+        "bola", "bolalar", "go'dak", "ребёнок", "ребенок", "малыш",
     ]),
-    ("teenager", ["teenager", "teen", "teenage", "adolescent"]),
+    ("teenager", ["teenager", "teen", "teenage", "adolescent",
+                  "o'smir", "o'smirlar", "подросток"]),
     ("middle-aged", [
         "middle-aged", "middle aged", "middle age", "midlife", "forties",
         "fifties", "sixties", "mature",
+        "o'rta yoshli", "o'rta yoshdagi", "o'rtacha yosh",
+        "средних лет", "среднего возраста",
     ]),
     ("elderly", [
         "elderly", "old man", "old woman", "old lady", "older man",
         "older woman", "elder", "senior", "aged", "grandpa", "grandfather",
         "grandma", "grandmother", "granny", "retired", "seventies",
         "eighties", "nineties", "old",
+        "keksa", "qari", "keksalar", "пожилой", "старик", "старуха",
     ]),
     ("young adult", [
         "young adult", "young woman", "young man", "young lady", "youthful",
         "twenties", "thirties", "college", "young",
+        "yosh", "yoshlar", "молодой", "юный",
     ]),
 ]
 
@@ -140,23 +157,28 @@ _PITCH_RULES = [
         "very low pitch", "very low-pitched", "very low pitched",
         "very low voice", "very low tone", "very deep", "extremely deep",
         "extremely low", "ultra deep", "booming",
+        "juda past", "juda chuqur", "очень низкий",
     ]),
     ("very high pitch", [
         "very high pitch", "very high-pitched", "very high pitched",
         "very high voice", "very high tone", "extremely high", "squeaky",
         "shrill", "falsetto", "chipmunk",
+        "juda baland", "очень высокий",
     ]),
     ("low pitch", [
         "low pitch", "low-pitched", "low pitched", "low voice", "low tone",
         "low register", "deep", "deeper", "bass", "baritone", "husky",
+        "past ovoz", "chuqur ovoz", "chuqur", "past", "баритон", "низкий голос",
     ]),
     ("high pitch", [
         "high pitch", "high-pitched", "high pitched", "high voice",
         "high tone", "high register", "soprano",
+        "baland ovoz", "baland", "высокий голос",
     ]),
     ("moderate pitch", [
         "moderate pitch", "medium pitch", "medium-pitched", "medium pitched",
         "mid-range", "midrange", "average pitch", "moderate",
+        "o'rtacha ovoz",
     ]),
 ]
 
@@ -269,6 +291,10 @@ def _age_token_for(years: int) -> str:
 def _normalize(description: str) -> str:
     text = (description or "").lower()
     text = text.replace("’", "'").replace("‘", "'")
+    # Uzbek writes o'/g' with whichever apostrophe the keyboard produced; fold
+    # them all so "o'rta yoshli" matches no matter which one was typed.
+    for mark in ("ʻ", "ʼ", "`", "´"):
+        text = text.replace(mark, "'")
     text = text.replace("“", '"').replace("”", '"')
     return re.sub(r"[ \t]+", " ", text)
 

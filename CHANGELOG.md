@@ -67,6 +67,7 @@ Generated speech also sounds more like the voice you gave it: no hidden broadcas
 
 ### Fixed
 
+- Voice design reads Uzbek and Russian descriptions ("erkak ovozi, chuqur") instead of falling back to the engine's default timbre
 - Uzbek numbers over six digits reach the engine as words: 7-12 digit runs read as cardinals, 13+ digit runs digit by digit, and `/v1/audio/speech` infers the voice's language when the request omits it
 - Numbers inside English or Russian sentences of an Uzbek script are read in that sentence's language, not in Uzbek
 - Long words and file paths wrap instead of spilling out of setup steps, the tools list, donation amounts and settings rows (Russian, German and other languages)

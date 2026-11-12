@@ -197,3 +197,25 @@ def test_endpoint_empty_description(client):
 def test_endpoint_rejects_oversized_description(client):
     r = client.post("/design/describe", json={"description": "x" * 2001})
     assert r.status_code == 422
+
+
+# ── Uzbek and Russian descriptions (owner report, 2026-11-12) ─────────────────
+# An Uzbek description matched nothing, so the design fell back to the engine's
+# default timbre and the created voice sounded wrong. The mapper must read the
+# words Uzbek users actually type.
+@pytest.mark.parametrize(
+    "description,expected",
+    [
+        ("erkak ovozi, chuqur", ("male", "Auto", "low pitch")),
+        ("keksa erkak ovozi", ("male", "elderly", "Auto")),
+        ("ayol ovozi, baland", ("female", "Auto", "high pitch")),
+        ("o'smir qiz ovozi", ("female", "teenager", "Auto")),
+        ("o'rta yoshli erkak", ("male", "middle-aged", "Auto")),
+        ("yosh yigit", ("male", "young adult", "Auto")),
+        ("o\u02bbrta yoshli erkak", ("male", "middle-aged", "Auto")),
+        ("мужской низкий голос", ("male", "Auto", "low pitch")),
+    ],
+)
+def test_uzbek_and_russian_descriptions_map_to_design_attributes(description, expected):
+    attrs = attrs_of(description)
+    assert (attrs["Gender"], attrs["Age"], attrs["Pitch"]) == expected

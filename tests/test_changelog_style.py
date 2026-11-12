@@ -45,6 +45,7 @@ _REF_ALLOWLIST = (
     "Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune",
     "Uzbek dubbing runs on Navoiy-TTS automatically",
     "Uzbek numbers over six digits reach the engine as words",
+    "Voice design reads Uzbek and Russian descriptions",
     "Uzbek interface: new `uz` locale",
     # owner commit 7036e101 — first-run consent prompt, committed straight to main
     "First-run consent question for the existing opt-in analytics",
