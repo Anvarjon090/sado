@@ -64,7 +64,7 @@ def _reference_transcribe_timeout() -> float:
     return value if value > 0 and value != float("inf") else _REFERENCE_TRANSCRIBE_TIMEOUT_S
 
 
-async def _auto_transcribe_reference(audio_path: str) -> str:
+async def _auto_transcribe_reference(audio_path: str, language: Optional[str] = None) -> str:
     """Best-effort local transcript for a new reference clip, or "".
 
     A matching transcript defines the boundary between the reference and the
@@ -80,7 +80,7 @@ async def _auto_transcribe_reference(audio_path: str) -> str:
         from services.asr_backend import transcribe_reference
 
         return (await asyncio.wait_for(
-            asyncio.to_thread(transcribe_reference, audio_path), timeout,
+            asyncio.to_thread(transcribe_reference, audio_path, language=language), timeout,
         ) or "").strip()
     except asyncio.TimeoutError:
         logger.warning(
@@ -210,7 +210,7 @@ async def create_profile(
             raise
         # Resolve the transcript at save time (see _auto_transcribe_reference).
         if not ref_text.strip():
-            ref_text = await _auto_transcribe_reference(audio_path)
+            ref_text = await _auto_transcribe_reference(audio_path, language)
         used_seed = seed
     else:
         # Saving must not start a cold model load or download (#2583).
@@ -693,7 +693,7 @@ async def replace_profile_audio(
                     status_code=422,
                     detail="That file could not be read as audio. Choose another recording.",
                 )
-            text = (ref_text or "").strip() or await _auto_transcribe_reference(new_path)
+            text = (ref_text or "").strip() or await _auto_transcribe_reference(new_path, language)
             with db_conn() as conn:
                 # Compare-and-swap on the clip read above, so a writer outside
                 # this process can never be overwritten with its file orphaned.

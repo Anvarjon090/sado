@@ -76,6 +76,8 @@ _REF_ALLOWLIST = (
     "Sado app icon, favicon and installer icons come from the brand book",
     # owner-directed Uzbek copy for the blank-window fallback (2026-11-11), no issue
     "The blank-window fallback page, shown when the interface cannot load",
+    # owner-reported drawn-out vowels from a mistranscribed reference (2026-11-13), no issue
+    "A voice's reference recording is transcribed in the language the voice is saved with",
     # owner-reported breaks and rushing in Uzbek takes (2026-11-12), no issue
     "Rhythm measurements (`services/speech_rhythm.py`",
     "The pause control lengthened every gap of 150 ms",

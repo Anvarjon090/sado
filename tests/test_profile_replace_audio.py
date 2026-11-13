@@ -30,9 +30,14 @@ def env(tmp_path, monkeypatch):
     db.init_db()
     transcribed = []
 
-    async def fake_transcribe(path):
+    languages = []
+
+    async def fake_transcribe(path, language=None):
         transcribed.append(path)
+        languages.append(language)
         return "auto transcript"
+
+    fake_transcribe.languages = languages
 
     monkeypatch.setattr(profiles, "_auto_transcribe_reference", fake_transcribe)
     events = []
@@ -216,6 +221,19 @@ def test_create_profile_still_auto_transcribes_blank_transcript(env):
     ).json()
     assert made["ref_text"] == "auto transcript"
     assert transcribed[-1] == os.path.join(str(voices), made["ref_audio_path"])
+
+
+def test_create_profile_transcribes_in_the_voices_language(env):
+    """An Uzbek clip left to the recogniser's guess came back as Turkish; the
+    transcript is now asked for in the language the voice is saved with."""
+    client, profiles, _db, _voices, _created, _transcribed, _events = env
+    made = client.post(
+        "/profiles",
+        data={"name": "Uzbek voice", "language": "Uzbek"},
+        files={"ref_audio": ("voice.wav", wav_bytes(), "audio/wav")},
+    )
+    assert made.status_code == 200, made.text
+    assert profiles._auto_transcribe_reference.languages[-1] == "Uzbek"
 
 
 WEBM_JUNK = b"\x1aE\xdf\xa3" * 400  # EBML magic, no decodable stream
@@ -493,7 +511,7 @@ def test_concurrent_replacements_leave_no_orphan(env, monkeypatch):
     client, profiles, _db, voices, created, _transcribed, _events = env
     pid = created["id"]
 
-    async def slow_transcribe(_path):
+    async def slow_transcribe(_path, _language=None):
         await asyncio.sleep(0.05)
         return "auto transcript"
 
@@ -523,7 +541,7 @@ def test_clip_changed_elsewhere_is_a_conflict_and_cleaned(env, monkeypatch):
     client, profiles, db, voices, created, _transcribed, _events = env
     pid = created["id"]
 
-    async def rival_writes(_path):
+    async def rival_writes(_path, _language=None):
         with db.db_conn() as conn:
             conn.execute("UPDATE voice_profiles SET ref_audio_path='rival.wav' WHERE id=?", (pid,))
         return "auto transcript"

@@ -14,7 +14,6 @@ had no stored transcript. Same clip → same transcript, so results are cached
 by content hash; a repeat call must not touch the ASR backend at all.
 """
 import pytest
-
 from services import asr_backend as ab
 
 # These tests exercise the transcript cache / backend-routing mechanics and
@@ -199,3 +198,45 @@ def test_cache_is_bounded(monkeypatch, tmp_path):
         clip.write_bytes(f"clip-{i}".encode())
         ab.transcribe_reference(str(clip))
     assert len(ab._ref_transcript_cache) == ab._REF_TRANSCRIPT_CACHE_MAX
+
+
+class _HintedBackend(_FakeBackend):
+    """A recogniser that takes a language, like the Whisper family."""
+
+    def __init__(self):
+        super().__init__()
+        self.languages = []
+
+    def transcribe(self, audio_path, *, word_timestamps=True, language=None):
+        self.languages.append(language)
+        return {"text": "salom" if language == "uz" else "selam"}
+
+
+def test_reference_language_code_reads_picker_names_and_codes():
+    assert ab.reference_language_code("Uzbek") == "uz"
+    assert ab.reference_language_code(" uz ") == "uz"
+    assert ab.reference_language_code("Auto") is None
+    assert ab.reference_language_code("") is None and ab.reference_language_code(None) is None
+    assert ab.reference_language_code("no such language") is None
+
+
+def test_the_voices_language_reaches_a_recogniser_that_takes_one(monkeypatch):
+    """Fail-before: the recogniser guessed, and an Uzbek reference was stored
+    with a Turkish transcript, which misplaces the reference/text boundary and
+    the speaking rate the engine copies from it."""
+    backend = _HintedBackend()
+    monkeypatch.setattr(ab, "get_active_asr_backend", lambda **kw: backend)
+    monkeypatch.setattr(ab, "_ref_audio_fingerprint", lambda path: "clip")
+    assert ab.transcribe_reference("ref.wav", language="Uzbek") == "salom"
+    assert backend.languages == ["uz"]
+    # The same clip without a language is its own cache entry, not the Uzbek one.
+    assert ab.transcribe_reference("ref.wav") == "selam"
+    assert backend.languages == ["uz", None]
+    # And each is served from the cache afterwards.
+    assert ab.transcribe_reference("ref.wav", language="uz") == "salom"
+    assert backend.languages == ["uz", None]
+
+
+def test_a_recogniser_without_a_language_option_is_called_as_before(monkeypatch):
+    monkeypatch.setattr(ab, "get_active_asr_backend", lambda **kw: _FakeBackend(result={"text": "ok"}))
+    assert ab.transcribe_reference("ref.wav", language="Uzbek") == "ok"

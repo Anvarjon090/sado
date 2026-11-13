@@ -24,6 +24,7 @@ metadata and the backend fallback mirror it.
 
 ### Fixed
 
+- A voice's reference recording is transcribed in the language the voice is saved with instead of a guessed one: an Uzbek clip had been stored with a Turkish transcript, which made the clone drag its vowels and mispronounce them
 - The pause control lengthened every gap of 150 ms, so the gaps an engine leaves inside a phrase became breaks; it now lengthens only as many gaps as the text has sentence ends (up to 0.6 s) and clause marks (half the extension, up to 0.3 s) — on ten benchmark takes that is 46 breaks instead of 52 and no 0.6 s stop the text did not ask for, where there were seven
 - `scripts/voice_bench.py` hands the STT a take trimmed to its speech and padded with digital silence — Whisper invented repeated words on the room-tone tail of short takes and reported 169 % CER for a clean "Salom! Qalaysiz?" — and `--rescore` re-measures a finished run without rendering
 

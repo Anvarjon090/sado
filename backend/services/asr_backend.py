@@ -3274,8 +3274,26 @@ def _installed_reference_fallbacks(
     return fallbacks
 
 
+def reference_language_code(language: str | None) -> str | None:
+    """ISO code for a voice's language as the picker names it ("Uzbek" -> "uz");
+    ``None`` for Auto, an empty value or a name the bundled map does not know."""
+    value = (language or "").strip().lower()
+    if not value or value == "auto":
+        return None
+    try:
+        from omnivoice.utils.lang_map import LANG_NAME_TO_ID
+
+        code = LANG_NAME_TO_ID.get(value)
+    except Exception:  # noqa: BLE001 - a hint is optional
+        code = None
+    if code:
+        return str(code).split("-")[0].lower()
+    return value if len(value) in (2, 3) and value.isalpha() else None
+
+
 def _transcribe_reference_candidates(
     candidates: list[ASRBackend], audio_path: str, *, release_after: bool = False,
+    language: str | None = None,
 ) -> str:
     # Sidecars serialize ASR and TTS; release even preloaded candidates skipped
     # after the first success before loading the much larger synthesis model.
@@ -3283,7 +3301,9 @@ def _transcribe_reference_candidates(
         if release_after:
             for backend in candidates:
                 releases.callback(_release_reference_backend, backend)
-        return _try_reference_candidates(candidates, audio_path, release_after=release_after)
+        return _try_reference_candidates(
+            candidates, audio_path, release_after=release_after, language=language,
+        )
 
 
 def _release_reference_backend(backend: ASRBackend) -> None:
@@ -3295,10 +3315,16 @@ def _release_reference_backend(backend: ASRBackend) -> None:
 
 def _try_reference_candidates(
     candidates: list[ASRBackend], audio_path: str, *, release_after: bool,
+    language: str | None = None,
 ) -> str:
     for backend in candidates:
         try:
-            result = backend.transcribe(audio_path, word_timestamps=False) or {}
+            # The voice's language, when the recogniser takes one: left to guess,
+            # Whisper heard an Uzbek clip as Turkish ("Bu benim 3 saniyelik
+            # agzim"), and a transcript in the wrong language misplaces the
+            # boundary between the reference and the line and its pace.
+            hint = transcribe_request_kwargs(backend, {"language": language})
+            result = backend.transcribe(audio_path, word_timestamps=False, **hint) or {}
             candidate_text = result.get("text") or " ".join(
                 (seg.get("text") or "").strip()
                 for seg in result.get("segments", [])
@@ -3314,7 +3340,8 @@ def _try_reference_candidates(
     return ""
 
 
-def transcribe_reference(audio_path: str, *, release_after: bool = False) -> str | None:
+def transcribe_reference(audio_path: str, *, release_after: bool = False,
+                         language: str | None = None) -> str | None:
     """Transcribe a voice-clone reference clip with the active ASR backend.
 
     Voice cloning without a user-supplied transcript used to fall through to
@@ -3329,8 +3356,14 @@ def transcribe_reference(audio_path: str, *, release_after: bool = False) -> str
     Results are cached by audio content (#1032) — see the cache notes above.
     ``release_after`` is for serialized sidecar use only: unload all selected
     ASR weights before TTS loads, without evicting the API's shared live ASR.
+    ``language`` is the voice's language (picker name or ISO code); recognisers
+    that accept one transcribe in it instead of guessing, and the cache keeps
+    transcripts of the same clip in different languages apart.
     """
+    language = reference_language_code(language)
     fingerprint = _ref_audio_fingerprint(audio_path)
+    if fingerprint is not None and language:
+        fingerprint = f"{fingerprint}:{language}"
     if fingerprint is not None:
         with _ref_transcript_lock:
             cached = _ref_transcript_cache.get(fingerprint)
@@ -3373,11 +3406,15 @@ def transcribe_reference(audio_path: str, *, release_after: bool = False) -> str
         except Exception:  # noqa: BLE001 — reference ASR is best-effort
             logger.warning("transcribe_reference: dictation ASR unavailable")
 
-    text = _transcribe_reference_candidates(candidates, audio_path, release_after=release_after)
+    text = _transcribe_reference_candidates(
+        candidates, audio_path, release_after=release_after, language=language,
+    )
     fallbacks: list[ASRBackend] = []
     if not text:
         fallbacks = _installed_reference_fallbacks(candidates)
-        text = _transcribe_reference_candidates(fallbacks, audio_path, release_after=release_after)
+        text = _transcribe_reference_candidates(
+            fallbacks, audio_path, release_after=release_after, language=language,
+        )
 
     if not candidates and not fallbacks:
         logger.info(
