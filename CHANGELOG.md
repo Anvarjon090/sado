@@ -10,8 +10,7 @@ metadata and the backend fallback mirror it.
 
 **Highlights**
 
-- The OmniVoice engine is listed as Sado Pro, and the composer bar switches engines
-- Pauses stay at the punctuation: the pause control no longer breaks speech inside a phrase
+- The composer bar switches engines
 - Tune a cloned voice by hand: pitch, timbre and tempo sliders, with Female and Male presets
 - Raise or lower any single word of a finished take with a slider per word
 
@@ -19,8 +18,18 @@ metadata and the backend fallback mirror it.
 
 - **Intonation** on a finished take: a slider per word raises or lowers its melody up to six semitones, with a preview and saving as a new take beside the original; words are placed by the installed local speech-recognition model, never a download (`POST /audio/{id}/words`, `POST /audio/{id}/intonation`)
 - **Tune voice** in the voice editor: pitch, timbre and tempo sliders reshape a cloned voice's reference, with Female/Male presets, a preview, and saving to the same voice or as a new one (`POST /profiles/{id}/tune`)
-
 - An engine switch in the voice studio's composer bar and on Home, beside the language picker: pick Sado Pro, Navoiy-TTS or any other installed engine without opening Settings; engines that cannot run stay listed with the reason
+
+## [0.5.9] — 2026-11-17
+
+**Highlights**
+
+- The OmniVoice engine is listed as Sado Pro
+- Uzbek text reads file names, paths, web and IP addresses, versions and units as words
+- Pauses stay at the punctuation: the pause control no longer breaks speech inside a phrase
+
+### Added
+
 - Rhythm measurements (`services/speech_rhythm.py`, and a rhythm section in `scripts/human_likeness.py`): breaks a take makes where the text has no punctuation, sentence-sized stops beyond its sentence ends, and the drift of the syllable rate from the first third of the take to the last
 - `scripts/human_likeness.py` scores a voice_bench run against the human reference recording — MFCC timbre similarity, pitch, pause, loudness-range and voicing-texture deltas, the STT's word confusions — and writes a side-by-side listening page with a 1–5 rating sheet; nothing is downloaded unless `--with-models` asks for the ECAPA embedding
 

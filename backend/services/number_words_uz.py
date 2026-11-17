@@ -405,11 +405,18 @@ _CYR2LAT = {
 }
 
 
+_CYR_VOWELS = frozenset("аеёиоуэюяўъь")
+
+
 def to_latin(text: str) -> str:
-    """Cyrillic Uzbek → Latin, used only on the suffix glued to a number."""
+    """Cyrillic Uzbek → Latin. ``е`` opening a word or following a vowel is
+    ``ye`` ("етти" → yetti), so a round trip through :func:`to_cyrillic`
+    returns the same spelling instead of "этти"."""
     out = []
-    for ch in text:
+    for i, ch in enumerate(text):
         lat = _CYR2LAT.get(ch.lower())
+        if ch.lower() == "е" and (i == 0 or not text[i - 1].isalpha() or text[i - 1].lower() in _CYR_VOWELS):
+            lat = "ye"
         if lat is None:
             out.append(ch)
         else:
