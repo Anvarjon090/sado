@@ -19,6 +19,7 @@ metadata and the backend fallback mirror it.
 - **Intonation** on a finished take: a slider per word raises or lowers its melody up to six semitones, with a preview and saving as a new take beside the original; words are placed by the installed local speech-recognition model, never a download (`POST /audio/{id}/words`, `POST /audio/{id}/intonation`)
 - **Tune voice** in the voice editor: pitch, timbre and tempo sliders reshape a cloned voice's reference, with Female/Male presets, a preview, and saving to the same voice or as a new one (`POST /profiles/{id}/tune`)
 - An engine switch in the voice studio's composer bar and on Home, beside the language picker: pick Sado Pro, Navoiy-TTS or any other installed engine without opening Settings; engines that cannot run stay listed with the reason
+
 ### Changed
 
 - The highlighted Support button is gone from the Settings sidebar
