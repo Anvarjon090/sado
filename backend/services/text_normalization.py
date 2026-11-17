@@ -27,8 +27,11 @@ Design rules (load-bearing):
     Clock times / ordinals / currency are English-only on the num2words path
     (their spoken form is language-specific), plus Russian times, percents and
     ordinals; Uzbek's native module also reads phones, dates, prices,
-    temperatures, fractions, ranges and Roman centuries. Decimals only for
-    locales whose num2words rendering was vetted.
+    temperatures, fractions, ranges and Roman centuries, and
+    ``services/tech_words_uz.py`` reads file names, paths, web and IP
+    addresses, e-mails, version strings and units (the one place a version
+    string is spoken: an Uzbek engine babbles on anything left as written).
+    Decimals only for locales whose num2words rendering was vetted.
   * **Per-clause language.** For en/ru/uz requests each number is read in the
     language of its own clause (``services/number_language.py``), so an
     English line inside an Uzbek script keeps English numbers. CJK scripts pass through the safety filters untouched — no
@@ -337,6 +340,8 @@ _NEWLINE_RE = re.compile(r"\n{3,}")    # blank-line floods → one blank line
 
 def _safety_filters(text: str) -> str:
     out = _strip_unsafe_controls(text)
+    out = _DECOR_RE.sub(" ", out)
+    out = _SEPARATOR_RE.sub(", ", out)
     out = _ENTITY_RE.sub(lambda m: _ENTITIES.get(m.group(0), "&"), out)
     out = _REPEAT_RE.sub(lambda m: m.group(1) * 3, out)
     out = _HSPACE_RE.sub(" ", out)
@@ -344,8 +349,73 @@ def _safety_filters(text: str) -> str:
     return out.strip()
 
 
+# Decorative glyphs (spinners, stars, emoji, arrows, box drawing) carry no
+# speech: the engine either ignores them or babbles. Separators become a
+# comma, which the engine does read as a pause.
+_DECOR_RE = re.compile(
+    "[\u200b-\u200f\u2028\u2029\u2060\ufe0e\ufe0f\u20e3"
+    "\u2190-\u21ff\u2300-\u23ff\u2500-\u257f\u25a0-\u25ff"
+    "\u2600-\u27bf\u2b00-\u2bff\U0001f000-\U0001faff]"
+)
+_SEPARATOR_RE = re.compile(r"\s*[\u00b7\u2022\u2023\u2043]\s*")
+
+# "10:40 PM" → "22:40": a trailing meridiem is not a word the engine can read.
+_AMPM_RE = re.compile(r"(?<![\d:/])(\d{1,2})[:.](\d{2})\s*([ap])\.?\s*m\.?(?![\w])", re.IGNORECASE)
+
+# "8m 52s", "2h 5m", "300ms": shorthand durations. Only the unit is expanded
+# here; the number pass then reads the digits in the request's language.
+_DURATION_RE = re.compile(
+    r"(?<![\w.])(\d+(?:[.,]\d+)?)\s*(ms|milliseconds?|s|secs?|seconds?"
+    r"|m|mins?|minutes?|h|hrs?|hours?)(?![\w])",
+    re.IGNORECASE,
+)
+_DURATION_UNITS = {
+    "uz": {"h": "soat", "m": "daqiqa", "s": "soniya", "ms": "millisekund"},
+    "en": {"h": "hours", "m": "minutes", "s": "seconds", "ms": "milliseconds"},
+    "ru": {"h": "час", "m": "минут", "s": "секунд", "ms": "миллисекунд"},
+}
+
+
+def _duration_unit_key(raw: str) -> str:
+    unit = raw.lower()
+    if unit.startswith("ms") or unit.startswith("milli"):
+        return "ms"
+    if unit.startswith("h"):
+        return "h"
+    if unit.startswith("m"):
+        return "m"
+    return "s"
+
+
+def _expand_durations(text: str, lang: str) -> str:
+    """Spell out shorthand durations in the language being spoken."""
+    units = _DURATION_UNITS.get(lang)
+    if units is None:
+        return text
+
+    def render(match: re.Match) -> str:
+        number, unit = match.group(1), _duration_unit_key(match.group(2))
+        # "1.5h" keeps its decimal; the number pass handles it per language.
+        return f"{number} {units[unit]}"
+
+    return _DURATION_RE.sub(render, text)
+
+
+def _expand_meridiem(text: str) -> str:
+    """Fold AM/PM into 24-hour time so the clock rule can read it."""
+
+    def render(match: re.Match) -> str:
+        hour, minute, half = int(match.group(1)), match.group(2), match.group(3).lower()
+        if half == "p" and hour < 12:
+            hour += 12
+        elif half == "a" and hour == 12:
+            hour = 0
+        return f"{hour}:{minute}"
+
+    return _AMPM_RE.sub(render, text)
+
+
 # ── Bracket masking ──────────────────────────────────────────────────────────
-#
 # Language passes must never rewrite `[…]` spans: `[pause 300ms]` /
 # `[rate 0.9]` / `[voice:NAME]` are grammar, and `[[term|replacement]]`
 # belongs to the pronunciation layer. Bounded repetition keeps it linear.
@@ -956,6 +1026,8 @@ def _normalize_language(text: str, language: Optional[str]) -> str:
     out = text
     plain = _plain_lang_code(language)
     if plain:
+        out = _outside_brackets(out, lambda t: _expand_durations(t, plain))
+    if plain:
         # Runs outside the num2words gate below: ko/ja/zh keep their digits
         # (that gate returns None for them) but still need the range mark.
         out = _outside_brackets(out, lambda t: _speak_number_ranges(t, plain))
@@ -988,8 +1060,20 @@ def _normalize_uzbek_cyrillic(text: str) -> str:
     with the Latin Uzbek rules and write the words back in Cyrillic."""
     from services.number_words_uz import to_cyrillic, to_latin
 
-    spoken = _numbers_to_words_native(_fold_uzbek_apostrophes(to_latin(text)), "uz")
+    spoken = _numbers_to_words_native(_speak_uzbek_technical(_fold_uzbek_apostrophes(to_latin(text))), "uz")
     return to_cyrillic(spoken)
+
+
+def _speak_uzbek_technical(text: str) -> str:
+    """File names, paths, web and IP addresses, versions and units, read the
+    way they are dictated (``services/tech_words_uz.py``). Runs before the
+    clause-language split: a path is full of English-looking words and would
+    otherwise drag the numbers next to it into English."""
+    try:
+        from services.tech_words_uz import speak
+    except Exception:  # noqa: BLE001 — never break synthesis
+        return text
+    return _outside_brackets(text, speak)
 
 
 def normalize_text(text: str, language: Optional[str] = None) -> str:
@@ -998,7 +1082,12 @@ def normalize_text(text: str, language: Optional[str] = None) -> str:
     if not text:
         return text or ""
     out = _safety_filters(text)
+    # AM/PM belongs here, before the clause-language split: the splitter sees
+    # "10:40" and "PM" as different clauses, so a per-clause pass misses it.
+    out = _expand_meridiem(out)
     plain = _plain_lang_code(language)
+    if plain == "uz":
+        out = _speak_uzbek_technical(out)
     if plain not in _CONTEXT_REQUEST_LANGS:
         return _normalize_language(out, language)
     from services.number_language import split_by_number_language

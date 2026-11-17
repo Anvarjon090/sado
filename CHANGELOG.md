@@ -10,11 +10,17 @@ metadata and the backend fallback mirror it.
 
 **Highlights**
 
-- The OmniVoice engine is listed as Sado Pro
+- The OmniVoice engine is listed as Sado Pro, and the composer bar switches engines
 - Pauses stay at the punctuation: the pause control no longer breaks speech inside a phrase
+- Tune a cloned voice by hand: pitch, timbre and tempo sliders, with Female and Male presets
+- Raise or lower any single word of a finished take with a slider per word
 
 ### Added
 
+- **Intonation** on a finished take: a slider per word raises or lowers its melody up to six semitones, with a preview and saving as a new take beside the original; words are placed by the installed local speech-recognition model, never a download (`POST /audio/{id}/words`, `POST /audio/{id}/intonation`)
+- **Tune voice** in the voice editor: pitch, timbre and tempo sliders reshape a cloned voice's reference, with Female/Male presets, a preview, and saving to the same voice or as a new one (`POST /profiles/{id}/tune`)
+
+- An engine switch in the voice studio's composer bar and on Home, beside the language picker: pick Sado Pro, Navoiy-TTS or any other installed engine without opening Settings; engines that cannot run stay listed with the reason
 - Rhythm measurements (`services/speech_rhythm.py`, and a rhythm section in `scripts/human_likeness.py`): breaks a take makes where the text has no punctuation, sentence-sized stops beyond its sentence ends, and the drift of the syllable rate from the first third of the take to the last
 - `scripts/human_likeness.py` scores a voice_bench run against the human reference recording — MFCC timbre similarity, pitch, pause, loudness-range and voicing-texture deltas, the STT's word confusions — and writes a side-by-side listening page with a 1–5 rating sheet; nothing is downloaded unless `--with-models` asks for the ECAPA embedding
 
@@ -24,6 +30,8 @@ metadata and the backend fallback mirror it.
 
 ### Fixed
 
+- Decorative status-line text is spoken instead of chewed: spinner glyphs and separators drop, "8m 52s" reads as "sakkiz daqiqa ellik ikki soniya" and a trailing AM/PM folds into 24-hour time
+- Uzbek text reads file names, folder paths, web and IP addresses, e-mails, version numbers and units (`server.py`, `D:\papka\fayl.bat`, `127.0.0.1:3955`, `v0.5.8`, `9,5 GB`) as words instead of chewing them, and Cyrillic Uzbek keeps `етти` on a second pass
 - A voice's reference recording is transcribed in the language the voice is saved with instead of a guessed one: an Uzbek clip had been stored with a Turkish transcript, which made the clone drag its vowels and mispronounce them
 - The pause control lengthened every gap of 150 ms, so the gaps an engine leaves inside a phrase became breaks; it now lengthens only as many gaps as the text has sentence ends (up to 0.6 s) and clause marks (half the extension, up to 0.3 s) — on ten benchmark takes that is 46 breaks instead of 52 and no 0.6 s stop the text did not ask for, where there were seven
 - `scripts/voice_bench.py` hands the STT a take trimmed to its speech and padded with digital silence — Whisper invented repeated words on the room-tone tail of short takes and reported 169 % CER for a clean "Salom! Qalaysiz?" — and `--rescore` re-measures a finished run without rendering

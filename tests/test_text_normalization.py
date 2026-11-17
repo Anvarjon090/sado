@@ -597,3 +597,21 @@ def test_pronunciation_switch_is_env_only(monkeypatch, env, expected):
     # A never-written pref must not change the outcome.
     monkeypatch.setattr(prefs_mod, "get", lambda key, default=None: False)
     assert pronunciation_enabled() is expected
+
+def test_normalizes_durations_decorations_and_meridiem():
+    """Owner report (2026-11-12): a status line was chewed up by the engine."""
+    assert normalize_text(
+        "\u273b Brewed for 8m 52s \u00b7 done 10:40 PM", "English"
+    ) == "Brewed for eight minutes fifty-two seconds, done twenty-two forty"
+    assert normalize_text("8m 52s", "Uzbek") == "sakkiz daqiqa ellik ikki soniya"
+    assert normalize_text("done 10:40 PM", "Uzbek") == "done yigirma ikki qirq"
+    assert normalize_text("\u2705 tugadi", "Uzbek") == "tugadi"
+    assert normalize_text("2h 5m", "English") == "two hours five minutes"
+    assert normalize_text("300ms", "Uzbek") == "uch yuz millisekund"
+
+
+def test_grammar_brackets_survive_duration_expansion():
+    # `[pause 300ms]` is grammar, not text: the unit must stay verbatim.
+    assert normalize_text("[pause 300ms] 42 [voice:Ali]", "Uzbek") == (
+        "[pause 300ms] qirq ikki [voice:Ali]"
+    )

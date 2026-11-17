@@ -45,7 +45,9 @@ _REF_ALLOWLIST = (
     "Navoiy-TTS engine (Uzbek CosyVoice2-0.5B fine-tune",
     "Uzbek dubbing runs on Navoiy-TTS automatically",
     "Uzbek numbers over six digits reach the engine as words",
+    "Uzbek text reads file names, folder paths, web and IP addresses",
     "Voice design reads Uzbek and Russian descriptions",
+    "Decorative status-line text is spoken instead of chewed",
     "Uzbek interface: new `uz` locale",
     # owner commit 7036e101 — first-run consent prompt, committed straight to main
     "First-run consent question for the existing opt-in analytics",
@@ -76,6 +78,8 @@ _REF_ALLOWLIST = (
     "Sado app icon, favicon and installer icons come from the brand book",
     # owner-directed Uzbek copy for the blank-window fallback (2026-11-11), no issue
     "The blank-window fallback page, shown when the interface cannot load",
+    # owner-requested engine switch in the composer (2026-11-12), no issue
+    "An engine switch in the voice studio's composer bar",
     # owner-reported drawn-out vowels from a mistranscribed reference (2026-11-13), no issue
     "A voice's reference recording is transcribed in the language the voice is saved with",
     # owner-reported breaks and rushing in Uzbek takes (2026-11-12), no issue
@@ -84,6 +88,10 @@ _REF_ALLOWLIST = (
     # owner-directed voice quality tooling (2026-11-12), no issue
     "`scripts/human_likeness.py` scores a voice_bench run",
     "`scripts/voice_bench.py` hands the STT a take trimmed",
+    # owner-requested manual voice tuning (2026-11-17), no issue
+    "**Tune voice** in the voice editor",
+    # owner-requested word-by-word intonation (2026-11-17), no issue
+    "**Intonation** on a finished take",
 )
 
 _HEADING = re.compile(r"^## \[([^\]]+)\](?:\s*[—–-]\s*(.*))?$")
