@@ -14,7 +14,7 @@ engine chewed it: ``D:\\sado\\Ovoz.bat``, ``127.0.0.1:3955``, ``v0.5.8``,
   * ``https://sado.uz/yuklab-olish`` → sado nuqta uz slesh yuklab olish (the
     scheme and ``www.`` are dropped);
   * ``127.0.0.1:3955`` → … nuqta bir, port uch ming to'qqiz yuz ellik besh;
-  * ``info@sado.uz`` → info kuchukcha sado nuqta uz;
+  * ``hi@sado.sh`` → hi kuchukcha sado nuqta es ha;
   * ``v0.5.8`` → versiya nol nuqta besh nuqta sakkiz;
   * ``16 kHz``, ``9,5 GB``, ``2,3 MB/s`` → the unit as a word, the number is
     left for the number rules;
