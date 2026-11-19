@@ -263,9 +263,6 @@ Transcribe, Projects, Tools, and Integrations remain directly accessible.
 
 ### Desktop Pro licence configuration
 
-The Pro page opens the public pricing site. Licence activation requires the live
-Lemon Squeezy store, product, and variant IDs at build time:
-`SADO_PRO_STORE_ID`, `SADO_PRO_PRODUCT_ID`,
-`SADO_PRO_YEARLY_VARIANT_ID`, and `SADO_PRO_LIFETIME_VARIANT_ID`.
-Builds without all four IDs keep activation
-unavailable. See `docs/specs/desktop-pro-page.md` for the checkout release gates.
+The app has no Pro page (removed 2026-11-18), so licence activation is not
+reachable from the UI. `src/main/pro-license.ts` and its build-time IDs remain
+for a future storefront; see `docs/specs/desktop-pro-page.md`.

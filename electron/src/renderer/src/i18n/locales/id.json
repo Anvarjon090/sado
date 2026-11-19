@@ -630,7 +630,8 @@
     "replace_reference": "Ganti referensi",
     "keep_reference": "Pertahankan referensi saat ini",
     "new_reference": "Referensi baru: {{name}}",
-    "replace_reference_hint": "Menyimpan akan mengganti sampel referensi suara ini. Take yang dikunci dan verifikasi suara sendiri dihapus karena klip baru mungkin berasal dari pembicara lain. Biarkan transkrip kosong untuk mentranskripsikan klip baru secara otomatis."
+    "replace_reference_hint": "Menyimpan akan mengganti sampel referensi suara ini. Take yang dikunci dan verifikasi suara sendiri dihapus karena klip baru mungkin berasal dari pembicara lain. Biarkan transkrip kosong untuk mentranskripsikan klip baru secara otomatis.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Desain",
@@ -3460,5 +3461,44 @@
     "error": "Tidak dapat memeriksa bahasa",
     "modelLanguages": "Bahasa untuk model ini",
     "changeModel": "Ganti model"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Setel suara",
+    "title": "Setel suara",
+    "hint": "Mengubah sampel referensi suara ini, dan semua hasil mengikutinya. Dengarkan, lalu gunakan untuk suara ini atau simpan sebagai suara baru.",
+    "pitch": "Nada",
+    "pitch_hint": "Melodi lebih rendah atau lebih tinggi, dalam semiton.",
+    "timbre": "Timbre",
+    "timbre_hint": "Warna suara lebih dalam atau lebih ringan. Naikkan nada dan timbre bersama untuk suara perempuan, turunkan keduanya untuk suara laki-laki.",
+    "tempo": "Tempo",
+    "tempo_hint": "Ucapan lebih lambat atau lebih cepat. Hasil mengikuti tempo sampel.",
+    "preset_female": "Perempuan",
+    "preset_male": "Laki-laki",
+    "reset": "Atur ulang",
+    "preview": "Dengarkan",
+    "rendering": "Memproses…",
+    "apply": "Gunakan untuk suara ini",
+    "save_new": "Simpan sebagai suara baru",
+    "new_name": "{{name}} (disetel)",
+    "failed": "Gagal menyetel suara: {{message}}"
+  },
+  "intonation": {
+    "open": "Intonasi",
+    "title": "Intonasi per kata",
+    "hint": "Naikkan atau turunkan melodi setiap kata. Dengarkan, lalu simpan sebagai rekaman baru; aslinya tetap ada.",
+    "finding_words": "Mencari kata dalam rekaman…",
+    "approximate": "Tidak ada model pengenalan ucapan yang terpasang, jadi posisi kata diperkirakan dan bisa meleset satu suku kata.",
+    "word_label": "Nada “{{word}}”",
+    "range_hint": "Setiap kata bergeser naik atau turun hingga {{range}} semiton.",
+    "listen": "Dengarkan",
+    "rendering": "Memproses…",
+    "reset": "Atur ulang",
+    "save": "Simpan sebagai rekaman baru",
+    "saving": "Menyimpan…",
+    "saved": "Rekaman yang diedit tersimpan",
+    "failed": "Gagal mengedit intonasi: {{message}}"
   }
 }

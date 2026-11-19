@@ -1,6 +1,7 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { LoaderCircleIcon, TriangleAlertIcon, WrenchIcon } from 'lucide-react';
+import { TriangleAlertIcon, WrenchIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -177,11 +178,7 @@ export function EngineNotice({
       disabled={fixing || Boolean(install)}
       onClick={fix}
     >
-      {fixing || install ? (
-        <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-      ) : (
-        <WrenchIcon />
-      )}
+      {fixing || install ? <LoadingOrb /> : <WrenchIcon />}
       {install
         ? `${t('modelMaintenance.downloading')}${progress === null ? '' : ` ${progress}%`}`
         : t('repairAgent.fix')}

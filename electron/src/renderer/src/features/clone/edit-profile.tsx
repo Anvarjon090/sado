@@ -11,6 +11,7 @@ import {
   FileAudioIcon,
   ReplaceIcon,
   ShieldCheckIcon,
+  SlidersHorizontalIcon,
   Trash2Icon,
   Volume2Icon,
   XIcon,
@@ -30,6 +31,7 @@ import { createObjectUrl, revokeObjectUrl } from '@/lib/audio/object-url';
 import { cn } from '@/lib/utils';
 import { ReferenceSourcePicker, ReferenceUsageNote } from './reference-input';
 import { ProfileImageEditor } from './profile-image-editor';
+import { VoiceTune } from './voice-tune';
 import { formatRelative } from './format';
 import { useTtsReadiness } from '@/hooks/use-tts-readiness';
 
@@ -51,6 +53,9 @@ export function EditProfile({ profile, onDone }: { profile: Profile; onDone: () 
   // Replacing the reference (#2282): `choosing` shows the upload/record zones,
   // `replacement` holds the accepted clip until Save writes it to this profile.
   const [choosing, setChoosing] = useState(false);
+  // Manual tuning (pitch, timbre, tempo) yields a replacement clip too, but
+  // one that says the same words, so it keeps the transcript.
+  const [tuning, setTuning] = useState(false);
   const [replacement, setReplacement] = useState<{
     file: File;
     durationSeconds: number | null;
@@ -66,12 +71,21 @@ export function EditProfile({ profile, onDone }: { profile: Profile; onDone: () 
     return () => revokeObjectUrl(url);
   }, [replacement]);
   const canReplace = profile.kind !== 'design';
+  const canTune = canReplace && Boolean(profile.ref_audio_path);
   // Transcript as it stood when Replace was pressed, so Keep reference
   // restores the user's unsaved edits rather than the stored text.
   const refTextBeforeReplace = useRef(draft.ref_text);
   const startReplacement = () => {
     refTextBeforeReplace.current = draft.ref_text;
     setChoosing(true);
+  };
+  const startTuning = () => {
+    refTextBeforeReplace.current = draft.ref_text;
+    setTuning(true);
+  };
+  const acceptTuned = (file: File) => {
+    setReplacement({ file, durationSeconds: null });
+    setTuning(false);
   };
   const acceptReplacement = (file: File, durationSeconds: number | null) => {
     setReplacement({ file, durationSeconds });
@@ -83,6 +97,7 @@ export function EditProfile({ profile, onDone }: { profile: Profile; onDone: () 
   const keepCurrentReference = () => {
     setReplacement(null);
     setChoosing(false);
+    setTuning(false);
     setDraft((previous) => ({ ...previous, ref_text: refTextBeforeReplace.current }));
   };
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -156,19 +171,33 @@ export function EditProfile({ profile, onDone }: { profile: Profile; onDone: () 
               <Volume2Icon className="size-4 text-muted-foreground" />
               {t('clone.reference_audio')}
             </h3>
-            {canReplace && !replacement && !choosing && (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                disabled={unavailable}
-                onClick={startReplacement}
-              >
-                <ReplaceIcon data-icon="inline-start" />
-                {t('clone.replace_reference')}
-              </Button>
+            {canReplace && !replacement && !choosing && !tuning && (
+              <div className="flex flex-wrap gap-2">
+                {canTune && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={unavailable}
+                    onClick={startTuning}
+                  >
+                    <SlidersHorizontalIcon data-icon="inline-start" />
+                    {t('voiceTune.open')}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={unavailable}
+                  onClick={startReplacement}
+                >
+                  <ReplaceIcon data-icon="inline-start" />
+                  {t('clone.replace_reference')}
+                </Button>
+              </div>
             )}
-            {canReplace && (replacement || choosing) && (
+            {canReplace && (replacement || choosing || tuning) && (
               <Button
                 type="button"
                 variant="ghost"
@@ -232,6 +261,9 @@ export function EditProfile({ profile, onDone }: { profile: Profile; onDone: () 
             <div className="flex flex-col gap-2">
               <ReferenceSourcePicker onAccept={acceptReplacement} />
             </div>
+          )}
+          {tuning && !replacement && (
+            <VoiceTune profile={profile} disabled={unavailable} onApply={acceptTuned} />
           )}
           {(replacement || choosing) && (
             <p role="note" className="text-xs text-muted-foreground">

@@ -1,3 +1,4 @@
+import { Liquid, useColorScheme } from '@/components/motion-fx';
 import { useNavigate } from '@tanstack/react-router';
 import { AudioPreviewButton } from '@/components/audio-preview-button';
 import { ProfileAvatar } from '@/components/profile-avatar';
@@ -680,6 +681,7 @@ export function VoicesSidebar({
 }) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<'voices' | 'takes'>(initialTab);
+  const scheme = useColorScheme();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -696,24 +698,41 @@ export function VoicesSidebar({
         className="flex min-h-0 flex-1 flex-col gap-0"
       >
         <div className="px-3 pt-1.5 pb-1.5">
-          <TabsList className="grid h-[30px] w-full min-w-0 grid-cols-2 gap-0 rounded-lg bg-sidebar-accent/40 p-0.5">
-            {(
-              [
-                ['voices', t('clone.saved_short'), t('clone.saved_profiles')],
-                ['takes', t('clone.history_title'), t('clone.history_title')],
-              ] as const
-            ).map(([value, label, full]) => (
-              <TabsTrigger
-                key={value}
-                value={value}
-                title={full}
-                aria-label={full}
-                className="h-full min-w-0 rounded-md px-1.5 text-xs font-medium text-muted-foreground hover:text-sidebar-foreground data-active:bg-[var(--sidebar-row-active)] data-active:text-sidebar-foreground data-active:shadow-sm dark:data-active:border-transparent dark:data-active:bg-[var(--sidebar-row-active)] dark:data-active:text-sidebar-foreground"
-              >
-                <span className="min-w-0 truncate">{label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="relative rounded-lg bg-sidebar-accent/40">
+            {/* The selected half is a drop of liquid that slides across. */}
+            <Liquid
+              aria-hidden="true"
+              fill={scheme === 'dark' ? '#2b2e35' : '#ffffff'}
+              shadow={scheme === 'dark' ? undefined : '0 1px 2px rgba(15, 23, 42, 0.08)'}
+              className="pointer-events-none"
+              style={{ position: 'absolute', top: 2, left: 2, right: 2, height: 26 }}
+            >
+              <Liquid.Item effect="move">
+                <div
+                  className="h-[26px] w-1/2 rounded-md transition-transform duration-300 ease-[cubic-bezier(.3,.7,.2,1)] motion-reduce:transition-none"
+                  style={{ transform: tab === 'takes' ? 'translateX(100%)' : 'none' }}
+                />
+              </Liquid.Item>
+            </Liquid>
+            <TabsList className="relative grid h-[30px] w-full min-w-0 grid-cols-2 gap-0 rounded-lg bg-transparent p-0.5">
+              {(
+                [
+                  ['voices', t('clone.saved_short'), t('clone.saved_profiles')],
+                  ['takes', t('clone.history_title'), t('clone.history_title')],
+                ] as const
+              ).map(([value, label, full]) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  title={full}
+                  aria-label={full}
+                  className="relative z-10 h-full min-w-0 rounded-md bg-transparent px-1.5 text-xs font-medium text-muted-foreground hover:text-sidebar-foreground data-active:bg-transparent data-active:text-sidebar-foreground data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-transparent dark:data-active:text-sidebar-foreground"
+                >
+                  <span className="min-w-0 truncate">{label}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
         </div>
         <div
           ref={scrollRef}

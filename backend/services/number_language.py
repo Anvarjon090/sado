@@ -200,3 +200,35 @@ def split_by_number_language(text: str, default: str) -> list[tuple[str, str]]:
     if last < len(text):
         parts.append((text[last:], default))
     return parts
+
+
+#: Languages :func:`dominant_language` may name. ``uzc`` is left out: engines
+#: take Uzbek as ``uz`` and the normalizer only transliterates under ``uzc``,
+#: so a guessed Cyrillic Uzbek would mean two different things downstream.
+_DOMINANT_LANGS = ("en", "ru", "uz")
+_DOMINANT_MIN_VOTES = 1.0
+_DOMINANT_MARGIN = 2.0
+
+
+def dominant_language(text: str) -> str | None:
+    """The language most of ``text``'s words vote for, or None when unsure.
+
+    Used for requests left on Auto: OmniVoice's voice design without a
+    language token falls back to its English-leaning prior, so Uzbek text was
+    designed with an English accent (owner report, 2026-11-18). The winner
+    must lead every other language by ``_DOMINANT_MARGIN``×; mixed or neutral
+    text (names, brands, numbers) returns None and keeps Auto.
+    """
+    totals: dict[str, float] = defaultdict(float)
+    for match in _WORD_RE.finditer(text or ""):
+        for lang, vote in word_votes(match.group(0)).items():
+            totals[lang] += vote
+    if not totals:
+        return None
+    best, score = max(totals.items(), key=lambda item: item[1])
+    runner_up = max((v for k, v in totals.items() if k != best), default=0.0)
+    if best not in _DOMINANT_LANGS or score < _DOMINANT_MIN_VOTES:
+        return None
+    if score < _DOMINANT_MARGIN * runner_up:
+        return None
+    return best

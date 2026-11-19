@@ -8,8 +8,9 @@ clones a voice from a 3–10 s recording, and applies **ten emotion presets**
 through an English instruction prefix.
 
 > **Opt-in, and never the default.** Navoiy-TTS is selected explicitly in
-> **Model Catalogue** (or `OMNIVOICE_TTS_BACKEND=navoiy`). It is not part of
-> the default install, and it speaks **Uzbek only**.
+> **Model Catalogue**, in the engine switch of the composer bar and Home, or
+> with `OMNIVOICE_TTS_BACKEND=navoiy`. It is not part of the default install,
+> and it speaks **Uzbek only**.
 
 ## Why its own Python environment
 

@@ -183,3 +183,4 @@ describe('ActionBar', () => {
 });
 
 vi.mock('@/hooks/use-engines', () => ({ useEngines: () => ({ activeTts: null }) }));
+vi.mock('./engine-picker', () => ({ EnginePicker: () => <div data-testid="engine-picker" /> }));

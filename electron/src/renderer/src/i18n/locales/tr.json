@@ -630,7 +630,8 @@
     "replace_reference": "Referansı değiştir",
     "keep_reference": "Mevcut referansı koru",
     "new_reference": "Yeni referans: {{name}}",
-    "replace_reference_hint": "Kaydetmek bu sesin referans örneğini değiştirir. Yeni klip farklı bir konuşmacıya ait olabileceğinden kilitli kayıt ve kendi ses doğrulaması temizlenir. Yeni klibin otomatik olarak yazıya dökülmesi için transkripti boş bırakın."
+    "replace_reference_hint": "Kaydetmek bu sesin referans örneğini değiştirir. Yeni klip farklı bir konuşmacıya ait olabileceğinden kilitli kayıt ve kendi ses doğrulaması temizlenir. Yeni klibin otomatik olarak yazıya dökülmesi için transkripti boş bırakın.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Tasarla",
@@ -3460,5 +3461,44 @@
     "error": "Diller kontrol edilemedi",
     "modelLanguages": "Bu modelin dilleri",
     "changeModel": "Modeli değiştir"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Sesi ayarla",
+    "title": "Sesi ayarla",
+    "hint": "Bu sesin referans örneğini değiştirir; tüm kayıtlar onu izler. Dinleyin, sonra bu sese uygulayın veya yeni ses olarak kaydedin.",
+    "pitch": "Perde",
+    "pitch_hint": "Daha kalın veya daha ince melodi, yarım ton cinsinden.",
+    "timbre": "Tını",
+    "timbre_hint": "Daha derin veya daha açık ses rengi. Kadın sesi için perdeyi ve tınıyı birlikte yükseltin, erkek sesi için ikisini de düşürün.",
+    "tempo": "Tempo",
+    "tempo_hint": "Daha yavaş veya daha hızlı konuşma. Kayıtlar örneğin hızını izler.",
+    "preset_female": "Kadın",
+    "preset_male": "Erkek",
+    "reset": "Sıfırla",
+    "preview": "Dinle",
+    "rendering": "İşleniyor…",
+    "apply": "Bu sese uygula",
+    "save_new": "Yeni ses olarak kaydet",
+    "new_name": "{{name}} (ayarlı)",
+    "failed": "Ses ayarlanamadı: {{message}}"
+  },
+  "intonation": {
+    "open": "Tonlama",
+    "title": "Kelime kelime tonlama",
+    "hint": "Her kelimenin melodisini yükseltin veya alçaltın. Dinleyin, sonra yeni kayıt olarak kaydedin; orijinal kalır.",
+    "finding_words": "Kayıttaki kelimeler bulunuyor…",
+    "approximate": "Konuşma tanıma modeli yüklü değil; kelime konumları tahminidir ve bir hece kayabilir.",
+    "word_label": "“{{word}}” perdesi",
+    "range_hint": "Her kelime en fazla {{range}} yarım ton yukarı veya aşağı kayar.",
+    "listen": "Dinle",
+    "rendering": "İşleniyor…",
+    "reset": "Sıfırla",
+    "save": "Yeni kayıt olarak kaydet",
+    "saving": "Kaydediliyor…",
+    "saved": "Düzenlenen kayıt kaydedildi",
+    "failed": "Tonlama düzenlenemedi: {{message}}"
   }
 }

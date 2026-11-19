@@ -632,7 +632,8 @@
     "replace_reference": "Reemplazar referencia",
     "keep_reference": "Mantener la referencia actual",
     "new_reference": "Nueva referencia: {{name}}",
-    "replace_reference_hint": "Al guardar se reemplaza la muestra de referencia de esta voz. La toma fijada y la verificación de voz propia se borran porque el nuevo clip puede ser de otra persona. Deja la transcripción vacía para transcribir el nuevo clip automáticamente."
+    "replace_reference_hint": "Al guardar se reemplaza la muestra de referencia de esta voz. La toma fijada y la verificación de voz propia se borran porque el nuevo clip puede ser de otra persona. Deja la transcripción vacía para transcribir el nuevo clip automáticamente.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Diseñar",
@@ -3462,5 +3463,44 @@
     "error": "No se pudieron comprobar los idiomas",
     "modelLanguages": "Idiomas de este modelo",
     "changeModel": "Cambiar modelo"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Ajustar voz",
+    "title": "Ajustar voz",
+    "hint": "Cambia la muestra de referencia de esta voz y todas las tomas la siguen. Escúchala y luego úsala para esta voz o guárdala como una nueva.",
+    "pitch": "Tono",
+    "pitch_hint": "Melodía más grave o más aguda, en semitonos.",
+    "timbre": "Timbre",
+    "timbre_hint": "Color de voz más profundo o más ligero. Sube tono y timbre juntos para una voz femenina; bájalos para una masculina.",
+    "tempo": "Velocidad",
+    "tempo_hint": "Habla más lenta o más rápida. Las tomas siguen el ritmo de la muestra.",
+    "preset_female": "Femenina",
+    "preset_male": "Masculina",
+    "reset": "Restablecer",
+    "preview": "Escuchar",
+    "rendering": "Procesando…",
+    "apply": "Usar para esta voz",
+    "save_new": "Guardar como voz nueva",
+    "new_name": "{{name}} (ajustada)",
+    "failed": "No se pudo ajustar la voz: {{message}}"
+  },
+  "intonation": {
+    "open": "Entonación",
+    "title": "Entonación por palabra",
+    "hint": "Sube o baja la melodía de cada palabra. Escucha y guárdala como una toma nueva; la original se conserva.",
+    "finding_words": "Buscando las palabras en la toma…",
+    "approximate": "No hay un modelo de reconocimiento de voz instalado, así que la posición de las palabras es aproximada y puede desviarse una sílaba.",
+    "word_label": "Tono de «{{word}}»",
+    "range_hint": "Cada palabra sube o baja hasta {{range}} semitonos.",
+    "listen": "Escuchar",
+    "rendering": "Procesando…",
+    "reset": "Restablecer",
+    "save": "Guardar como toma nueva",
+    "saving": "Guardando…",
+    "saved": "Toma editada guardada",
+    "failed": "No se pudo editar la entonación: {{message}}"
   }
 }

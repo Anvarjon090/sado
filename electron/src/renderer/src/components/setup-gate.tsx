@@ -1,4 +1,5 @@
-import { BrandMark, BrandMarkReveal } from '@/components/brand-mark';
+import { Orb } from '@/components/motion-fx';
+import { BrandMark } from '@/components/brand-mark';
 import { ModelLibrary, PerformanceModelPacks } from '@/features/settings/model-library';
 import { AnalyticsConsent } from './analytics-consent';
 import { SetupRecovery } from './setup-recovery';
@@ -82,7 +83,7 @@ export function SetupGate({ children }: { children: ReactNode }) {
     return (
       <div className="flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-4">
         <div className="flex flex-col items-center gap-6">
-          <BrandMarkReveal size={112} />
+          <Orb state="composing" size={64} aria-hidden="true" />
           <span className="text-lg font-semibold tracking-tight">{t('app.name')}</span>
         </div>
         <Button variant="ghost" disabled={!status.isError} onClick={() => void status.refetch()}>

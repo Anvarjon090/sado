@@ -630,7 +630,8 @@
     "replace_reference": "Thay mẫu tham chiếu",
     "keep_reference": "Giữ mẫu tham chiếu hiện tại",
     "new_reference": "Mẫu tham chiếu mới: {{name}}",
-    "replace_reference_hint": "Khi lưu, mẫu tham chiếu của giọng này sẽ được thay thế. Bản thu đã khóa và xác minh giọng của chính bạn sẽ bị xóa vì đoạn mới có thể là của người nói khác. Để trống bản chép lời để tự động chép lời đoạn mới."
+    "replace_reference_hint": "Khi lưu, mẫu tham chiếu của giọng này sẽ được thay thế. Bản thu đã khóa và xác minh giọng của chính bạn sẽ bị xóa vì đoạn mới có thể là của người nói khác. Để trống bản chép lời để tự động chép lời đoạn mới.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Thiết kế",
@@ -3460,5 +3461,44 @@
     "error": "Không thể kiểm tra ngôn ngữ",
     "modelLanguages": "Ngôn ngữ của mô hình này",
     "changeModel": "Đổi mô hình"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Tinh chỉnh giọng",
+    "title": "Tinh chỉnh giọng",
+    "hint": "Thay đổi mẫu tham chiếu của giọng này và mọi bản thu sẽ theo nó. Nghe thử, rồi dùng cho giọng này hoặc lưu thành giọng mới.",
+    "pitch": "Cao độ",
+    "pitch_hint": "Giai điệu trầm hơn hoặc cao hơn, tính bằng nửa cung.",
+    "timbre": "Âm sắc",
+    "timbre_hint": "Màu giọng sâu hơn hoặc nhẹ hơn. Tăng cả cao độ và âm sắc cho giọng nữ, giảm cả hai cho giọng nam.",
+    "tempo": "Tốc độ",
+    "tempo_hint": "Nói chậm hơn hoặc nhanh hơn. Bản thu theo nhịp của mẫu.",
+    "preset_female": "Nữ",
+    "preset_male": "Nam",
+    "reset": "Đặt lại",
+    "preview": "Nghe thử",
+    "rendering": "Đang xử lý…",
+    "apply": "Dùng cho giọng này",
+    "save_new": "Lưu thành giọng mới",
+    "new_name": "{{name}} (đã chỉnh)",
+    "failed": "Không thể tinh chỉnh giọng: {{message}}"
+  },
+  "intonation": {
+    "open": "Ngữ điệu",
+    "title": "Ngữ điệu theo từng từ",
+    "hint": "Nâng hoặc hạ giai điệu của từng từ. Nghe thử rồi lưu thành bản thu mới; bản gốc vẫn giữ nguyên.",
+    "finding_words": "Đang tìm các từ trong bản thu…",
+    "approximate": "Chưa cài mô hình nhận dạng giọng nói nên vị trí từ chỉ là ước tính và có thể lệch một âm tiết.",
+    "word_label": "Cao độ của “{{word}}”",
+    "range_hint": "Mỗi từ dịch lên hoặc xuống tối đa {{range}} nửa cung.",
+    "listen": "Nghe",
+    "rendering": "Đang xử lý…",
+    "reset": "Đặt lại",
+    "save": "Lưu thành bản thu mới",
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu bản thu đã chỉnh",
+    "failed": "Không thể chỉnh ngữ điệu: {{message}}"
   }
 }

@@ -1,5 +1,6 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { CircleAlertIcon, LoaderCircleIcon, PauseIcon, PlayIcon } from 'lucide-react';
+import { CircleAlertIcon, PauseIcon, PlayIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   MediaProvider,
@@ -12,10 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatClock } from '@/components/waveform-player';
 import { cn } from '@/lib/utils';
-import {
-  activeWordIndex,
-  buildLyricsTimeline,
-} from '@shared/utils/audiobookLyrics';
+import { activeWordIndex, buildLyricsTimeline } from '@shared/utils/audiobookLyrics';
 import type { AudiobookRenderChapter } from './longform-session';
 
 interface TimelineWord {
@@ -120,7 +118,7 @@ function SyncedPlayerContent({
           {error ? (
             <CircleAlertIcon />
           ) : waiting ? (
-            <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
+            <LoadingOrb />
           ) : paused ? (
             <PlayIcon />
           ) : (

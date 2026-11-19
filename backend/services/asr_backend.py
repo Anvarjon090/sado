@@ -3437,6 +3437,89 @@ def transcribe_reference(audio_path: str, *, release_after: bool = False,
     return text or None
 
 
+#: (engine id, language) pairs that answered without word times — WhisperX
+#: for a language it has no aligner for. Skipped on later calls so the editor
+#: does not pay for a full transcription that cannot help.
+_NO_WORD_TIMES: set[tuple[str, str | None]] = set()
+
+
+def _words_from(backend: ASRBackend, audio_path: str, language: str | None) -> list[dict]:
+    hint = transcribe_request_kwargs(backend, {"language": language})
+    result = backend.transcribe(audio_path, word_timestamps=True, **hint) or {}
+    words = []
+    for segment in result.get("segments") or []:
+        for item in segment.get("words") or []:
+            start, end = item.get("start"), item.get("end")
+            text = (item.get("word") or item.get("text") or "").strip()
+            if text and start is not None and end is not None:
+                words.append({"word": text, "start": float(start), "end": float(end)})
+    return words
+
+
+def transcribe_words(audio_path: str, *, language: str | None = None) -> list[dict] | None:
+    """Word timings of a take from an installed offline ASR, or ``None``.
+
+    Used to place a script's words on a finished take (word-level intonation
+    editing). Like :func:`transcribe_reference` it never downloads a model
+    and never sends audio to a remote recogniser. Engines are tried in the
+    same order: the offline selection, the dictation engine, then installed
+    faster-whisper checkpoints — because a selected engine may give no word
+    times for a language (WhisperX has no Uzbek aligner and its batched
+    pipeline returns segments without words), while faster-whisper's native
+    word timestamps work for every language. ``None`` lets the caller fall
+    back to an acoustic estimate. Each word is ``{"word", "start", "end"}``.
+    """
+    language = reference_language_code(language)
+
+    def capture() -> ASRBackend | None:
+        if asr_model_missing_error(purpose="dictation", require_installed=True) is not None:
+            return None
+        return get_capture_asr_backend()
+
+    def offline() -> ASRBackend | None:
+        selected = active_backend_id()
+        # Loading WhisperX is itself seconds of work; skip it outright when it
+        # already answered this language without word times.
+        if selected == "openai-compat-asr" or (selected, language) in _NO_WORD_TIMES:
+            return None
+        if asr_model_missing_error(require_installed=True) is not None:
+            return None
+        return load_active_asr_backend(require_installed=True)
+
+    # The dictation engine first: it is usually faster-whisper, which times
+    # words natively in every language, and it is already resident.
+    tried: list[ASRBackend] = []
+    for loader in (capture, offline, None):
+        if loader is None:
+            backends = _installed_reference_fallbacks(tried)
+        else:
+            try:
+                found = loader()
+            except Exception:  # noqa: BLE001 - try the next local engine
+                logger.warning("transcribe_words: %s ASR unavailable", loader.__name__)
+                continue
+            backends = [found] if found is not None else []
+        for backend in backends:
+            key = (str(getattr(backend, "id", type(backend).__name__)), language)
+            if key[0] == "openai-compat-asr" or key in _NO_WORD_TIMES:
+                continue
+            if any(type(item) is type(backend) and item.id == backend.id for item in tried):
+                continue
+            tried.append(backend)
+            try:
+                words = _words_from(backend, audio_path, language)
+            except Exception:  # noqa: BLE001 - try the next local engine
+                logger.warning("transcribe_words: %s failed", key[0])
+                continue
+            finally:
+                if getattr(backend, "_reference_ephemeral", False):
+                    _release_reference_backend(backend)
+            if words:
+                return words
+            _NO_WORD_TIMES.add(key)
+    return None
+
+
 _capture_backend: ASRBackend | None = None
 # The sherpa model id the cached capture backend was built for, so a model
 # switch in Settings rebuilds the singleton instead of serving the old model.

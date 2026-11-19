@@ -630,7 +630,8 @@
     "replace_reference": "Referentie vervangen",
     "keep_reference": "Huidige referentie behouden",
     "new_reference": "Nieuwe referentie: {{name}}",
-    "replace_reference_hint": "Opslaan vervangt het referentievoorbeeld van deze stem. De vastgezette opname en de verificatie van je eigen stem worden gewist, omdat de nieuwe clip van een andere spreker kan zijn. Laat het transcript leeg om de nieuwe clip automatisch te transcriberen."
+    "replace_reference_hint": "Opslaan vervangt het referentievoorbeeld van deze stem. De vastgezette opname en de verificatie van je eigen stem worden gewist, omdat de nieuwe clip van een andere spreker kan zijn. Laat het transcript leeg om de nieuwe clip automatisch te transcriberen.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Ontwerpen",
@@ -3460,5 +3461,44 @@
     "error": "Talen konden niet worden gecontroleerd",
     "modelLanguages": "Talen voor dit model",
     "changeModel": "Model wijzigen"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Stem afstemmen",
+    "title": "Stem afstemmen",
+    "hint": "Wijzigt het referentiefragment van deze stem; alle opnames volgen het. Beluister het en gebruik het voor deze stem of sla het op als nieuwe stem.",
+    "pitch": "Toonhoogte",
+    "pitch_hint": "Lagere of hogere melodie, in halve tonen.",
+    "timbre": "Klankkleur",
+    "timbre_hint": "Diepere of lichtere stemkleur. Verhoog toonhoogte en klankkleur samen voor een vrouwenstem, verlaag beide voor een mannenstem.",
+    "tempo": "Tempo",
+    "tempo_hint": "Langzamer of sneller spreken. Opnames volgen het tempo van het fragment.",
+    "preset_female": "Vrouwelijk",
+    "preset_male": "Mannelijk",
+    "reset": "Herstellen",
+    "preview": "Beluisteren",
+    "rendering": "Bezig…",
+    "apply": "Gebruiken voor deze stem",
+    "save_new": "Opslaan als nieuwe stem",
+    "new_name": "{{name}} (afgestemd)",
+    "failed": "Stem afstemmen mislukt: {{message}}"
+  },
+  "intonation": {
+    "open": "Intonatie",
+    "title": "Intonatie per woord",
+    "hint": "Verhoog of verlaag de melodie van elk woord. Beluister het en sla het op als nieuwe opname; het origineel blijft.",
+    "finding_words": "Woorden in de opname zoeken…",
+    "approximate": "Er is geen spraakherkenningsmodel geïnstalleerd, dus de woordposities zijn geschat en kunnen een lettergreep afwijken.",
+    "word_label": "Toonhoogte van ‘{{word}}’",
+    "range_hint": "Elk woord gaat tot {{range}} halve tonen omhoog of omlaag.",
+    "listen": "Beluisteren",
+    "rendering": "Bezig…",
+    "reset": "Herstellen",
+    "save": "Opslaan als nieuwe opname",
+    "saving": "Opslaan…",
+    "saved": "Bewerkte opname opgeslagen",
+    "failed": "Intonatie bewerken mislukt: {{message}}"
   }
 }

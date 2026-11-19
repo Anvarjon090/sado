@@ -1,4 +1,5 @@
-import { BotIcon, LoaderCircleIcon, Trash2Icon } from 'lucide-react';
+import { LoadingOrb } from '@/components/motion-fx';
+import { BotIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -119,7 +120,7 @@ export function McpBindingsSettings() {
 
         {bindings.isPending ? (
           <div className="flex min-h-16 items-center justify-center p-4 text-muted-foreground">
-            <LoaderCircleIcon aria-label={t('common.loading')} className="size-4 animate-spin" />
+            <LoadingOrb aria-label={t('common.loading')} className="size-4" />
           </div>
         ) : bindings.data?.length ? (
           bindings.data.map((binding) => (
@@ -138,11 +139,7 @@ export function McpBindingsSettings() {
                 aria-label={t('settings.mcp_remove', { clientId: binding.client_id })}
                 onClick={() => setConfirmDeleteId(binding.client_id)}
               >
-                {deletingId === binding.client_id ? (
-                  <LoaderCircleIcon className="animate-spin" />
-                ) : (
-                  <Trash2Icon />
-                )}
+                {deletingId === binding.client_id ? <LoadingOrb /> : <Trash2Icon />}
               </Button>
             </SettingsRow>
           ))
@@ -193,7 +190,7 @@ export function McpBindingsSettings() {
               </SelectContent>
             </Select>
             <Button disabled={!clientId.trim() || saving} onClick={() => void save()}>
-              {saving && <LoaderCircleIcon className="animate-spin" />}
+              {saving && <LoadingOrb />}
               {t('settings.mcp_add')}
             </Button>
           </div>

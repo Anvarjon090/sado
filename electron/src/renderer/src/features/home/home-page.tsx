@@ -1,8 +1,9 @@
+import { Beam } from '@/components/motion-fx';
 import './home-page.css';
 import { WorkspaceHeader } from '@/components/app-shell/workspace-header';
 import { ProfileAvatar } from '@/components/profile-avatar';
 import { useProfiles } from '@/hooks/use-profiles';
-import { useEngines } from '@/hooks/use-engines';
+import { EnginePicker } from '@/features/clone/engine-picker';
 import { setCloneSetting, useCloneSetting } from '@/lib/store/clone-settings';
 import { blankLongformDraft, editLongform } from '@/features/longform/longform-session';
 import { projectLibrary, type LongformProject } from '@/features/longform/project-library';
@@ -26,7 +27,6 @@ export function HomePage() {
   const text = useCloneSetting('text');
   const selectedProfileId = useCloneSetting('selectedProfileId');
   const language = useCloneSetting('language');
-  const { activeTts } = useEngines();
   const { data: profiles = [] } = useProfiles();
   const { data: dubProjects = [] } = useQuery({
     queryKey: ['projects'],
@@ -83,61 +83,62 @@ export function HomePage() {
               {t('homeUi.title')}
             </h2>
             <p className="home-lede">{t('homeUi.subtitle')}</p>
-            <form
-              className="home-composer"
-              onSubmit={(event) => {
-                event.preventDefault();
-                runRendererTask('Home script to voice studio', () => navigate({ to: '/clone' }));
-              }}
-            >
-              <label htmlFor="home-script" className="sr-only">
-                {t('homeUi.scriptLabel')}
-              </label>
-              <textarea
-                id="home-script"
-                value={text}
-                rows={4}
-                spellCheck={false}
-                placeholder={t('homeUi.scriptPlaceholder')}
-                onChange={(event) => setCloneSetting('text', event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
-                    event.preventDefault();
-                    event.currentTarget.form?.requestSubmit();
-                  }
+            <Beam active={text.trim().length > 0}>
+              <form
+                className="home-composer"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  runRendererTask('Home script to voice studio', () => navigate({ to: '/clone' }));
                 }}
-              />
-              <div className="home-composer-bar">
-                <Link to="/personas" className="home-voice-chip">
-                  {selectedProfile ? (
-                    <ProfileAvatar
-                      name={selectedProfile.name}
-                      imageUrl={selectedProfile.image_url}
-                      className="size-5 text-[10px]"
-                    />
-                  ) : (
-                    <span aria-hidden="true" className="home-voice-dot" />
-                  )}
-                  <span className="truncate">
-                    {selectedProfile ? selectedProfile.name : t('homeUi.chooseVoice')}
+              >
+                <label htmlFor="home-script" className="sr-only">
+                  {t('homeUi.scriptLabel')}
+                </label>
+                <textarea
+                  id="home-script"
+                  value={text}
+                  rows={4}
+                  spellCheck={false}
+                  placeholder={t('homeUi.scriptPlaceholder')}
+                  onChange={(event) => setCloneSetting('text', event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                      event.preventDefault();
+                      event.currentTarget.form?.requestSubmit();
+                    }
+                  }}
+                />
+                <div className="home-composer-bar">
+                  <Link to="/personas" className="home-voice-chip">
+                    {selectedProfile ? (
+                      <ProfileAvatar
+                        name={selectedProfile.name}
+                        imageUrl={selectedProfile.image_url}
+                        className="size-5 text-[10px]"
+                      />
+                    ) : (
+                      <span aria-hidden="true" className="home-voice-dot" />
+                    )}
+                    <span className="truncate">
+                      {selectedProfile ? selectedProfile.name : t('homeUi.chooseVoice')}
+                    </span>
+                  </Link>
+                  <span className="home-meta">
+                    {language === 'Auto' ? t('clone.auto') : language}
                   </span>
-                </Link>
-                <span className="home-meta">
-                  {language === 'Auto' ? t('clone.auto') : language}
-                  {activeTts && (
-                    <>
-                      <span aria-hidden="true"> · </span>
-                      {activeTts.display_name.replace(/\s*\(.*\)$/, '')}
-                    </>
-                  )}
-                </span>
-                <span className="home-count">{t('clone.characters', { count: text.length })}</span>
-                <button type="submit" className="home-go">
-                  {t('homeUi.continue')}
-                  <ArrowRightIcon aria-hidden="true" className="size-4" />
-                </button>
-              </div>
-            </form>
+                  <EnginePicker className="home-engine" />
+                  <span className="home-count">
+                    {t('clone.characters', { count: text.length })}
+                  </span>
+                  <Beam size="sm" active={text.trim().length > 0}>
+                    <button type="submit" className="home-go">
+                      {t('homeUi.continue')}
+                      <ArrowRightIcon aria-hidden="true" className="size-4" />
+                    </button>
+                  </Beam>
+                </div>
+              </form>
+            </Beam>
           </section>
 
           <section aria-labelledby="home-recent" className="home-recent">

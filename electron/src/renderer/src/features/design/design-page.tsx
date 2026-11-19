@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { WandSparklesIcon } from 'lucide-react';
 import { SecondarySidebar } from '@/components/workspace-sidebar';
 import { WorkspaceHeader } from '@/components/app-shell/workspace-header';
@@ -37,7 +38,6 @@ import { EngineNotice } from '@/components/engine-notice';
 import {
   ChevronDownIcon,
   HistoryIcon,
-  LoaderCircleIcon,
   PencilIcon,
   PlayIcon,
   SaveIcon,
@@ -516,22 +516,28 @@ export function DesignPage() {
                 <EngineNotice operation="design" compact />
               </div>
             )}
-            {(designBlocker === 'design' || designBlocker === 'cloning') && !generation.isGenerating && (
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-muted-foreground">
-                <p role="status">
-                  {t(designBlocker === 'cloning' ? 'designWorkspace.engine_cannot_reuse_sample' : 'designWorkspace.engine_cannot_design', {
-                    engine: activeEngine?.display_name ?? '',
-                  })}
-                </p>
-                <Link
-                  to="/settings/models/$family"
-                  params={{ family: 'tts' }}
-                  className={buttonVariants({ variant: 'ghost', size: 'xs' })}
-                >
-                  {t('engineSidebar.tts')}
-                </Link>
-              </div>
-            )}
+            {(designBlocker === 'design' || designBlocker === 'cloning') &&
+              !generation.isGenerating && (
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-muted-foreground">
+                  <p role="status">
+                    {t(
+                      designBlocker === 'cloning'
+                        ? 'designWorkspace.engine_cannot_reuse_sample'
+                        : 'designWorkspace.engine_cannot_design',
+                      {
+                        engine: activeEngine?.display_name ?? '',
+                      },
+                    )}
+                  </p>
+                  <Link
+                    to="/settings/models/$family"
+                    params={{ family: 'tts' }}
+                    className={buttonVariants({ variant: 'ghost', size: 'xs' })}
+                  >
+                    {t('engineSidebar.tts')}
+                  </Link>
+                </div>
+              )}
             {designBlocker === 'loading' && !generation.isGenerating && (
               <p className="mb-3 px-1 text-sm text-muted-foreground" role="status">
                 {t('preferences.loading')}
@@ -582,11 +588,7 @@ export function DesignPage() {
                     })
                   }
                 >
-                  {generation.isGenerating ? (
-                    <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-                  ) : (
-                    <PlayIcon />
-                  )}
+                  {generation.isGenerating ? <LoadingOrb /> : <PlayIcon />}
                   <span className="truncate">{generationLabel}</span>
                 </Button>
                 <Button

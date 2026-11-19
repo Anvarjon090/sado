@@ -632,7 +632,8 @@
     "replace_reference": "Remplacer la référence",
     "keep_reference": "Conserver la référence actuelle",
     "new_reference": "Nouvelle référence : {{name}}",
-    "replace_reference_hint": "L'enregistrement remplace l'échantillon de référence de cette voix. La prise verrouillée et la vérification de votre propre voix sont effacées, car le nouveau clip peut provenir d'une autre personne. Laissez la transcription vide pour transcrire automatiquement le nouveau clip."
+    "replace_reference_hint": "L'enregistrement remplace l'échantillon de référence de cette voix. La prise verrouillée et la vérification de votre propre voix sont effacées, car le nouveau clip peut provenir d'une autre personne. Laissez la transcription vide pour transcrire automatiquement le nouveau clip.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Concevoir",
@@ -3462,5 +3463,44 @@
     "error": "Impossible de vérifier les langues",
     "modelLanguages": "Langues de ce modèle",
     "changeModel": "Changer de modèle"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Ajuster la voix",
+    "title": "Ajuster la voix",
+    "hint": "Modifie l'échantillon de référence de cette voix ; toutes les prises le suivent. Écoutez, puis appliquez-le à cette voix ou enregistrez-le comme nouvelle voix.",
+    "pitch": "Hauteur",
+    "pitch_hint": "Mélodie plus grave ou plus aiguë, en demi-tons.",
+    "timbre": "Timbre",
+    "timbre_hint": "Couleur de voix plus profonde ou plus légère. Montez hauteur et timbre ensemble pour une voix féminine, baissez les deux pour une voix masculine.",
+    "tempo": "Débit",
+    "tempo_hint": "Élocution plus lente ou plus rapide. Les prises suivent le rythme de l'échantillon.",
+    "preset_female": "Féminine",
+    "preset_male": "Masculine",
+    "reset": "Réinitialiser",
+    "preview": "Écouter",
+    "rendering": "Traitement…",
+    "apply": "Utiliser pour cette voix",
+    "save_new": "Enregistrer comme nouvelle voix",
+    "new_name": "{{name}} (ajustée)",
+    "failed": "Impossible d'ajuster la voix : {{message}}"
+  },
+  "intonation": {
+    "open": "Intonation",
+    "title": "Intonation par mot",
+    "hint": "Montez ou baissez la mélodie de chaque mot. Écoutez, puis enregistrez une nouvelle prise ; l'originale est conservée.",
+    "finding_words": "Recherche des mots dans la prise…",
+    "approximate": "Aucun modèle de reconnaissance vocale n'est installé : la position des mots est estimée et peut décaler d'une syllabe.",
+    "word_label": "Hauteur de « {{word}} »",
+    "range_hint": "Chaque mot monte ou descend de {{range}} demi-tons au plus.",
+    "listen": "Écouter",
+    "rendering": "Traitement…",
+    "reset": "Réinitialiser",
+    "save": "Enregistrer comme nouvelle prise",
+    "saving": "Enregistrement…",
+    "saved": "Prise modifiée enregistrée",
+    "failed": "Impossible de modifier l'intonation : {{message}}"
   }
 }

@@ -634,7 +634,8 @@
     "replace_reference": "Zastąp próbkę referencyjną",
     "keep_reference": "Zachowaj obecną próbkę",
     "new_reference": "Nowa próbka: {{name}}",
-    "replace_reference_hint": "Zapisanie zastępuje próbkę referencyjną tego głosu. Zablokowane nagranie i weryfikacja własnego głosu zostaną wyczyszczone, ponieważ nowy klip może należeć do innej osoby. Zostaw transkrypcję pustą, aby nowy klip został przepisany automatycznie."
+    "replace_reference_hint": "Zapisanie zastępuje próbkę referencyjną tego głosu. Zablokowane nagranie i weryfikacja własnego głosu zostaną wyczyszczone, ponieważ nowy klip może należeć do innej osoby. Zostaw transkrypcję pustą, aby nowy klip został przepisany automatycznie.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Projektuj",
@@ -3464,5 +3465,44 @@
     "error": "Nie udało się sprawdzić języków",
     "modelLanguages": "Języki tego modelu",
     "changeModel": "Zmień model"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Dostrój głos",
+    "title": "Dostrój głos",
+    "hint": "Zmienia próbkę referencyjną tego głosu, a wszystkie nagrania się do niej dostosują. Odsłuchaj, a potem użyj jej dla tego głosu lub zapisz jako nowy.",
+    "pitch": "Wysokość",
+    "pitch_hint": "Niższa lub wyższa melodia, w półtonach.",
+    "timbre": "Barwa",
+    "timbre_hint": "Głębsza lub jaśniejsza barwa głosu. Dla głosu kobiecego podnieś wysokość i barwę razem, dla męskiego obniż obie.",
+    "tempo": "Tempo",
+    "tempo_hint": "Wolniejsza lub szybsza mowa. Nagrania podążają za tempem próbki.",
+    "preset_female": "Kobiecy",
+    "preset_male": "Męski",
+    "reset": "Resetuj",
+    "preview": "Odsłuchaj",
+    "rendering": "Przetwarzanie…",
+    "apply": "Użyj dla tego głosu",
+    "save_new": "Zapisz jako nowy głos",
+    "new_name": "{{name}} (dostrojony)",
+    "failed": "Nie udało się dostroić głosu: {{message}}"
+  },
+  "intonation": {
+    "open": "Intonacja",
+    "title": "Intonacja słowo po słowie",
+    "hint": "Podnoś lub obniżaj melodię każdego słowa. Odsłuchaj i zapisz jako nowe nagranie; oryginał zostaje.",
+    "finding_words": "Szukanie słów w nagraniu…",
+    "approximate": "Brak zainstalowanego modelu rozpoznawania mowy, więc położenie słów jest szacunkowe i może przesunąć się o sylabę.",
+    "word_label": "Wysokość „{{word}}”",
+    "range_hint": "Każde słowo przesuwa się w górę lub w dół o maksymalnie {{range}} półtonów.",
+    "listen": "Odsłuchaj",
+    "rendering": "Przetwarzanie…",
+    "reset": "Resetuj",
+    "save": "Zapisz jako nowe nagranie",
+    "saving": "Zapisywanie…",
+    "saved": "Edytowane nagranie zapisane",
+    "failed": "Nie udało się edytować intonacji: {{message}}"
   }
 }

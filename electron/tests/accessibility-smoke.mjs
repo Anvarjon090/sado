@@ -39,7 +39,6 @@ const routes = [
   '/settings/diagnostics',
   '/settings/openapi',
   '/settings/updates',
-  '/settings/support',
 ];
 
 const browser = await chromium.launch({ channel: 'msedge', headless: true });

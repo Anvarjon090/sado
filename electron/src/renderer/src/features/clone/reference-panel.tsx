@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { Link } from '@tanstack/react-router';
 import { AgentFixButton } from '@/components/agent-fix-button';
 import type { useReferenceTranscript } from '@/hooks/use-reference-transcript';
@@ -6,15 +7,7 @@ import { PortraitSearch } from './portrait-search';
 import { ProfileImageEditor } from './profile-image-editor';
 import { ProfilePhoto } from './profile-photo';
 import { useForm } from '@tanstack/react-form';
-import {
-  ChevronDownIcon,
-  FileAudioIcon,
-  LoaderCircleIcon,
-  MicIcon,
-  PencilIcon,
-  SaveIcon,
-  XIcon,
-} from 'lucide-react';
+import { ChevronDownIcon, FileAudioIcon, MicIcon, PencilIcon, SaveIcon, XIcon } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WaveformPlayer } from '@/components/waveform-player';
@@ -166,11 +159,7 @@ export function SaveProfileForm({
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
               <Button type="submit" size="default" disabled={isSubmitting || transcribing}>
-                {isSubmitting || transcribing ? (
-                  <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-                ) : (
-                  <SaveIcon />
-                )}
+                {isSubmitting || transcribing ? <LoadingOrb /> : <SaveIcon />}
                 {t(
                   transcribing
                     ? 'referenceAsr.busy'

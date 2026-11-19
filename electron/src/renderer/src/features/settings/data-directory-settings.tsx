@@ -1,7 +1,8 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowRightIcon, DatabaseIcon, FolderOpenIcon, LoaderCircleIcon } from 'lucide-react';
+import { ArrowRightIcon, DatabaseIcon, FolderOpenIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { getBridge } from '@/components/bridge';
 import { Button } from '@/components/ui/button';
@@ -123,7 +124,7 @@ export function DataDirectorySettings() {
           )}
           {busy && stage && (
             <div role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LoaderCircleIcon className="size-4 animate-spin" />
+              <LoadingOrb className="size-4" />
               {t(`settings.data_move_stage_${stage}`)}
             </div>
           )}
@@ -132,7 +133,7 @@ export function DataDirectorySettings() {
               {t('common.cancel')}
             </Button>
             <Button disabled={busy} onClick={() => void move()}>
-              {busy ? <LoaderCircleIcon className="animate-spin" /> : <DatabaseIcon />}
+              {busy ? <LoadingOrb /> : <DatabaseIcon />}
               {busy ? t('settings.data_move_working') : t('settings.data_move_confirm')}
             </Button>
           </DialogFooter>

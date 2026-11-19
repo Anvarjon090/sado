@@ -1,12 +1,7 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useEffect, useId, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import {
-  CheckIcon,
-  ChevronRightIcon,
-  CopyIcon,
-  LoaderCircleIcon,
-  type LucideIcon,
-} from 'lucide-react';
+import { CheckIcon, ChevronRightIcon, CopyIcon, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ComputeVendorIcon, formatComputeRuntime } from '@/components/compute-vendor-icon';
 import { cn } from '@/lib/utils';
@@ -79,7 +74,9 @@ export function EngineRow({
     );
   // Normal states read from the dot alone; words appear only when something needs attention.
   const quiet =
-    online && (state === 'engineRuntime.idle' || state === 'engineRuntime.ready') && level !== 'simple';
+    online &&
+    (state === 'engineRuntime.idle' || state === 'engineRuntime.ready') &&
+    level !== 'simple';
   const modelLabel = detail.includes('/')
     ? detail.slice(detail.lastIndexOf('/') + 1)
     : compactEngineName(model);
@@ -90,10 +87,7 @@ export function EngineRow({
       className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-normal text-muted-foreground"
     >
       {loading ? (
-        <LoaderCircleIcon
-          aria-hidden="true"
-          className="size-3 animate-spin motion-reduce:animate-none"
-        />
+        <LoadingOrb aria-hidden="true" className="size-3" />
       ) : (
         <span
           aria-hidden="true"
@@ -186,7 +180,10 @@ export function EngineRow({
             )}
             <dt className="text-muted-foreground">{t('sidebarTools.modelLabel')}</dt>
             <dd className="flex min-w-0 items-center gap-1">
-              <code className="min-w-0 truncate font-mono text-[10.5px] text-foreground/90" title={detail}>
+              <code
+                className="min-w-0 truncate font-mono text-[10.5px] text-foreground/90"
+                title={detail}
+              >
                 {detail}
               </code>
               <CopyModelId value={detail} />

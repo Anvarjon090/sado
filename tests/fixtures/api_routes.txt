@@ -196,6 +196,8 @@ POST /api/settings/llm-providers/{provider_id}/test
 POST /api/settings/storage/temp/clear
 POST /archetypes/previews/check
 POST /archetypes/{archetype_id}/use
+POST /audio/{audio_id}/intonation
+POST /audio/{audio_id}/words
 POST /audiobook
 POST /audiobook/cover
 POST /audiobook/import
@@ -276,6 +278,7 @@ POST /profiles
 POST /profiles/{profile_id}/consent
 POST /profiles/{profile_id}/lock
 POST /profiles/{profile_id}/protect
+POST /profiles/{profile_id}/tune
 POST /profiles/{profile_id}/unlock
 POST /projects
 POST /pronunciation

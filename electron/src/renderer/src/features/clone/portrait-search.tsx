@@ -1,3 +1,4 @@
+import { ImageLoader } from '@/components/motion-fx';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SearchIcon } from 'lucide-react';
@@ -54,7 +55,16 @@ export function PortraitSearch({
           {error}
         </p>
       )}
-      {result?.name === name && (
+      {busy && (
+        <div className="grid grid-cols-5 gap-2" aria-hidden="true">
+          {Array.from({ length: 5 }, (_, index) => (
+            <ImageLoader key={index} preset="pixels-organic">
+              <div className="aspect-square rounded-lg bg-muted/40" />
+            </ImageLoader>
+          ))}
+        </div>
+      )}
+      {!busy && result?.name === name && (
         <div className="grid grid-cols-5 gap-2">
           {result.images.length === 0 ? (
             <p role="status" className="col-span-5 text-xs text-muted-foreground">

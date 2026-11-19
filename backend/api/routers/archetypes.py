@@ -324,10 +324,16 @@ async def _render_archetype_wav(a: dict, out_path: Path, *, allow_model_load: bo
     # Save-time samples are optional: an unload after the residency probe must
     # not turn persistence into a cold load. Explicit previews retain loading.
     model = await get_model() if allow_model_load else await get_model(allow_load=False)
+    from api.routers.generation import auto_language_for
+
     language = a["language"]
     if language in (None, "", "Auto"):
         language = None
     text = (a.get("sample_script") or "").strip() or _FALLBACK_SCRIPT
+    if language is None:
+        # The native model is OmniVoice: an Auto sample still gets its text's
+        # language token, or a non-English line is designed with an English accent.
+        language = auto_language_for("omnivoice", text)
 
     def _infer(seed: int):
         return _run_inference(

@@ -1,8 +1,8 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useCallback, useEffect, useState } from 'react';
 import {
   BookOpenIcon,
   CheckIcon,
-  LoaderCircleIcon,
   PencilIcon,
   PlusIcon,
   SparklesIcon,
@@ -172,7 +172,7 @@ export function GlossaryPanel({
           title={t('glossary.auto_title')}
           onClick={() => void autoExtract()}
         >
-          {extracting ? <LoaderCircleIcon className="animate-spin" /> : <SparklesIcon />}
+          {extracting ? <LoadingOrb /> : <SparklesIcon />}
           {t('glossary.auto_btn')}
         </Button>
         <Button size="icon-xs" variant="ghost" aria-label={t('glossary.close')} onClick={onClose}>
@@ -182,7 +182,7 @@ export function GlossaryPanel({
       <div className="space-y-3 p-4">
         {loading && (
           <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
-            <LoaderCircleIcon className="size-3.5 animate-spin" />
+            <LoadingOrb className="size-3.5" />
             {t('common.loading')}
           </p>
         )}

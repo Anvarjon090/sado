@@ -630,7 +630,8 @@
     "replace_reference": "Ersätt referens",
     "keep_reference": "Behåll nuvarande referens",
     "new_reference": "Ny referens: {{name}}",
-    "replace_reference_hint": "När du sparar ersätts röstens referensprov. Den låsta tagningen och verifieringen av egen röst rensas eftersom det nya klippet kan vara en annan talare. Lämna transkriptionen tom för att transkribera det nya klippet automatiskt."
+    "replace_reference_hint": "När du sparar ersätts röstens referensprov. Den låsta tagningen och verifieringen av egen röst rensas eftersom det nya klippet kan vara en annan talare. Lämna transkriptionen tom för att transkribera det nya klippet automatiskt.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Designa",
@@ -3460,5 +3461,44 @@
     "error": "Kunde inte kontrollera språk",
     "modelLanguages": "Språk för den här modellen",
     "changeModel": "Byt modell"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Justera röst",
+    "title": "Justera röst",
+    "hint": "Ändrar röstens referensprov och alla inspelningar följer det. Lyssna och använd det sedan för den här rösten eller spara som en ny röst.",
+    "pitch": "Tonhöjd",
+    "pitch_hint": "Lägre eller högre melodi, i halvtoner.",
+    "timbre": "Klangfärg",
+    "timbre_hint": "Djupare eller ljusare röstfärg. Höj tonhöjd och klangfärg tillsammans för en kvinnlig röst, sänk båda för en manlig.",
+    "tempo": "Tempo",
+    "tempo_hint": "Långsammare eller snabbare tal. Inspelningar följer provets tempo.",
+    "preset_female": "Kvinnlig",
+    "preset_male": "Manlig",
+    "reset": "Återställ",
+    "preview": "Lyssna",
+    "rendering": "Bearbetar…",
+    "apply": "Använd för den här rösten",
+    "save_new": "Spara som ny röst",
+    "new_name": "{{name}} (justerad)",
+    "failed": "Det gick inte att justera rösten: {{message}}"
+  },
+  "intonation": {
+    "open": "Intonation",
+    "title": "Intonation per ord",
+    "hint": "Höj eller sänk varje ords melodi. Lyssna och spara som en ny inspelning; originalet finns kvar.",
+    "finding_words": "Letar efter orden i inspelningen…",
+    "approximate": "Ingen taligenkänningsmodell är installerad, så ordens positioner är uppskattade och kan avvika en stavelse.",
+    "word_label": "Tonhöjd för ”{{word}}”",
+    "range_hint": "Varje ord flyttas upp eller ner högst {{range}} halvtoner.",
+    "listen": "Lyssna",
+    "rendering": "Bearbetar…",
+    "reset": "Återställ",
+    "save": "Spara som ny inspelning",
+    "saving": "Sparar…",
+    "saved": "Redigerad inspelning sparad",
+    "failed": "Det gick inte att redigera intonationen: {{message}}"
   }
 }

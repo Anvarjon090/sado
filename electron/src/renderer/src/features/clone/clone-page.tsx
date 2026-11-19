@@ -1,3 +1,4 @@
+import { Beam } from '@/components/motion-fx';
 import { WorkspaceHeader } from '@/components/app-shell/workspace-header';
 import { EditProfile } from './edit-profile';
 import { ProfileAvatar } from '@/components/profile-avatar';
@@ -227,9 +228,11 @@ export function ClonePage() {
           {((!choosingVoice && !savingUpload) || isGenerating) && (
             <div className="z-10 mt-auto shrink-0 bg-background">
               <div className="mx-auto w-full max-w-4xl px-6 pb-4">
-                <div className="glass-panel composer-surface rounded-xl border border-border/60 bg-muted/30 p-2.5 shadow-[0_2px_12px_rgb(0_0_0/4%)]">
-                  <ActionBar />
-                </div>
+                <Beam active={isGenerating || Boolean(text?.trim())}>
+                  <div className="glass-panel composer-surface rounded-xl border border-border/60 bg-muted/30 p-2.5 shadow-[0_2px_12px_rgb(0_0_0/4%)]">
+                    <ActionBar />
+                  </div>
+                </Beam>
               </div>
               <OutputPanel />
             </div>

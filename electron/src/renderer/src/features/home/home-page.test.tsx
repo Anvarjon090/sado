@@ -14,13 +14,32 @@ vi.mock('@tanstack/react-router', () => ({
 vi.mock('@tanstack/react-query', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@tanstack/react-query')>()),
   useQuery: () => ({ data: [] }),
+  useQueryClient: () => ({ invalidateQueries: async () => undefined }),
 }));
 vi.mock('@/hooks/use-profiles', () => ({ useProfiles: () => ({ data: [] }) }));
-vi.mock('@/hooks/use-engines', () => ({ useEngines: () => ({ activeTts: { display_name: 'OmniVoice (local)' } }) }));
+vi.mock('@/hooks/use-engines', () => ({
+  useEngines: () => ({
+    isLoading: false,
+    activeTts: { id: 'omnivoice', display_name: 'OmniVoice (local)', available: true },
+    data: {
+      tts: {
+        active: 'omnivoice',
+        backends: [
+          { id: 'omnivoice', display_name: 'OmniVoice (local)', available: true, reason: null },
+        ],
+      },
+    },
+  }),
+}));
 vi.mock('@/components/app-shell/workspace-header', () => ({
   WorkspaceHeader: ({ children }: { children: ReactNode }) => <header>{children}</header>,
 }));
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { dir: () => 'ltr', language: 'en', resolvedLanguage: 'en' },
+  }),
+}));
 import { HomePage } from './home-page';
 import en from '@/i18n/locales/en.json';
 import { cloneSettingsStore } from '@/lib/store/clone-settings';
@@ -30,7 +49,9 @@ afterEach(cleanup);
 it('leads with the shared script box and opens it in the voice studio', () => {
   navigate.mockClear();
   render(<HomePage />);
-  expect(screen.getByText(/clone\.auto/)).toHaveTextContent('clone.auto · OmniVoice');
+  expect(screen.getByText(/clone\.auto/)).toHaveTextContent('clone.auto');
+  // The engine name became the engine switch, still beside the language.
+  expect(screen.getByRole('button', { name: 'clone.engine' })).toHaveTextContent('OmniVoice');
   const script = screen.getByLabelText('homeUi.scriptLabel');
   fireEvent.change(script, { target: { value: 'Assalomu alaykum' } });
   expect(cloneSettingsStore.state.text).toBe('Assalomu alaykum');

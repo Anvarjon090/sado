@@ -1,10 +1,10 @@
+import { Avatar } from '@/components/motion-fx';
 import { useStore } from '@tanstack/react-store';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouterState } from '@tanstack/react-router';
 import {
   ArrowUpIcon,
-  BotIcon,
   ChevronDownIcon,
   FolderOpenIcon,
   PlusIcon,
@@ -256,8 +256,7 @@ export function SadoAgent() {
         onClick={() => setOpen(true)}
         className="fixed right-3 top-1/2 z-40 size-11 -translate-y-1/2 rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-lg"
       >
-        <BotIcon />
-        {running && <span className="absolute right-1 top-1 size-2 rounded-full bg-primary" />}
+        <Avatar type="pill" size={30} state={running ? 'working' : 'default'} aria-hidden="true" />
       </Button>,
       document.body,
     );
@@ -270,7 +269,7 @@ export function SadoAgent() {
       resizeStorageKey="sado.agent-workspace-height"
     >
       <header className="agent-workspace-header">
-        <BotIcon className="size-5 text-primary" />
+        <Avatar type="pill" size={22} state={running ? 'working' : 'default'} aria-hidden="true" />
         <strong>{t('repairAgent.title')}</strong>
         <span className="agent-workspace-state" role="status">
           {running ? t('common.loading') : t('repairAgent.ready')}

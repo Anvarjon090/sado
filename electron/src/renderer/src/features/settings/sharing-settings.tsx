@@ -1,10 +1,10 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import QRCode from 'qrcode';
 import {
   CheckIcon,
   CopyIcon,
   ExternalLinkIcon,
   Globe2Icon,
-  LoaderCircleIcon,
   NetworkIcon,
   ShieldCheckIcon,
   WifiIcon,
@@ -388,10 +388,7 @@ export function SharingSettings() {
           description={t('sharing.help')}
         >
           {tailscale.isPending ? (
-            <LoaderCircleIcon
-              className="size-4 animate-spin text-muted-foreground"
-              aria-label={t('common.loading')}
-            />
+            <LoadingOrb className="size-4 text-muted-foreground" aria-label={t('common.loading')} />
           ) : tailscale.data?.installed ? (
             tailscaleUrl ? (
               <Button

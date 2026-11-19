@@ -1,6 +1,7 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckIcon, LoaderCircleIcon } from 'lucide-react';
+import { CheckIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { describeError } from '@/lib/api/client';
@@ -70,7 +71,7 @@ export function ComputeTargetChoices({
           >
             <span className="flex size-4 shrink-0 items-center justify-center">
               {saving === target.id ? (
-                <LoaderCircleIcon className="size-3.5 animate-spin motion-reduce:animate-none" />
+                <LoadingOrb className="size-3.5" />
               ) : selected ? (
                 <CheckIcon className="size-3.5" />
               ) : null}

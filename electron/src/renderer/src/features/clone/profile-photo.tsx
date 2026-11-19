@@ -1,5 +1,6 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useState, type DragEvent } from 'react';
-import { CameraIcon, LoaderCircleIcon } from 'lucide-react';
+import { CameraIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -100,7 +101,7 @@ export function ProfilePhoto({
         )}
       >
         {busy ? (
-          <LoaderCircleIcon className="size-1/3 animate-spin motion-reduce:animate-none" />
+          <LoadingOrb className="size-1/3" />
         ) : (
           <CameraIcon className="size-1/3 max-h-5 max-w-5" />
         )}

@@ -533,7 +533,8 @@
     "replace_reference": "Namunami almashtirish",
     "keep_reference": "Joriy namunani saqlash",
     "new_reference": "Yangi namuna: {{name}}",
-    "replace_reference_hint": "Saqlash bu ovozning namuna yozuvini almashtiradi. Yangi klip boshqa so'zlovchiniki bo'lishi mumkinligi sababli, qulflangan variant va o'z ovozini tasdiqlash tozalanadi. Yangi klipni avtomatik transkripsiya qilish uchun matnni bo'sh qoldiring."
+    "replace_reference_hint": "Saqlash bu ovozning namuna yozuvini almashtiradi. Yangi klip boshqa so'zlovchiniki bo'lishi mumkinligi sababli, qulflangan variant va o'z ovozini tasdiqlash tozalanadi. Yangi klipni avtomatik transkripsiya qilish uchun matnni bo'sh qoldiring.",
+    "engine": "Dvigatel"
   },
   "recording": {
     "cleaned_loaded": "Yozuv tozalandi va yuklandi.",
@@ -3460,5 +3461,44 @@
     "error": "Tillarni tekshirib bo'lmadi",
     "modelLanguages": "Bu model uchun tillar",
     "changeModel": "Modelni almashtirish"
+  },
+  "enginePicker": {
+    "switching": "O'tilmoqda…"
+  },
+  "voiceTune": {
+    "open": "Ovozni sozlash",
+    "title": "Ovozni sozlash",
+    "hint": "Bu ovozning namuna yozuvi o'zgaradi, barcha generatsiyalar unga ergashadi. Tinglab ko'ring, so'ng shu ovozga qo'llang yoki yangi ovoz sifatida saqlang.",
+    "pitch": "Ohang",
+    "pitch_hint": "Pastroq yoki balandroq ohang, yarim tonlarda.",
+    "timbre": "Tembr",
+    "timbre_hint": "Chuqurroq yoki yengilroq ovoz rangi. Ayol ovozi uchun ohang va tembrni birga ko'taring, erkak ovozi uchun ikkalasini pasaytiring.",
+    "tempo": "Tezlik",
+    "tempo_hint": "Sekinroq yoki tezroq nutq. Generatsiyalar namunaning sur'atiga ergashadi.",
+    "preset_female": "Ayol ovozi",
+    "preset_male": "Erkak ovozi",
+    "reset": "Asliga qaytarish",
+    "preview": "Tinglab ko'rish",
+    "rendering": "Tayyorlanmoqda…",
+    "apply": "Shu ovozga qo'llash",
+    "save_new": "Yangi ovoz sifatida saqlash",
+    "new_name": "{{name}} (sozlangan)",
+    "failed": "Ovozni sozlab bo'lmadi: {{message}}"
+  },
+  "intonation": {
+    "open": "Ohang",
+    "title": "So'zma-so'z ohang",
+    "hint": "Har bir so'zning ohangini baland yoki past qiling. Tinglab ko'ring, so'ng yangi yozuv sifatida saqlang; asl yozuv o'zgarmaydi.",
+    "finding_words": "Yozuvdagi so'zlar aniqlanmoqda…",
+    "approximate": "Nutqni aniqlash modeli o'rnatilmagan, shuning uchun so'zlarning o'rni taxminiy va bir bo'g'inga siljishi mumkin.",
+    "word_label": "“{{word}}” ohangi",
+    "range_hint": "Har bir so'z {{range}} yarim tongacha yuqoriga yoki pastga suriladi.",
+    "listen": "Tinglash",
+    "rendering": "Tayyorlanmoqda…",
+    "reset": "Asliga qaytarish",
+    "save": "Yangi yozuv sifatida saqlash",
+    "saving": "Saqlanmoqda…",
+    "saved": "Tahrirlangan yozuv saqlandi",
+    "failed": "Ohangni tahrirlab bo'lmadi: {{message}}"
   }
 }

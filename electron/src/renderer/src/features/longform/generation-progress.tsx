@@ -1,5 +1,6 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CheckIcon, CircleIcon, LoaderCircleIcon, XIcon, ZapIcon } from 'lucide-react';
+import { CheckIcon, CircleIcon, XIcon, ZapIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AudiobookRenderChapter } from './longform-session';
 
@@ -9,8 +10,7 @@ function formatElapsed(seconds: number): string {
 }
 
 function ChapterStatusIcon({ status }: { status: string }) {
-  if (status === 'rendering')
-    return <LoaderCircleIcon className="size-3.5 animate-spin motion-reduce:animate-none" />;
+  if (status === 'rendering') return <LoadingOrb className="size-3.5" />;
   if (status === 'done') return <CheckIcon className="size-3.5" />;
   if (status === 'cached') return <ZapIcon className="size-3.5" />;
   if (status === 'failed') return <XIcon className="size-3.5" />;

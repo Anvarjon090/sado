@@ -630,7 +630,8 @@
     "replace_reference": "替換參考音訊",
     "keep_reference": "保留目前的參考音訊",
     "new_reference": "新參考音訊：{{name}}",
-    "replace_reference_hint": "儲存後將替換此音色的參考樣本。由於新片段可能來自其他說話者，已鎖定的片段和本人聲音驗證會被清除。逐字稿留空即可自動轉寫新片段。"
+    "replace_reference_hint": "儲存後將替換此音色的參考樣本。由於新片段可能來自其他說話者，已鎖定的片段和本人聲音驗證會被清除。逐字稿留空即可自動轉寫新片段。",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "設計聲音",
@@ -3460,5 +3461,44 @@
     "error": "無法檢查語言",
     "modelLanguages": "此模型的語言",
     "changeModel": "更換模型"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "調整聲音",
+    "title": "調整聲音",
+    "hint": "變更此聲音的參考樣本，所有生成都會隨之改變。先試聽，再套用到此聲音或另存為新聲音。",
+    "pitch": "音高",
+    "pitch_hint": "更低或更高的旋律，以半音為單位。",
+    "timbre": "音色",
+    "timbre_hint": "更低沉或更輕盈的聲音色彩。女聲請同時提高音高與音色，男聲則同時降低。",
+    "tempo": "語速",
+    "tempo_hint": "更慢或更快的語速。生成會跟隨樣本的節奏。",
+    "preset_female": "女聲",
+    "preset_male": "男聲",
+    "reset": "重設",
+    "preview": "試聽",
+    "rendering": "處理中…",
+    "apply": "套用到此聲音",
+    "save_new": "另存為新聲音",
+    "new_name": "{{name}}（已調整）",
+    "failed": "無法調整聲音：{{message}}"
+  },
+  "intonation": {
+    "open": "語調",
+    "title": "逐詞語調",
+    "hint": "逐一調高或調低每個詞的旋律。試聽後另存為新錄音，原錄音保持不變。",
+    "finding_words": "正在辨識錄音中的詞…",
+    "approximate": "未安裝語音辨識模型，詞的位置為估計值，可能偏差一個音節。",
+    "word_label": "「{{word}}」的音高",
+    "range_hint": "每個詞最多上下移動 {{range}} 個半音。",
+    "listen": "試聽",
+    "rendering": "處理中…",
+    "reset": "重設",
+    "save": "另存為新錄音",
+    "saving": "儲存中…",
+    "saved": "已儲存編輯後的錄音",
+    "failed": "無法編輯語調：{{message}}"
   }
 }

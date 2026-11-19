@@ -1,10 +1,11 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { LockVoice } from './lock-voice';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { PlayIcon, LoaderCircleIcon } from 'lucide-react';
+import { PlayIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EngineNotice } from '@/components/engine-notice';
 import { WaveformPlayer } from '@/components/waveform-player';
@@ -106,11 +107,7 @@ export function ProfilePreview({
         disabled={busy || !text.trim() || ttsBlocker !== null}
         onClick={() => void generate()}
       >
-        {busy ? (
-          <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-        ) : (
-          <PlayIcon />
-        )}
+        {busy ? <LoadingOrb /> : <PlayIcon />}
         {t(busy ? 'voice_profile.generating' : 'voice_profile.gen_preview')}
       </Button>
       {ttsBlocker === 'engine' && <EngineNotice operation="profile-preview" compact />}
@@ -120,13 +117,8 @@ export function ProfilePreview({
         </p>
       )}
       {error && (
-        <div
-          role="alert"
-          className="rounded-md border border-border/60 bg-muted/20 p-3 text-xs"
-        >
-          <p className="font-medium">
-            {t('profileIdentity.generation_failed')}
-          </p>
+        <div role="alert" className="rounded-md border border-border/60 bg-muted/20 p-3 text-xs">
+          <p className="font-medium">{t('profileIdentity.generation_failed')}</p>
           <details className="mt-1 text-muted-foreground">
             <summary className="cursor-pointer rounded py-1 focus-visible:outline-ring">
               {t('profileIdentity.details')}

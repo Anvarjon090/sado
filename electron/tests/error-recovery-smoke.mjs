@@ -11,13 +11,13 @@ try {
   await page.getByRole('heading', { name: 'Voice cloning', exact: true }).waitFor();
   await page.evaluate(async () => {
     const { router } = await import('/src/router.tsx');
-    const route = router.routesById['/settings/support'];
+    const route = router.routesById['/settings/diagnostics'];
     window.originalSupportComponent = route.options.component;
     window.recoverySentinel = 'renderer-still-running';
     route.options.component = () => {
       throw new Error('Fixture failure at /home/private-user/runtime');
     };
-    await router.navigate({ to: '/settings/support' });
+    await router.navigate({ to: '/settings/diagnostics' });
   });
   const fallback = page.getByRole('alert');
   await fallback.waitFor();
@@ -26,7 +26,7 @@ try {
   assert.ok((await fallback.locator('pre').innerText()).includes('~/runtime'));
   await page.evaluate(async () => {
     const { router } = await import('/src/router.tsx');
-    router.routesById['/settings/support'].options.component = window.originalSupportComponent;
+    router.routesById['/settings/diagnostics'].options.component = window.originalSupportComponent;
   });
   await fallback.getByRole('button', { name: 'Try again', exact: true }).click();
   await page.getByRole('heading', { name: 'Support Sado', exact: true }).waitFor();
@@ -40,13 +40,13 @@ try {
   const firstDynamicReload = page.waitForEvent('load');
   await page.evaluate(async () => {
     const { router } = await import('/src/router.tsx');
-    const route = router.routesById['/settings/support'];
+    const route = router.routesById['/settings/diagnostics'];
     route.options.component = () => {
       throw new Error(
         'Failed to fetch dynamically imported module: /home/private-user/gallery-page.tsx',
       );
     };
-    await router.navigate({ to: '/settings/support' });
+    await router.navigate({ to: '/settings/diagnostics' });
   });
   await firstDynamicReload;
   await page.getByRole('heading', { name: 'Support Sado', exact: true }).waitFor();
@@ -73,14 +73,14 @@ try {
       },
       { once: true },
     );
-    const route = router.routesById['/settings/support'];
+    const route = router.routesById['/settings/diagnostics'];
     window.originalSupportComponent = route.options.component;
     route.options.component = () => {
       throw new Error(
         'Failed to fetch dynamically imported module: /home/private-user/gallery-page.tsx',
       );
     };
-    await router.navigate({ to: '/settings/support' });
+    await router.navigate({ to: '/settings/diagnostics' });
   });
   await page.waitForFunction(() => window.dynamicRepair?.autoFix === true);
   const dynamicFallback = page.getByRole('alert');
@@ -89,7 +89,7 @@ try {
   assert.ok(!(await page.evaluate(() => window.dynamicRepair.report)).includes('private-user'));
   await page.evaluate(async () => {
     const { router } = await import('/src/router.tsx');
-    router.routesById['/settings/support'].options.component = window.originalSupportComponent;
+    router.routesById['/settings/diagnostics'].options.component = window.originalSupportComponent;
   });
   await dynamicFallback.getByRole('button', { name: 'Try again', exact: true }).click();
   await page.getByRole('heading', { name: 'Support Sado', exact: true }).waitFor();

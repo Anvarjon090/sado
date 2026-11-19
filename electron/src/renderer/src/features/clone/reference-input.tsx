@@ -1,4 +1,5 @@
-import { LoaderCircleIcon, MicIcon, SparklesIcon, SquareIcon, UploadCloudIcon } from 'lucide-react';
+import { Orb, VoiceGlow } from '@/components/motion-fx';
+import { MicIcon, SquareIcon, UploadCloudIcon } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -117,8 +118,8 @@ export function UploadZone({
       <label
         htmlFor={id}
         className={cn(
-          'flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-muted/30 px-4 py-6 text-center transition-colors hover:border-primary/60 hover:bg-muted/50 focus-within:ring-3 focus-within:ring-ring/50',
-          dragging && 'border-primary bg-primary/10',
+          'flex h-full min-h-56 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-4 py-6 text-center transition-colors hover:border-primary/50 hover:bg-muted/50 focus-within:ring-3 focus-within:ring-ring/50',
+          dragging && 'border-dashed border-primary bg-primary/10',
         )}
         onDragOver={(event) => {
           event.preventDefault();
@@ -152,11 +153,7 @@ export function RecordZone({
         role="status"
         aria-live="polite"
       >
-        {rec.isStarting ? (
-          <LoaderCircleIcon className="size-5 animate-spin motion-reduce:animate-none" />
-        ) : (
-          <SparklesIcon className="size-5 animate-pulse motion-reduce:animate-none" />
-        )}
+        <Orb state="composing" size={32} aria-hidden="true" />
         {rec.isStarting ? t('clone.starting_recording') : t('clone.cleaning')}
       </div>
     );
@@ -166,14 +163,11 @@ export function RecordZone({
         type="button"
         onClick={() => rec.stop()}
         aria-label={t('clone.stop_recording')}
-        className="relative flex size-24 flex-col items-center justify-center gap-1.5 rounded-full border-2 border-destructive bg-destructive/10 text-[length:var(--text-label)] font-semibold text-destructive outline-none focus-visible:ring-3 focus-visible:ring-destructive/40"
+        className="group relative flex size-24 flex-col items-center justify-center gap-0.5 rounded-full bg-muted text-[length:var(--text-label)] font-semibold text-foreground outline-none transition-colors hover:bg-muted/70 focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        <span
-          className="absolute inset-0 rounded-full border-2 border-destructive/60 animate-ping motion-reduce:animate-none"
-          aria-hidden="true"
-        />
-        <SquareIcon className="size-5 fill-current" />
-        <span className="tabular-nums">
+        <Orb state="listening" size={64} aria-hidden="true" className="-my-2" />
+        <span className="flex items-center gap-1 tabular-nums">
+          <SquareIcon className="size-2.5 fill-current" aria-hidden="true" />
           {t('clone.duration_seconds', { seconds: rec.seconds })}
         </span>
       </button>
@@ -183,7 +177,7 @@ export function RecordZone({
       <button
         type="button"
         onClick={() => void rec.start()}
-        className="flex size-24 flex-col items-center justify-center gap-1.5 rounded-full bg-muted text-[length:var(--text-label)] font-medium text-muted-foreground transition-colors outline-none hover:bg-destructive/10 hover:text-destructive focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="flex size-24 flex-col items-center justify-center gap-1.5 rounded-full bg-muted text-[length:var(--text-label)] font-medium text-muted-foreground transition-colors outline-none hover:bg-primary/10 hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <MicIcon className="size-5" />
         {t('clone.record')}
@@ -192,41 +186,50 @@ export function RecordZone({
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg bg-muted/30 p-4">
-      <div className="flex justify-center py-2">{micButton}</div>
-      <RecordingInputs rec={rec} />
-      {rec.isRecording ? (
-        <div
-          className="flex items-center gap-2 text-[length:var(--text-label)]"
-          role="status"
-          aria-live="polite"
-        >
-          <span
-            className={cn(
-              'size-2 shrink-0 rounded-full',
-              hasSignal ? 'bg-success' : 'bg-muted-foreground',
-            )}
-            aria-hidden="true"
-          />
+    <VoiceGlow
+      level={rec.isRecording ? rec.level : 0}
+      idle={0}
+      active={rec.isRecording}
+      scale={1.8}
+      reach={1.6}
+      className="h-full"
+    >
+      <div className="flex h-full min-h-56 flex-col gap-4 rounded-xl border border-border/60 bg-muted/30 p-4">
+        <div className="flex justify-center py-2">{micButton}</div>
+        <RecordingInputs rec={rec} />
+        {rec.isRecording ? (
           <div
-            className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted"
-            role="meter"
-            aria-label={t('recording.input_level')}
-            aria-valuemin={0}
-            aria-valuemax={1}
-            aria-valuenow={Number(rec.level.toFixed(3))}
+            className="flex items-center gap-2 text-[length:var(--text-label)]"
+            role="status"
+            aria-live="polite"
           >
-            <div
-              className="h-full rounded-full bg-success transition-[width] duration-75 motion-reduce:transition-none"
-              style={{ width: `${Math.min(100, Math.round(rec.level * 100))}%` }}
+            <span
+              className={cn(
+                'size-2 shrink-0 rounded-full',
+                hasSignal ? 'bg-success' : 'bg-muted-foreground',
+              )}
+              aria-hidden="true"
             />
+            <div
+              className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted"
+              role="meter"
+              aria-label={t('recording.input_level')}
+              aria-valuemin={0}
+              aria-valuemax={1}
+              aria-valuenow={Number(rec.level.toFixed(3))}
+            >
+              <div
+                className="h-full rounded-full bg-success transition-[width] duration-75 motion-reduce:transition-none"
+                style={{ width: `${Math.min(100, Math.round(rec.level * 100))}%` }}
+              />
+            </div>
+            <span className={hasSignal ? 'text-success' : 'text-muted-foreground'}>
+              {hasSignal ? t('recording.input_detected') : t('recording.no_input_detected')}
+            </span>
           </div>
-          <span className={hasSignal ? 'text-success' : 'text-muted-foreground'}>
-            {hasSignal ? t('recording.input_detected') : t('recording.no_input_detected')}
-          </span>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </VoiceGlow>
   );
 }
 

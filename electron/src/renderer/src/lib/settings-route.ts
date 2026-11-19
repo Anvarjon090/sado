@@ -15,7 +15,6 @@ const settingsRoutes = new Set([
   '/settings/privacy',
   '/settings/permissions',
   '/settings/storage',
-  '/settings/support',
   '/settings/updates',
   '/settings/openapi',
   '/settings/diagnostics',

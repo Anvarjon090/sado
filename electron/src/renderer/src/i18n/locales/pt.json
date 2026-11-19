@@ -632,7 +632,8 @@
     "replace_reference": "Substituir referência",
     "keep_reference": "Manter a referência atual",
     "new_reference": "Nova referência: {{name}}",
-    "replace_reference_hint": "Salvar substitui a amostra de referência desta voz. A tomada bloqueada e a verificação de voz própria são removidas porque o novo clipe pode ser de outra pessoa. Deixe a transcrição em branco para transcrever o novo clipe automaticamente."
+    "replace_reference_hint": "Salvar substitui a amostra de referência desta voz. A tomada bloqueada e a verificação de voz própria são removidas porque o novo clipe pode ser de outra pessoa. Deixe a transcrição em branco para transcrever o novo clipe automaticamente.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Desenhar",
@@ -3462,5 +3463,44 @@
     "error": "Não foi possível verificar os idiomas",
     "modelLanguages": "Idiomas deste modelo",
     "changeModel": "Alterar modelo"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Ajustar voz",
+    "title": "Ajustar voz",
+    "hint": "Altera a amostra de referência desta voz e todas as gravações a seguem. Ouça e depois use-a para esta voz ou salve como uma nova.",
+    "pitch": "Tom",
+    "pitch_hint": "Melodia mais grave ou mais aguda, em semitons.",
+    "timbre": "Timbre",
+    "timbre_hint": "Cor de voz mais profunda ou mais leve. Suba tom e timbre juntos para uma voz feminina; abaixe ambos para uma masculina.",
+    "tempo": "Velocidade",
+    "tempo_hint": "Fala mais lenta ou mais rápida. As gravações seguem o ritmo da amostra.",
+    "preset_female": "Feminina",
+    "preset_male": "Masculina",
+    "reset": "Redefinir",
+    "preview": "Ouvir",
+    "rendering": "Processando…",
+    "apply": "Usar para esta voz",
+    "save_new": "Salvar como nova voz",
+    "new_name": "{{name}} (ajustada)",
+    "failed": "Não foi possível ajustar a voz: {{message}}"
+  },
+  "intonation": {
+    "open": "Entonação",
+    "title": "Entonação por palavra",
+    "hint": "Suba ou desça a melodia de cada palavra. Ouça e salve como nova gravação; a original permanece.",
+    "finding_words": "Procurando as palavras na gravação…",
+    "approximate": "Nenhum modelo de reconhecimento de fala está instalado, então a posição das palavras é estimada e pode desviar uma sílaba.",
+    "word_label": "Tom de “{{word}}”",
+    "range_hint": "Cada palavra sobe ou desce até {{range}} semitons.",
+    "listen": "Ouvir",
+    "rendering": "Processando…",
+    "reset": "Redefinir",
+    "save": "Salvar como nova gravação",
+    "saving": "Salvando…",
+    "saved": "Gravação editada salva",
+    "failed": "Não foi possível editar a entonação: {{message}}"
   }
 }

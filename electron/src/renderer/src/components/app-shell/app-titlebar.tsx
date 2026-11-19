@@ -1,3 +1,4 @@
+import { Beam } from '@/components/motion-fx';
 import { createContext, useContext } from 'react';
 import { PanelLeftIcon, SearchIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -49,18 +50,20 @@ export function AppTitlebar({ slotRef }: { slotRef: (node: HTMLDivElement | null
         data-slot="titlebar-content"
         className="flex min-w-0 flex-1 items-center gap-2.5"
       />
-      <button
-        type="button"
-        data-slot="titlebar-search"
-        aria-label={t('preferences.search')}
-        title={mac ? 'Command + K' : 'Ctrl + K'}
-        onClick={() => window.dispatchEvent(new Event('sado:commands'))}
-        className="flex h-[30px] shrink-0 items-center gap-2 rounded-lg border border-border/60 bg-foreground/[0.06] px-2.5 text-xs text-muted-foreground outline-none transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <SearchIcon className="size-3.5" aria-hidden="true" />
-        <span className="hidden sm:inline">{t('preferences.search')}</span>
-        <kbd className="font-sans font-medium tabular-nums">{mac ? '⌘K' : 'Ctrl K'}</kbd>
-      </button>
+      <Beam size="line" strength={0.8} className="titlebar-beam shrink-0">
+        <button
+          type="button"
+          data-slot="titlebar-search"
+          aria-label={t('preferences.search')}
+          title={mac ? 'Command + K' : 'Ctrl + K'}
+          onClick={() => window.dispatchEvent(new Event('sado:commands'))}
+          className="flex h-[30px] shrink-0 items-center gap-2 rounded-lg border border-border/60 bg-foreground/[0.06] px-2.5 text-xs text-muted-foreground outline-none transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <SearchIcon className="size-3.5" aria-hidden="true" />
+          <span className="hidden sm:inline">{t('preferences.search')}</span>
+          <kbd className="font-sans font-medium tabular-nums">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+        </button>
+      </Beam>
     </header>
   );
 }

@@ -90,6 +90,9 @@ The env var overrides the persisted UI choice.
 - For cross-language cloning, keep the reference transcript in the sample's
   original language and write the new script in the desired output language.
   Choose that output language, or **Auto** for language-agnostic synthesis.
+  On Auto, text that is clearly Uzbek (Latin), Russian or English is sent with
+  that language token, so a designed voice speaks without an English accent;
+  mixed or neutral text stays language-agnostic.
   Choosing/uploading a different reference voice preserves the script's language
   setting. The language picker guides synthesis; it does not translate text.
   In `POST /generate` and shared profile conditioning, an explicit `language=Auto`

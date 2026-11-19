@@ -1,6 +1,5 @@
 import { EdgePane } from '@/components/app-shell/edge-pane-slot';
 import { WorkspaceHeader } from '@/components/app-shell/workspace-header';
-import { SupportSettings } from './support-settings';
 import { UpdateSettings } from './update-settings';
 import { MirrorSettings } from './mirror-settings';
 import { StorageSettings } from './storage-settings';
@@ -23,7 +22,6 @@ import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { runRendererTask } from '@/lib/global-error-recovery';
 import {
   ArrowLeftIcon,
-  ExternalLinkIcon,
   SettingsIcon,
   WifiIcon,
   Share2Icon,
@@ -112,13 +110,6 @@ const extraSettings = [
     Icon: RefreshCwIcon,
     Component: UpdateSettings,
     fields: ['updates.tab', 'updates.check_now'],
-  },
-  {
-    to: '/settings/support',
-    label: 'donate.title',
-    Icon: ExternalLinkIcon,
-    Component: SupportSettings,
-    fields: ['donate.title', 'contact.channels_label'],
   },
   {
     to: '/settings/network',
@@ -435,30 +426,28 @@ export function SettingsPage() {
                     </Link>
                   );
                 })}
-              {extraMatches
-                .filter(({ to }) => to !== '/settings/support')
-                .map(({ to, label, Icon }) => (
-                  <Link
-                    key={to}
-                    title={t(label)}
-                    to={to}
-                    aria-current={extra?.to === to ? 'page' : undefined}
-                    className={cn(
-                      buttonVariants({ variant: 'ghost', size: 'sm' }),
-                      settingsNavItemClass,
-                      'w-full justify-start',
-                      extra?.to === to && 'bg-sidebar-accent',
-                    )}
+              {extraMatches.map(({ to, label, Icon }) => (
+                <Link
+                  key={to}
+                  title={t(label)}
+                  to={to}
+                  aria-current={extra?.to === to ? 'page' : undefined}
+                  className={cn(
+                    buttonVariants({ variant: 'ghost', size: 'sm' }),
+                    settingsNavItemClass,
+                    'w-full justify-start',
+                    extra?.to === to && 'bg-sidebar-accent',
+                  )}
+                >
+                  <Icon className={settingsNavIconClass} />
+                  <span
+                    data-slot="settings-nav-label"
+                    className="min-w-0 flex-1 truncate text-left"
                   >
-                    <Icon className={settingsNavIconClass} />
-                    <span
-                      data-slot="settings-nav-label"
-                      className="min-w-0 flex-1 truncate text-left"
-                    >
-                      {t(label)}
-                    </span>
-                  </Link>
-                ))}
+                    {t(label)}
+                  </span>
+                </Link>
+              ))}
               <Link
                 to="/settings/media"
                 title={t('settings.audio_tools')}

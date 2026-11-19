@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { memo, useEffect, useRef, useState } from 'react';
 import {
   PlayIcon,
@@ -6,7 +7,6 @@ import {
   MinimizeIcon,
   Volume2Icon,
   VolumeXIcon,
-  LoaderCircleIcon,
   RotateCcwIcon,
   RotateCwIcon,
 } from 'lucide-react';
@@ -78,7 +78,10 @@ export const VideoPlayer = memo(function VideoPlayer({
         loaders={videoLoaders}
         className="relative aspect-video [&_[data-remotion-canvas]]:h-full [&_[data-remotion-canvas]]:w-full [&_[data-remotion-container]]:h-full [&_[data-remotion-container]]:w-full [&_video]:h-full [&_video]:w-full [&_iframe]:h-full [&_iframe]:w-full"
       >
-        <Poster alt="" className="absolute inset-0 h-full w-full object-contain opacity-0 data-[visible]:opacity-100 data-[hidden]:hidden" />
+        <Poster
+          alt=""
+          className="absolute inset-0 h-full w-full object-contain opacity-0 data-[visible]:opacity-100 data-[hidden]:hidden"
+        />
       </MediaProvider>
       <VideoControls
         player={player}
@@ -189,13 +192,7 @@ function VideoControls({
             else remote.pause();
           }}
         >
-          {waiting ? (
-            <LoaderCircleIcon className="animate-spin" />
-          ) : paused ? (
-            <PlayIcon />
-          ) : (
-            <PauseIcon />
-          )}
+          {waiting ? <LoadingOrb /> : paused ? <PlayIcon /> : <PauseIcon />}
         </Button>
         {!compact && (
           <>

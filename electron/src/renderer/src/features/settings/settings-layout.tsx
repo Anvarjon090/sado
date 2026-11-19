@@ -1,3 +1,4 @@
+import { Beam } from '@/components/motion-fx';
 // Adapted from T3 Code's settingsLayout and WorkspacePageContainer (MIT).
 // See electron/T3CODE-LICENSE.txt.
 import type { ReactNode } from 'react';
@@ -79,14 +80,14 @@ export function SettingsRow({
   variant?: 'row' | 'card';
   active?: boolean;
 }) {
-  return (
+  const row = (
     <div
       data-slot="settings-row"
       data-active={active || undefined}
       className={cn(
         'px-4 py-3',
         variant === 'card' &&
-          'glass-panel min-h-40 rounded-xl border border-border/60 bg-card/40 shadow-xs/5 transition-[border-color,background-color,box-shadow] duration-200 hover:border-border data-[active]:border-primary/35 data-[active]:bg-primary/[0.055] data-[active]:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_12%,transparent),0_12px_30px_-24px_var(--primary)] motion-reduce:transition-none',
+          'glass-panel h-full min-h-40 rounded-xl border border-border/60 bg-card/40 shadow-xs/5 transition-[border-color,background-color,box-shadow] duration-200 hover:border-border data-[active]:border-primary/35 data-[active]:bg-primary/[0.055] data-[active]:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_12%,transparent),0_12px_30px_-24px_var(--primary)] motion-reduce:transition-none',
         className,
       )}
     >
@@ -131,6 +132,14 @@ export function SettingsRow({
         </div>
       </div>
     </div>
+  );
+  // A chosen card (the selected model, the active engine) breathes softly.
+  return variant === 'card' ? (
+    <Beam size="pulse-inner" active={active} className="h-full min-w-0">
+      {row}
+    </Beam>
+  ) : (
+    row
   );
 }
 

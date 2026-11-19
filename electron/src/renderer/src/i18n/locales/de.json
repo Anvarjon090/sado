@@ -630,7 +630,8 @@
     "replace_reference": "Referenz ersetzen",
     "keep_reference": "Aktuelle Referenz behalten",
     "new_reference": "Neue Referenz: {{name}}",
-    "replace_reference_hint": "Beim Speichern wird das Referenzbeispiel dieser Stimme ersetzt. Die fixierte Aufnahme und die Bestätigung der eigenen Stimme werden zurückgesetzt, da der neue Clip von einer anderen Person stammen kann. Lass das Transkript leer, um den neuen Clip automatisch zu transkribieren."
+    "replace_reference_hint": "Beim Speichern wird das Referenzbeispiel dieser Stimme ersetzt. Die fixierte Aufnahme und die Bestätigung der eigenen Stimme werden zurückgesetzt, da der neue Clip von einer anderen Person stammen kann. Lass das Transkript leer, um den neuen Clip automatisch zu transkribieren.",
+    "engine": "Engine"
   },
   "designWorkspace": {
     "title": "Designen",
@@ -3460,5 +3461,44 @@
     "error": "Sprachen konnten nicht geprüft werden",
     "modelLanguages": "Sprachen dieses Modells",
     "changeModel": "Modell wechseln"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Stimme anpassen",
+    "title": "Stimme anpassen",
+    "hint": "Ändert die Referenzprobe dieser Stimme, alle Aufnahmen folgen ihr. Anhören, dann für diese Stimme übernehmen oder als neue Stimme speichern.",
+    "pitch": "Tonhöhe",
+    "pitch_hint": "Tiefere oder höhere Melodie, in Halbtönen.",
+    "timbre": "Klangfarbe",
+    "timbre_hint": "Dunklere oder hellere Stimmfarbe. Für eine weibliche Stimme Tonhöhe und Klangfarbe gemeinsam anheben, für eine männliche beide senken.",
+    "tempo": "Tempo",
+    "tempo_hint": "Langsamer oder schneller sprechen. Aufnahmen folgen dem Tempo der Probe.",
+    "preset_female": "Weiblich",
+    "preset_male": "Männlich",
+    "reset": "Zurücksetzen",
+    "preview": "Anhören",
+    "rendering": "Wird berechnet…",
+    "apply": "Für diese Stimme übernehmen",
+    "save_new": "Als neue Stimme speichern",
+    "new_name": "{{name}} (angepasst)",
+    "failed": "Stimme konnte nicht angepasst werden: {{message}}"
+  },
+  "intonation": {
+    "open": "Intonation",
+    "title": "Intonation pro Wort",
+    "hint": "Hebe oder senke die Melodie jedes Wortes. Anhören, dann als neue Aufnahme speichern; das Original bleibt.",
+    "finding_words": "Wörter in der Aufnahme werden gesucht…",
+    "approximate": "Kein Spracherkennungsmodell installiert, daher sind die Wortpositionen geschätzt und können um eine Silbe abweichen.",
+    "word_label": "Tonhöhe von „{{word}}“",
+    "range_hint": "Jedes Wort lässt sich um bis zu {{range}} Halbtöne nach oben oder unten verschieben.",
+    "listen": "Anhören",
+    "rendering": "Wird berechnet…",
+    "reset": "Zurücksetzen",
+    "save": "Als neue Aufnahme speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Bearbeitete Aufnahme gespeichert",
+    "failed": "Intonation konnte nicht bearbeitet werden: {{message}}"
   }
 }

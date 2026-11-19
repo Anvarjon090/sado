@@ -44,6 +44,16 @@ vi.mock('./reference-input', () => ({
     <p data-testid="usage-note">{durationSeconds}</p>
   ),
 }));
+vi.mock('./voice-tune', () => ({
+  VoiceTune: ({ onApply }: { onApply: (file: File) => void }) => (
+    <button
+      type="button"
+      onClick={() => onApply(new File(['audio'], 'tuned.wav', { type: 'audio/wav' }))}
+    >
+      apply-tuned
+    </button>
+  ),
+}));
 vi.mock('./profile-consent', () => ({ ProfileConsent: () => null }));
 vi.mock('./profile-preview', () => ({ ProfilePreview: () => null }));
 vi.mock('./profile-usage', () => ({ ProfileUsagePanel: () => null }));
@@ -163,4 +173,34 @@ it('keeps the chosen clip and saves no edits when the upload fails', async () =>
 it('does not offer replacement for designed voices', () => {
   renderEditor({ ...base, kind: 'design' } as Profile);
   expect(screen.queryByRole('button', { name: /clone.replace_reference/ })).toBeNull();
+});
+
+it('saves a tuned clip as the reference and keeps the transcript (same words)', async () => {
+  mock.replace.mockResolvedValue({ ...base });
+  const onDone = renderEditor();
+
+  fireEvent.click(screen.getByRole('button', { name: /voiceTune.open/ }));
+  fireEvent.click(screen.getByText('apply-tuned'));
+
+  expect(screen.getByTestId('player')).toHaveTextContent('blob:new-clip');
+  expect(screen.getByLabelText('clone.transcript')).toHaveValue('old words');
+  fireEvent.submit(screen.getByRole('button', { name: 'clone.save' }).closest('form')!);
+
+  await waitFor(() => expect(onDone).toHaveBeenCalledOnce());
+  expect(mock.replace).toHaveBeenCalledWith(
+    expect.objectContaining({ id: 'v1', refAudioName: 'tuned.wav', refText: 'old words' }),
+  );
+});
+
+it('closes tuning without touching the voice', () => {
+  renderEditor();
+  fireEvent.click(screen.getByRole('button', { name: /voiceTune.open/ }));
+  fireEvent.click(screen.getByRole('button', { name: /clone.keep_reference/ }));
+  expect(screen.queryByText('apply-tuned')).toBeNull();
+  expect(screen.getByTestId('player')).toHaveTextContent('/profiles/v1/audio?v=1');
+});
+
+it('offers tuning only for voices made from a recording', () => {
+  renderEditor({ ...base, kind: 'design' } as Profile);
+  expect(screen.queryByRole('button', { name: /voiceTune.open/ })).toBeNull();
 });

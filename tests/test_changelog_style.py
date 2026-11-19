@@ -47,6 +47,8 @@ _REF_ALLOWLIST = (
     "Uzbek numbers over six digits reach the engine as words",
     "Uzbek text reads file names, folder paths, web and IP addresses",
     "Voice design reads Uzbek and Russian descriptions",
+    # owner report 2026-11-18: designed Uzbek voices had an English accent, no issue
+    "Voice design on Auto language no longer gives Uzbek text an English accent",
     "Decorative status-line text is spoken instead of chewed",
     "Uzbek interface: new `uz` locale",
     # owner commit 7036e101 — first-run consent prompt, committed straight to main

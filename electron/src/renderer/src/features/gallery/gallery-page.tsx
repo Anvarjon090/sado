@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import {
   AudioLinesIcon,
   ChevronRightIcon,
@@ -22,7 +23,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { LoaderCircleIcon, StarIcon } from 'lucide-react';
+import { StarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AudioPreviewButton } from '@/components/audio-preview-button';
@@ -30,10 +31,7 @@ import { ProfileAvatar } from '@/components/profile-avatar';
 import { apiJson, apiPath, describeError } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query';
 import type { Profile } from '@/lib/api/types';
-import type {
-  ArchetypePage,
-  ArchetypeCategory,
-} from '@shared/api/archetypes-types';
+import type { ArchetypePage, ArchetypeCategory } from '@shared/api/archetypes-types';
 import { mergeDescribedAttrs } from '@shared/utils/voiceInstruct';
 import { STORAGE, readDraft } from '@/features/design/design-draft';
 import { setCloneSetting } from '@/lib/store/clone-settings';
@@ -369,7 +367,7 @@ export function GalleryPage() {
                         disabled={Boolean(saving)}
                         onClick={() => void useVoice(item.id)}
                       >
-                        {saving === item.id && <LoaderCircleIcon className="animate-spin" />}
+                        {saving === item.id && <LoadingOrb />}
                         {t(saving === item.id ? 'gallery.saving' : 'gallery.use_voice')}
                       </Button>
                       <VoiceDestinations

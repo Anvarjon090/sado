@@ -1,4 +1,5 @@
-import { CheckCircle2Icon, LoaderCircleIcon, MicIcon, PlugIcon } from 'lucide-react';
+import { LoadingOrb } from '@/components/motion-fx';
+import { CheckCircle2Icon, MicIcon, PlugIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -128,9 +129,7 @@ export function AsrOpenAiCompatSettings() {
         title={t('settings.asr_compat_desc')}
         description={t('settings.asr_compat_url_hint')}
       >
-        {config.isPending && (
-          <LoaderCircleIcon className="size-4 animate-spin text-muted-foreground" />
-        )}
+        {config.isPending && <LoadingOrb className="size-4 text-muted-foreground" />}
       </SettingsRow>
 
       {(config.isError || error) && (
@@ -181,7 +180,7 @@ export function AsrOpenAiCompatSettings() {
           onChange={(event) => edit(setApiKey, event.target.value)}
         />
         <Button disabled={!dirty || saving || testing} onClick={() => void save()}>
-          {saving && <LoaderCircleIcon className="animate-spin" />}
+          {saving && <LoadingOrb />}
           {saving ? t('common.saving') : t('common.save')}
         </Button>
         {saved && !dirty && (
@@ -202,7 +201,7 @@ export function AsrOpenAiCompatSettings() {
           disabled={testing || saving || !baseUrl.trim()}
           onClick={() => void testConnection()}
         >
-          {testing ? <LoaderCircleIcon className="animate-spin" /> : <PlugIcon />}
+          {testing ? <LoadingOrb /> : <PlugIcon />}
           {testing ? t('common.loading') : t('settings.llmp_test')}
         </Button>
         {testResult && (

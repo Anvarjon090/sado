@@ -276,3 +276,17 @@ Soft rectangles. Base radius 12px (`rounded.md`, the `--radius` root) for nav it
 - **Don't** repeat sidebar destinations or saved voices as card grids on a page.
 - **Don't** use Unbounded for headings or numerals; it is the wordmark face only.
 - **Don't** show decorative or placeholder statistics; numbers come from real measurements.
+
+### Motion effects
+
+Work in progress and emphasis come from the libraries.dev set (MIT, local) through `components/motion-fx.tsx`, in the libraries' own colourful palettes:
+
+- **Border beam** (`border-beam`): rides the Home and Voice cloning composers while they hold text or a take is generating, the generate and "Open in studio" buttons, the title-bar search (bottom line), and breathes on the engine card and on a chosen card (selected model or engine).
+- **Voice glow** (`voice-glow`): rises with the microphone level on recording controls and the dictation window.
+- **Thinking orb** (`thinking-orbs`): waits — the engine starting screen and the engine card while the device comes up.
+- **Liquid metal** (`metal-fx`): the Support link in Settings. Never on the primary action, which stays solid indigo (metal-fx repaints its host).
+- **Bot avatar** (`bot-avatars`): the Sado agent's launcher and header.
+- **Liquid goo** (`liquid-gooey`): the selected half of the library's Saved / Recent takes segment slides across as a drop.
+- **Pixel loader** (`img-fx` + `three`): fills the portrait-search grid while images are fetched.
+
+Each library honours reduced motion.

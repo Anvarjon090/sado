@@ -1,10 +1,5 @@
-import {
-  CheckCircle2Icon,
-  CopyIcon,
-  ExternalLinkIcon,
-  LoaderCircleIcon,
-  RefreshCwIcon,
-} from 'lucide-react';
+import { LoadingOrb } from '@/components/motion-fx';
+import { CheckCircle2Icon, CopyIcon, ExternalLinkIcon, RefreshCwIcon } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +17,7 @@ function LoadingReference() {
   const { t } = useTranslation();
   return (
     <div className="flex min-h-72 items-center justify-center gap-2 text-sm text-muted-foreground">
-      <LoaderCircleIcon className="size-4 animate-spin" />
+      <LoadingOrb className="size-4" />
       {t('common.loading')}
     </div>
   );

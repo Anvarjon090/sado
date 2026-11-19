@@ -77,6 +77,11 @@ vi.mock('./live-dictation', () => ({
   },
 }));
 vi.mock('@shared/utils/transcriptionsStore', () => ({ addTranscription: vi.fn() }));
+// jsdom implements no SVG filter primitives, which the live voice glow animates.
+vi.mock('@/components/motion-fx', () => ({
+  VoiceGlow: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Orb: () => null,
+}));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k: string) => k }) }));
 
 /** Let the effect subscribe, then push a `start`-shaped capture event into it. */

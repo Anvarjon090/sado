@@ -11,7 +11,7 @@ import threading
 from typing import Optional
 from fastapi import APIRouter, File, Form, UploadFile, HTTPException
 from fastapi.responses import FileResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from core.db import db_conn
 from core.config import VOICES_DIR, OUTPUTS_DIR
@@ -21,6 +21,7 @@ from core.personalities import get_personalities
 from omnivoice.utils.voice_design import heal_design_instruct, sanitize_instruct
 from core.path_security import UnsafePath, resolve_within
 from core.profile_images import MAX_IMAGE_BYTES, normalize_portrait
+from services.voice_tune import PITCH_RANGE, TEMPO_RANGE, TIMBRE_RANGE, tune_audio
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
 router = APIRouter()
@@ -728,6 +729,72 @@ async def replace_profile_audio(
     await _sweep_retired_off_loop()
     event_bus.emit("profiles", {"action": "updated", "id": profile_id})
     return _profile_record(updated)
+
+
+class VoiceTune(BaseModel):
+    """Semitones for pitch and timbre, a speed factor for tempo."""
+
+    pitch: float = Field(0.0, ge=PITCH_RANGE[0], le=PITCH_RANGE[1])
+    timbre: float = Field(0.0, ge=TIMBRE_RANGE[0], le=TIMBRE_RANGE[1])
+    tempo: float = Field(1.0, ge=TEMPO_RANGE[0], le=TEMPO_RANGE[1])
+
+
+@router.post("/profiles/{profile_id}/tune")
+async def tune_profile_audio(profile_id: str, tune: VoiceTune):
+    """Return a clone's reference clip with its pitch, timbre and tempo changed.
+
+    Nothing is stored: the editor plays the result and saves it through the
+    replace (PUT /profiles/{id}/audio) or create (POST /profiles) routes, which
+    keep their own validation, versioned filenames and cache invalidation. The
+    recording itself is tuned, never a locked take, because saving replaces
+    the recording and clears the lock.
+    """
+    not_found = HTTPException(
+        status_code=404,
+        detail="That voice profile doesn't exist. It may have been deleted from another tab.",
+    )
+    if not _PROFILE_ID_RE.fullmatch(profile_id or ""):
+        raise not_found
+    with db_conn() as conn:
+        row = conn.execute(
+            "SELECT kind, ref_audio_path FROM voice_profiles WHERE id=?", (profile_id,),
+        ).fetchone()
+    if not row:
+        raise not_found
+    if (row["kind"] or "clone") != "clone" or not row["ref_audio_path"]:
+        raise HTTPException(
+            status_code=409,
+            detail="Only a voice made from a recording can be tuned. "
+            "Edit a designed voice's traits in Voice Design instead.",
+        )
+    path = _voices_path(str(row["ref_audio_path"]))
+    if path is None or not os.path.isfile(path):
+        raise HTTPException(
+            status_code=404,
+            detail="This voice's recording is missing. Replace the reference to use it again.",
+        )
+
+    def render() -> bytes:
+        import io
+        from services.audio_io import _safe_soundfile_write, load_audio
+        waveform, sample_rate = load_audio(path)
+        tuned = tune_audio(
+            waveform.numpy(), sample_rate,
+            pitch=tune.pitch, timbre=tune.timbre, tempo=tune.tempo,
+        )
+        buffer = io.BytesIO()
+        _safe_soundfile_write(buffer, tuned.T, sample_rate, format="WAV")
+        return buffer.getvalue()
+
+    try:
+        audio = await asyncio.to_thread(render)
+    except (RuntimeError, OSError) as exc:
+        logger.warning("Voice tune failed for %s: %s", profile_id, exc)
+        raise HTTPException(
+            status_code=422,
+            detail="This voice's recording could not be read. Replace the reference and try again.",
+        ) from exc
+    return Response(audio, media_type="audio/wav", headers={"Cache-Control": "no-store"})
 
 
 @router.get("/profiles/{profile_id}/usage")

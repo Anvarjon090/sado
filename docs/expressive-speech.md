@@ -17,6 +17,7 @@ ignores.
 | Whispering | Style → `whisper` (the voice-design/style field) | Default engine |
 | Emotion ("excited", "sad", graded intensity) | IndexTTS2's emotion controls — Audiobook tab's Production Overrides, or the `/ws/tts` API — or CosyVoice 3 instruct | Opt-in engines only |
 | The same take again | Pin the seed / lock the profile | Default engine |
+| One word higher or lower | **Intonation** on the finished take: a slider per word | Every engine |
 
 ## Recovering an interrupted audiobook
 
@@ -247,6 +248,34 @@ time, less tidy. Then the chain got deliberately cleaner:
 Net effect: the default output is now clean by design, and expressiveness is
 becoming something you *ask for* (tags, instruct, the recipe above) rather
 than something that happens to you.
+
+## Raising or lowering single words
+
+When a take is right except for its melody — a question that ends flat, a
+word that should stand out — open **Intonation** above the take's waveform.
+Every word of the script gets a slider that moves its pitch up to six
+semitones up or down. **Listen** renders the change without storing it, and
+**Save as new take** stores it beside the original, which stays as it was.
+The take keeps its length, timing and timbre; a moved word glides into its
+neighbours over 50 ms instead of jumping.
+
+The words are placed on the take by the speech-recognition model you already
+have installed: the dictation engine first, then the offline transcription
+engine, then any installed faster-whisper checkpoint. Nothing is downloaded,
+and a remote recogniser is never sent the take. WhisperX has no word aligner
+for some languages (Uzbek among them) and returns no word times there, so it
+is skipped for that language after the first try. Measured on 14 Uzbek takes,
+the word boundaries fell inside the pause between words 24 times out of 25.
+Without any installed model the editor estimates positions from the
+syllables it hears and says so; those estimates can be a syllable off.
+
+`POST /audio/{id}/words` (JSON `text`, optional `language`) returns
+`{duration, approximate, words: [{text, start, end}]}`.
+`POST /audio/{id}/intonation` (JSON `edits: [{start, end, semitones}]`, each
+within ±12 semitones, and `save`) returns the edited WAV, or with
+`save: true` stores it as a new take with the original's text, voice, language
+and seed and returns `{id, audio_path, duration_seconds}`. Edited audio passes
+the same provenance watermark as every other take.
 
 ## What's coming
 

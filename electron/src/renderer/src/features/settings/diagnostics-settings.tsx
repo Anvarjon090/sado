@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { BrandMark } from '@/components/brand-mark';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -15,7 +16,6 @@ import {
   FolderOpenIcon,
   InfoIcon,
   LanguagesIcon,
-  LoaderCircleIcon,
   Mic2Icon,
   MonitorUpIcon,
   XCircleIcon,
@@ -27,6 +27,7 @@ import { apiJson, describeError } from '@/lib/api/client';
 import type { SystemInfo } from '@/lib/api/types';
 import { SettingsActionError } from './settings-action-error';
 import { SettingsRow, SettingsSection } from './settings-layout';
+import { ReportBug } from '@/components/report-bug';
 
 type CheckStatus = 'ok' | 'warn' | 'fail';
 
@@ -267,11 +268,7 @@ export function DiagnosticsSettings() {
       <SettingsSection icon={ActivityIcon} title={t('about.diagnostics')}>
         <div className="flex flex-wrap items-center gap-2 p-4">
           <Button size="sm" disabled={action !== null} onClick={() => void runCheck()}>
-            {action === 'check' ? (
-              <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-            ) : (
-              <ActivityIcon />
-            )}
+            {action === 'check' ? <LoadingOrb /> : <ActivityIcon />}
             {t('about.self_check')}
           </Button>
           <Button
@@ -280,21 +277,14 @@ export function DiagnosticsSettings() {
             disabled={action !== null}
             onClick={() => void buildBundle()}
           >
-            {action === 'bundle' ? (
-              <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-            ) : (
-              <DownloadIcon />
-            )}
+            {action === 'bundle' ? <LoadingOrb /> : <DownloadIcon />}
             {t('about.save_bundle')}
           </Button>
           <Button size="sm" variant="ghost" disabled={action !== null} onClick={() => void copy()}>
-            {action === 'copy' ? (
-              <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-            ) : (
-              <CopyIcon />
-            )}
+            {action === 'copy' ? <LoadingOrb /> : <CopyIcon />}
             {t('about.copy_diagnostics')}
           </Button>
+          <ReportBug />
         </div>
 
         {error && (

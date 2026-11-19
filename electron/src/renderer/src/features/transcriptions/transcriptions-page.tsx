@@ -1,3 +1,4 @@
+import { VoiceGlow } from '@/components/motion-fx';
 import { SecondarySidebar } from '@/components/workspace-sidebar';
 import { WorkspaceHeader } from '@/components/app-shell/workspace-header';
 import { LiveDictation } from './live-dictation';
@@ -421,25 +422,32 @@ export function TranscriptionsPage() {
                     <UploadIcon />
                     {t('clone.upload_audio')}
                   </Button>
-                  <Button
-                    variant={recording.isRecording ? 'destructive' : 'outline'}
-                    disabled={
-                      busy ||
-                      liveBusy ||
-                      recording.isStarting ||
-                      recording.isCleaning ||
-                      !fileReadiness.data?.ready
-                    }
-                    onClick={() =>
-                      recording.isRecording ? recording.stop() : void recording.start()
-                    }
+                  <VoiceGlow
+                    type="pill"
+                    level={recording.isRecording ? recording.level : 0}
+                    idle={0}
+                    active={recording.isRecording}
                   >
-                    {recording.isRecording ? <SquareIcon /> : <MicIcon />}
-                    {t(recording.isRecording ? 'clone.stop_recording' : 'clone.record')}
-                    {recording.isRecording && (
-                      <span className="tabular-nums">{Math.floor(recording.seconds)}s</span>
-                    )}
-                  </Button>
+                    <Button
+                      variant={recording.isRecording ? 'destructive' : 'outline'}
+                      disabled={
+                        busy ||
+                        liveBusy ||
+                        recording.isStarting ||
+                        recording.isCleaning ||
+                        !fileReadiness.data?.ready
+                      }
+                      onClick={() =>
+                        recording.isRecording ? recording.stop() : void recording.start()
+                      }
+                    >
+                      {recording.isRecording ? <SquareIcon /> : <MicIcon />}
+                      {t(recording.isRecording ? 'clone.stop_recording' : 'clone.record')}
+                      {recording.isRecording && (
+                        <span className="tabular-nums">{Math.floor(recording.seconds)}s</span>
+                      )}
+                    </Button>
+                  </VoiceGlow>
                   {!liveBusy ? (
                     <Button
                       variant="outline"

@@ -171,3 +171,30 @@ def test_uzbek_bare_long_numbers_read_as_quantities():
     assert not any(c.isdigit() for c in spoken)
     # Beyond the scale table (10**36) a run falls back to blocks of four.
     assert normalize_text("1" * 40, "Uzbek").startswith("bir ming yuz o'n bir, bir ming yuz o'n bir")
+
+
+# ── Auto language for OmniVoice (owner report 2026-11-18) ─────────────────────
+# Voice design on Auto sent no language token, so Uzbek text came out with an
+# English accent; with ``uz`` the owner heard none.
+
+@pytest.mark.parametrize("text, expected", [
+    ("Assalomu alaykum. Bugun ob-havo juda yaxshi, shuning uchun bog'da sayr qilishga qaror qildim.", "uz"),
+    ("Hozirgina atigi uch soniyalik audio parcha edim.", "uz"),
+    ("Welcome aboard. I was just a three-second clip a moment ago.", "en"),
+    ("Это стоит двести пятьдесят рублей.", "ru"),
+    ("Men olma oldim. I have apples.", None),  # evenly mixed → keep Auto
+    ("iPhone 15 Pro Max", None),
+    ("", None),
+])
+def test_dominant_language(text, expected):
+    from services.number_language import dominant_language
+    assert dominant_language(text) == expected
+
+
+def test_auto_language_only_for_language_token_engines():
+    from api.routers.generation import auto_language_for
+    uz = "Bugun ob-havo juda yaxshi, bog'da sayr qildim."
+    assert auto_language_for("omnivoice", uz) == "uz"
+    assert auto_language_for("omnivoice-subprocess", uz) == "uz"
+    # A finite engine keeps language-agnostic Auto (no new rejections).
+    assert auto_language_for("kokoro", uz) is None

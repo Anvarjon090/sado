@@ -220,6 +220,12 @@
 .workspace-titlebar :is(button, a, input, [role='button']) {
   -webkit-app-region: no-drag;
 }
+/* Effect layers drawn over a title-bar control (the search beam) must not
+   become drag areas, or they swallow the click meant for the control. */
+.workspace-titlebar .titlebar-beam,
+.workspace-titlebar .titlebar-beam * {
+  -webkit-app-region: no-drag;
+}
 .native-controls-right {
   padding-right: 148px;
 }

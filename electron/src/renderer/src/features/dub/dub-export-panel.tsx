@@ -1,6 +1,7 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDownIcon, DownloadIcon, LoaderCircleIcon } from 'lucide-react';
+import { ChevronDownIcon, DownloadIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { getBridge } from '@/components/bridge';
@@ -206,7 +207,7 @@ export function DubExportPanel({ session, disabled }: { session: DubSession; dis
           <p className="text-xs text-muted-foreground">{t('exportModal.nothing_selected')}</p>
         )}
         <Button className="w-full" disabled={!ready || locked} onClick={() => void save()}>
-          {saving ? <LoaderCircleIcon className="animate-spin" /> : <DownloadIcon />}
+          {saving ? <LoadingOrb /> : <DownloadIcon />}
           {t(saving ? 'common.loading' : 'exportModal.export')}
         </Button>
       </fieldset>

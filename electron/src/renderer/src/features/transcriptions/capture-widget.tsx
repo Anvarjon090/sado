@@ -1,4 +1,4 @@
-import { BrandMark } from '@/components/brand-mark';
+import { Orb, VoiceGlow } from '@/components/motion-fx';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyIcon, PauseIcon, PlayIcon, SquareIcon, XIcon } from 'lucide-react';
@@ -161,80 +161,86 @@ export function CaptureWidget() {
                     : state.paused
                       ? t('common.paused')
                       : t('capture.listening_label');
+  const listening = state.stage === 'recording' && !state.paused;
   return (
-    <main
-      className="flex h-screen flex-col gap-3 rounded-xl border border-border bg-background p-4 text-foreground"
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') cancel();
-      }}
+    <VoiceGlow
+      type="pill"
+      level={listening ? 0.6 : 0}
+      idle={0}
+      active={listening}
+      className="h-screen"
     >
-      <div className="app-drag flex items-center gap-3">
-        <BrandMark
-          size={40}
-          state={
-            state.paused || state.stage === 'error'
-              ? 'muted'
-              : state.stage === 'done'
-                ? state.text
-                  ? 'success'
-                  : 'idle'
-                : state.stage === 'transcribing' ||
-                    state.stage === 'starting' ||
-                    state.stage === 'idle' ||
-                    state.modelStage === 'loading'
-                  ? 'processing'
-                  : 'listening'
-          }
-        />
-        <span role="status" className="min-w-0 flex-1 text-sm font-medium">
-          {label}
-        </span>
-        <Button
-          className="app-no-drag"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t('common.cancel')}
-          onClick={cancel}
-        >
-          <XIcon />
-        </Button>
-      </div>
-      <p className="min-h-0 flex-1 overflow-auto text-sm leading-relaxed text-muted-foreground">
-        {state.text}
-      </p>
-      <div className="flex items-center justify-end gap-2">
-        {state.text && (
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            aria-label={t('transcriptions.copy')}
-            onClick={() =>
-              void navigator.clipboard
-                .writeText(state.text)
-                .then(() => setDelivery('copied'))
-                .catch(() => setDelivery('failed'))
+      <main
+        className="flex h-screen flex-col gap-3 rounded-xl border border-border bg-background p-4 text-foreground"
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') cancel();
+        }}
+      >
+        <div className="app-drag flex items-center gap-3">
+          <Orb
+            size={32}
+            aria-hidden="true"
+            className="shrink-0"
+            paused={state.paused || state.stage === 'error' || state.stage === 'done'}
+            state={
+              state.stage === 'transcribing' ||
+              state.stage === 'starting' ||
+              state.stage === 'idle' ||
+              state.modelStage === 'loading'
+                ? 'composing'
+                : 'listening'
             }
+          />
+          <span role="status" className="min-w-0 flex-1 text-sm font-medium">
+            {label}
+          </span>
+          <Button
+            className="app-no-drag"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('common.cancel')}
+            onClick={cancel}
           >
-            <CopyIcon />
+            <XIcon />
           </Button>
-        )}
-        {state.stage === 'recording' && (
-          <>
+        </div>
+        <p className="min-h-0 flex-1 overflow-auto text-sm leading-relaxed text-muted-foreground">
+          {state.text}
+        </p>
+        <div className="flex items-center justify-end gap-2">
+          {state.text && (
             <Button
               size="icon-sm"
               variant="ghost"
-              aria-label={t(state.paused ? 'common.resume' : 'common.pause')}
-              onClick={() => live.pause()}
+              aria-label={t('transcriptions.copy')}
+              onClick={() =>
+                void navigator.clipboard
+                  .writeText(state.text)
+                  .then(() => setDelivery('copied'))
+                  .catch(() => setDelivery('failed'))
+              }
             >
-              {state.paused ? <PlayIcon /> : <PauseIcon />}
+              <CopyIcon />
             </Button>
-            <Button size="sm" onClick={() => void live.stop().catch(() => setDelivery('failed'))}>
-              <SquareIcon />
-              {t('common.stop')}
-            </Button>
-          </>
-        )}
-      </div>
-    </main>
+          )}
+          {state.stage === 'recording' && (
+            <>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label={t(state.paused ? 'common.resume' : 'common.pause')}
+                onClick={() => live.pause()}
+              >
+                {state.paused ? <PlayIcon /> : <PauseIcon />}
+              </Button>
+              <Button size="sm" onClick={() => void live.stop().catch(() => setDelivery('failed'))}>
+                <SquareIcon />
+                {t('common.stop')}
+              </Button>
+            </>
+          )}
+        </div>
+      </main>
+    </VoiceGlow>
   );
 }

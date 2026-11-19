@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -9,7 +10,6 @@ import {
   DownloadIcon,
   HardDriveIcon,
   MemoryStickIcon,
-  LoaderCircleIcon,
   RefreshCwIcon,
   SearchIcon,
   SparklesIcon,
@@ -270,7 +270,7 @@ export function PerformanceModelPacks({ compact = false }: { compact?: boolean }
                   </span>
                 </span>
                 {active ? (
-                  <LoaderCircleIcon className="size-3.5 shrink-0 animate-spin text-primary" />
+                  <LoadingOrb className="size-3.5 shrink-0 text-primary" />
                 ) : model.installed ? (
                   <CheckIcon className="size-3.5 shrink-0 text-primary" />
                 ) : (
@@ -308,13 +308,7 @@ export function PerformanceModelPacks({ compact = false }: { compact?: boolean }
             {t('models.pack_total', { count: pack.models.length, size: pack.totalGb.toFixed(1) })}
           </p>
           <Button disabled={busy || lowDisk} onClick={() => void installPack()}>
-            {busy ? (
-              <LoaderCircleIcon className="animate-spin" />
-            ) : pack.missing.length ? (
-              <DownloadIcon />
-            ) : (
-              <CheckIcon />
-            )}
+            {busy ? <LoadingOrb /> : pack.missing.length ? <DownloadIcon /> : <CheckIcon />}
             {t(pack.missing.length ? 'models.pack_install' : 'models.pack_use', {
               tier: t('performanceProfile.' + tier),
               size: pack.downloadGb.toFixed(1),
@@ -995,7 +989,7 @@ export function ModelLibrary({
                   onClick={() => void checkAccess(model)}
                 >
                   {checkingAccess === model.repo_id ? (
-                    <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
+                    <LoadingOrb />
                   ) : access?.ready ? (
                     <CheckIcon />
                   ) : (
@@ -1154,11 +1148,7 @@ export function ModelLibrary({
                 aria-pressed={activeAsrModel}
                 onClick={() => void selectAsrModel(model)}
               >
-                {checkingAsrSelection ? (
-                  <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-                ) : activeAsrModel ? (
-                  <CheckIcon />
-                ) : null}
+                {checkingAsrSelection ? <LoadingOrb /> : activeAsrModel ? <CheckIcon /> : null}
                 {t(
                   checkingAsrSelection
                     ? 'common.loading'

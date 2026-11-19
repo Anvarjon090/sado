@@ -1,5 +1,6 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useEffect, useRef, useState } from 'react';
-import { PlayIcon, PauseIcon, LoaderCircleIcon, CircleAlertIcon } from 'lucide-react';
+import { PlayIcon, PauseIcon, CircleAlertIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   StudioMediaPlayer,
@@ -136,7 +137,7 @@ function PreviewControl({
       {error ? (
         <CircleAlertIcon className="text-destructive" />
       ) : busy ? (
-        <LoaderCircleIcon className="animate-spin" />
+        <LoadingOrb />
       ) : paused ? (
         <PlayIcon />
       ) : (

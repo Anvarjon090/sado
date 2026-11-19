@@ -1,3 +1,4 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { Menu } from '@base-ui/react/menu';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { SecondarySidebar } from '@/components/workspace-sidebar';
@@ -54,7 +55,6 @@ import {
   GaugeIcon,
   HeadphonesIcon,
   LanguagesIcon,
-  LoaderCircleIcon,
   MergeIcon,
   MoreHorizontalIcon,
   PlayIcon,
@@ -1091,7 +1091,11 @@ export function DubPage() {
                   aria-label={removeSourceLabel}
                   disabled={!sourceRemovable}
                   onClick={() => {
-                    if (session.recovery || session.segments.length > 0 || editHistory.undoDepth > 0)
+                    if (
+                      session.recovery ||
+                      session.segments.length > 0 ||
+                      editHistory.undoDepth > 0
+                    )
                       setRemoveVideoOpen(true);
                     else void removeVideo();
                   }}
@@ -1262,10 +1266,7 @@ export function DubPage() {
                     onClick={() => switchPreview(track)}
                   >
                     {preparingPreviews.has(track) && (
-                      <LoaderCircleIcon
-                        className="animate-spin motion-reduce:animate-none"
-                        aria-label={t('common.loading')}
-                      />
+                      <LoadingOrb aria-label={t('common.loading')} />
                     )}
                     {t('dub.dubbed_audio', { code: track })}
                   </Button>
@@ -1561,11 +1562,7 @@ export function DubPage() {
                     disabled={installingArgosPacks}
                     onClick={() => void installArgosLanguagePacks()}
                   >
-                    {installingArgosPacks ? (
-                      <LoaderCircleIcon className="animate-spin" />
-                    ) : (
-                      <LanguagesIcon />
-                    )}
+                    {installingArgosPacks ? <LoadingOrb /> : <LanguagesIcon />}
                     {t(installingArgosPacks ? 'common.loading' : 'modelMaintenance.install')}
                   </Button>
                 }
@@ -1753,9 +1750,7 @@ export function DubPage() {
                       disabled={recoveringAsr}
                       onClick={() => void recoverWithInstalledAsr()}
                     >
-                      {recoveringAsr && (
-                        <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
-                      )}
+                      {recoveringAsr && <LoadingOrb />}
                       {t('asr_missing.use', { label: installedAsrModel.label })}
                     </Button>
                   ) : (
@@ -1804,11 +1799,7 @@ export function DubPage() {
             {!session.segments.length && (!session.recovery || busy) && (
               <div className="mx-auto flex min-h-[24rem] w-full max-w-5xl flex-col items-center justify-center px-6 text-center">
                 <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  {busy ? (
-                    <LoaderCircleIcon className="size-6 animate-spin motion-reduce:animate-none" />
-                  ) : (
-                    <FilmIcon className="size-6" />
-                  )}
+                  {busy ? <LoadingOrb className="size-6" /> : <FilmIcon className="size-6" />}
                 </div>
                 <h2 className="text-lg font-semibold">{t('dub.video_dubbing_studio')}</h2>
                 {busy ? (
@@ -2028,7 +2019,7 @@ export function DubPage() {
                         })}
                       >
                         {session.phase === 'cleaning' || session.phase === 'mirroring' ? (
-                          <LoaderCircleIcon className="animate-spin" />
+                          <LoadingOrb />
                         ) : (
                           <MoreHorizontalIcon />
                         )}
@@ -2143,11 +2134,7 @@ export function DubPage() {
                         aria-busy={qcRunning}
                         onClick={() => void verifyDub()}
                       >
-                        {qcRunning ? (
-                          <LoaderCircleIcon className="animate-spin" />
-                        ) : (
-                          <ShieldCheckIcon />
-                        )}
+                        {qcRunning ? <LoadingOrb /> : <ShieldCheckIcon />}
                         {t('dub.verify')}
                       </Button>
                     )}
@@ -2528,7 +2515,7 @@ export function DubPage() {
                                 >
                                   {previewingSegmentId === segment.id ||
                                   livePreview.liveSegmentId === segment.id ? (
-                                    <LoaderCircleIcon className="animate-spin" />
+                                    <LoadingOrb />
                                   ) : (
                                     <HeadphonesIcon />
                                   )}
@@ -2972,7 +2959,7 @@ export function DubPage() {
                     </div>
                   ) : translationAgentsLoading || llmSkills.isPending ? (
                     <Button data-slot="translate-with-agent" variant="outline" disabled>
-                      <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
+                      <LoadingOrb />
                       {t('dub.translate_with_agent')}
                     </Button>
                   ) : llmAgentReady ? (

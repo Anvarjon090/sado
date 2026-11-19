@@ -1,7 +1,8 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { LoaderCircleIcon, ScaleIcon } from 'lucide-react';
+import { ScaleIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { ExternalLink } from '@/components/external-link';
 import { Button } from '@/components/ui/button';
@@ -167,7 +168,7 @@ export function EngineLicense({ id, name }: { id: LicensedEngine; name: string }
               {t('common.cancel')}
             </Button>
             <Button disabled={busy} onClick={() => void accept()}>
-              {busy && <LoaderCircleIcon className="animate-spin" />}
+              {busy && <LoadingOrb />}
               {t(busy ? 'license.saving' : 'license.accept')}
             </Button>
           </DialogFooter>

@@ -1,5 +1,6 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useRef } from 'react';
-import { CircleAlertIcon, LoaderCircleIcon, PauseIcon, PlayIcon } from 'lucide-react';
+import { CircleAlertIcon, PauseIcon, PlayIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   StudioMediaPlayer,
@@ -62,7 +63,7 @@ function DemoControl({ player }: { player: React.RefObject<MediaPlayerInstance |
       {error ? (
         <CircleAlertIcon />
       ) : waiting && !canPlay ? (
-        <LoaderCircleIcon className="animate-spin motion-reduce:animate-none" />
+        <LoadingOrb />
       ) : paused ? (
         <PlayIcon data-icon="inline-start" />
       ) : (

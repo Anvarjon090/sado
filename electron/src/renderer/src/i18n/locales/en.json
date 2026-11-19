@@ -533,7 +533,8 @@
     "replace_reference": "Replace reference",
     "keep_reference": "Keep current reference",
     "new_reference": "New reference: {{name}}",
-    "replace_reference_hint": "Saving replaces this voice's reference sample. Its locked take and own-voice verification are cleared because the new clip may be a different speaker. Leave the transcript blank to transcribe the new clip automatically."
+    "replace_reference_hint": "Saving replaces this voice's reference sample. Its locked take and own-voice verification are cleared because the new clip may be a different speaker. Leave the transcript blank to transcribe the new clip automatically.",
+    "engine": "Engine"
   },
   "recording": {
     "cleaned_loaded": "Recording cleaned and loaded.",
@@ -3460,5 +3461,44 @@
     "error": "Could not check languages",
     "modelLanguages": "Languages for this model",
     "changeModel": "Change model"
+  },
+  "enginePicker": {
+    "switching": "Switching…"
+  },
+  "voiceTune": {
+    "open": "Tune voice",
+    "title": "Tune voice",
+    "hint": "Changes this voice's reference sample, so every take follows it. Preview, then use it for this voice or save it as a new one.",
+    "pitch": "Pitch",
+    "pitch_hint": "Lower or higher melody, in semitones.",
+    "timbre": "Timbre",
+    "timbre_hint": "Deeper or lighter vocal colour. Raise pitch and timbre together for a female voice, lower both for a male one.",
+    "tempo": "Tempo",
+    "tempo_hint": "Slower or faster delivery. Takes follow the sample's pace.",
+    "preset_female": "Female",
+    "preset_male": "Male",
+    "reset": "Reset",
+    "preview": "Preview",
+    "rendering": "Rendering…",
+    "apply": "Use for this voice",
+    "save_new": "Save as new voice",
+    "new_name": "{{name}} (tuned)",
+    "failed": "Couldn't tune the voice: {{message}}"
+  },
+  "intonation": {
+    "open": "Intonation",
+    "title": "Intonation by word",
+    "hint": "Raise or lower each word's melody. Listen, then save it as a new take; the original stays.",
+    "finding_words": "Finding the words in the take…",
+    "approximate": "No speech-recognition model is installed, so word positions are estimated and may be off by a syllable.",
+    "word_label": "Pitch of “{{word}}”",
+    "range_hint": "Each word moves up to {{range}} semitones up or down.",
+    "listen": "Listen",
+    "rendering": "Rendering…",
+    "reset": "Reset",
+    "save": "Save as new take",
+    "saving": "Saving…",
+    "saved": "Edited take saved",
+    "failed": "Couldn't edit the intonation: {{message}}"
   }
 }

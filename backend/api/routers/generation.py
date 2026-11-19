@@ -1375,6 +1375,26 @@ def _run_inference(
         _oom_friendly_reraise(e)
 
 
+#: Engines that read the language as a conditioning token (OmniVoice family).
+#: Without one, OmniVoice's voice design falls back to an English-leaning
+#: prior, so Uzbek text left on Auto came out with an English accent.
+_LANGUAGE_TOKEN_ENGINES = frozenset({"omnivoice", "omnivoice-subprocess", "omnivoice-gguf"})
+
+
+def auto_language_for(engine_id: str, text: str) -> Optional[str]:
+    """The language to pass for a request left on Auto, or None.
+
+    Only OmniVoice-family engines get a guess: they accept every language, and
+    the token is what keeps a designed voice in the text's language. Other
+    engines keep language-agnostic Auto, so a finite engine never starts
+    rejecting text it used to accept.
+    """
+    if engine_id not in _LANGUAGE_TOKEN_ENGINES:
+        return None
+    from services.number_language import dominant_language
+    return dominant_language(text)
+
+
 def _run_backend_inference(
     backend, text, language, ref_audio_path, ref_text, instruct, duration,
     num_step, guidance_scale, speed, denoise, postprocess_output,
@@ -2346,6 +2366,8 @@ async def generate_speech(
     # Auto is a UI/API choice, not a language token for engines or workers.
     if isinstance(language, str) and language.strip().lower() == "auto":
         language = None
+    if language is None:
+        language = auto_language_for(engine_id, text)
 
     # Engine-agnostic text normalization (junk strip, numbers→words,
     # abbreviations) — AFTER `language` is fully resolved, and BEFORE the

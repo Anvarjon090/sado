@@ -17,7 +17,6 @@ const routes = [
   '/projects',
   '/tools',
   '/integrations',
-  '/pro',
   '/settings',
   '/settings/general',
   '/settings/appearance',
@@ -40,7 +39,6 @@ const routes = [
   '/settings/diagnostics',
   '/settings/openapi',
   '/settings/updates',
-  '/settings/support',
 ];
 const viewports = [
   { width: 1440, height: 900 },

@@ -28,7 +28,7 @@ try {
   });
   const page = await app.firstWindow();
   await page.evaluate(() => {
-    window.location.hash = '/settings/support';
+    window.location.hash = '/settings/diagnostics';
   });
   const report = page.getByRole('button', { name: 'Report a bug', exact: true });
   await report.waitFor();

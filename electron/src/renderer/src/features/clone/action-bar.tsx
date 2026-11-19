@@ -1,10 +1,11 @@
-import { BrandMark } from '@/components/brand-mark';
+import { Beam, Orb } from '@/components/motion-fx';
 import { PipelineFailure } from '@/components/pipeline-failure';
 import { openTake } from '@/lib/store/takes';
 import { setWorkspace } from '@/lib/store/workspace';
 import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
 import {
   AudioLinesIcon,
+  CheckIcon,
   ChevronDownIcon,
   ClockIcon,
   FocusIcon,
@@ -43,6 +44,7 @@ import {
 } from '@/lib/store/clone-settings';
 import { cn } from '@/lib/utils';
 import { EngineLanguagePicker } from './engine-language-picker';
+import { EnginePicker } from './engine-picker';
 import { QualityControls } from './quality-controls';
 import { CloneDemoAction } from './clone-demo';
 import { useCloneDemo } from '@/hooks/use-clone-demo';
@@ -478,6 +480,8 @@ export function ActionBar() {
       {error && <PipelineFailure className="mb-3" fallback={error} onDismiss={clearError} />}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1 rounded-lg bg-background/50 p-1 ring-1 ring-border/50">
+          <EnginePicker disabled={isGenerating} />
+          <span aria-hidden="true" className="mx-1 h-4 w-px bg-border" />
           <EngineLanguagePicker />
           <span aria-hidden="true" className="mx-1 h-4 w-px bg-border" />
           <QualityControls disabled={isGenerating} />
@@ -488,47 +492,54 @@ export function ActionBar() {
           {demo ? (
             <CloneDemoAction />
           ) : (
-            <Button
-              size="lg"
-              className="h-10 w-60 shrink-0 justify-between overflow-hidden rounded-lg ps-4 pe-2.5 shadow-sm transition-colors"
-              onClick={() => void generate()}
-              disabled={isGenerating || blocker !== null}
-              aria-describedby={blocker ? readinessId : undefined}
-              aria-busy={isGenerating}
-              aria-label={generationLabel}
-              aria-keyshortcuts="Control+Enter Meta+Enter"
-            >
-              <span className="flex min-w-0 items-center gap-2">
-                {isGenerating || justFinished ? (
-                  <BrandMark
-                    size={20}
-                    state={isGenerating ? 'processing' : 'success'}
-                    className="text-current"
-                  />
+            <Beam size="sm" active={isGenerating} className="shrink-0">
+              <Button
+                size="lg"
+                className="h-10 w-60 shrink-0 justify-between overflow-hidden rounded-lg ps-4 pe-2.5 shadow-sm transition-colors"
+                onClick={() => void generate()}
+                disabled={isGenerating || blocker !== null}
+                aria-describedby={blocker ? readinessId : undefined}
+                aria-busy={isGenerating}
+                aria-label={generationLabel}
+                aria-keyshortcuts="Control+Enter Meta+Enter"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  {isGenerating ? (
+                    // Light dots: the button is solid indigo in both themes.
+                    <Orb
+                      state="composing"
+                      size={20}
+                      theme="dark"
+                      aria-hidden="true"
+                      className="shrink-0"
+                    />
+                  ) : justFinished ? (
+                    <CheckIcon className="shrink-0" />
+                  ) : (
+                    <PlayIcon className="shrink-0" />
+                  )}
+                  <span className="min-w-0 truncate" role={isGenerating ? 'status' : undefined}>
+                    {generationLabel}
+                  </span>
+                </span>
+                {isGenerating ? (
+                  <span className="shrink-0 text-xs font-normal tabular-nums opacity-80">
+                    {`${modelProgress != null && stage === 'loading' ? `${Math.round(modelProgress)}% · ` : ''}${elapsedSeconds.toFixed(1)}s`}
+                  </span>
                 ) : (
-                  <PlayIcon className="shrink-0" />
+                  <KbdGroup aria-hidden="true" className="shrink-0">
+                    {[mac ? '⌘' : 'Ctrl', '↵'].map((key) => (
+                      <Kbd
+                        key={key}
+                        className="h-5 min-w-5 rounded-[5px] bg-primary-foreground/15 px-1 text-[11px] text-primary-foreground/85 shadow-[inset_0_-1px_0_rgb(0_0_0/18%)]"
+                      >
+                        {key}
+                      </Kbd>
+                    ))}
+                  </KbdGroup>
                 )}
-                <span className="min-w-0 truncate" role={isGenerating ? 'status' : undefined}>
-                  {generationLabel}
-                </span>
-              </span>
-              {isGenerating ? (
-                <span className="shrink-0 text-xs font-normal tabular-nums opacity-80">
-                  {`${modelProgress != null && stage === 'loading' ? `${Math.round(modelProgress)}% · ` : ''}${elapsedSeconds.toFixed(1)}s`}
-                </span>
-              ) : (
-                <KbdGroup aria-hidden="true" className="shrink-0">
-                  {[mac ? '⌘' : 'Ctrl', '↵'].map((key) => (
-                    <Kbd
-                      key={key}
-                      className="h-5 min-w-5 rounded-[5px] bg-primary-foreground/15 px-1 text-[11px] text-primary-foreground/85 shadow-[inset_0_-1px_0_rgb(0_0_0/18%)]"
-                    >
-                      {key}
-                    </Kbd>
-                  ))}
-                </KbdGroup>
-              )}
-            </Button>
+              </Button>
+            </Beam>
           )}
           {isGenerating && !demo ? (
             <Button

@@ -9,7 +9,7 @@
 Design proposal: [installer plans and recovery review](specs/installer-redesign/readme.md).
 This proposal does not change the implemented behavior described below.
 
-The top bar carries no Get Pro or GitHub Star shortcuts and makes no star-count request. Workspaces have no footer bar: Integrations lives in the sidebar's More fold, and Pro and community links open from the Support page.
+The top bar carries no Get Pro or GitHub Star shortcuts and makes no star-count request. Workspaces have no footer bar: Integrations lives in the sidebar's More fold. The app has no Support (donation) or Pro page; Report a bug lives in Settings > Diagnostics.
 
 Low-disk warnings in the notification menu open Settings > Storage, where users can inspect disk use and clear temporary files.
 

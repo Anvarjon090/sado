@@ -1,4 +1,5 @@
-import { BrandMark, BrandMarkReveal } from '@/components/brand-mark';
+import { Orb } from '@/components/motion-fx';
+import { BrandMark } from '@/components/brand-mark';
 import { SetupGate } from './setup-gate';
 import { ReportBug } from './report-bug';
 import { CrashDetails } from './crash-details';
@@ -222,9 +223,7 @@ export function BackendGate({ children, repairDock }: BackendGateProps) {
               !
             </div>
           ) : (
-            <span role="status" aria-label={t('common.loading')}>
-              <BrandMarkReveal size={96} />
-            </span>
+            <Orb state="composing" size={64} aria-label={t('common.loading')} />
           )}
           <div className="space-y-1">
             <p className={cn('text-base font-medium', failed && 'text-destructive')}>{stageText}</p>

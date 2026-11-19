@@ -1,7 +1,8 @@
+import { LoadingOrb } from '@/components/motion-fx';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ActivityIcon, CheckIcon, LoaderCircleIcon, RotateCwIcon } from 'lucide-react';
+import { ActivityIcon, CheckIcon, RotateCwIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { apiJson, describeError } from '@/lib/api/client';
 import { queryKeys } from '@/lib/query';
@@ -56,13 +57,7 @@ export function EngineHealth({
         onClick={() => void check()}
         title={result?.message || failed || undefined}
       >
-        {checking ? (
-          <LoaderCircleIcon className="animate-spin" />
-        ) : available ? (
-          <ActivityIcon />
-        ) : (
-          <RotateCwIcon />
-        )}
+        {checking ? <LoadingOrb /> : available ? <ActivityIcon /> : <RotateCwIcon />}
         {t(
           checking
             ? available

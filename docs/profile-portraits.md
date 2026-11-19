@@ -91,6 +91,36 @@ blank to transcribe the new clip locally. Replacing the reference also clears
 the voice's locked take and own-voice verification, because the new clip may be
 a different speaker. Designed voices are edited through their recipe instead.
 
+### Tuning a voice by hand
+
+For clone voices, **Tune voice** sits next to **Replace reference**. It changes
+the reference sample itself. A clone copies its reference's melody, vocal colour
+and pace, so every engine and every later take follows the tuned sample.
+
+- **Pitch** (−12 to +12 semitones) moves the melody.
+- **Timbre** (−6 to +6 semitones) moves the vocal-tract resonances, which make a
+  voice sound deeper or lighter, without changing the melody.
+- **Tempo** (0.75× to 1.25×) slows or quickens the delivery.
+
+**Female** (pitch +5, timbre +3) and **Male** (pitch −5, timbre −3) are starting
+points. Pitch alone sounds like a sped-up recording, so a convincing change of
+voice moves both. **Preview** renders and plays the tuned sample. **Use for this
+voice** turns it into the pending replacement, which **Save** writes the same
+way as **Replace reference**. Because the words do not change, the transcript is
+kept, while the locked take and own-voice verification are cleared. **Save as new
+voice** stores the tuned sample as a separate clone and leaves the original
+untouched. That copy is named "*name* (tuned)" and keeps the original's
+transcript, style and language.
+
+`POST /profiles/{id}/tune` (JSON `pitch`, `timbre`, `tempo`; out-of-range values
+return 422) returns the tuned reference as a 16-bit WAV at the recording's sample
+rate and stores nothing. Saving goes through the replace and create routes and
+their checks. The route tunes the recording, never a locked take. Designed
+voices return 409. The DSP is Rubber Band through pedalboard, which already ships
+on every platform. Timbre is a pitch-and-formant pass followed by a
+formant-preserving pass, because Rubber Band has no separate formant control. It
+runs on the CPU in about a second for a 10 s sample.
+
 `PUT /profiles/{id}/audio` (multipart `ref_audio`, optional `ref_text`, `name`,
 `instruct`, `language` and `personality`) stores the clip under a new
 `<id>-<token>.<ext>` filename and saves the other fields in the same database
