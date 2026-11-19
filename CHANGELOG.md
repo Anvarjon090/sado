@@ -8,11 +8,17 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
+## [0.5.10] — 2026-11-19
+
+Designed voices now speak Uzbek without an English accent, and a finished take can be shaped word by word.
+
 **Highlights**
 
-- The composer bar switches engines
-- Tune a cloned voice by hand: pitch, timbre and tempo sliders, with Female and Male presets
+- Voice design on Auto language keeps Uzbek text free of an English accent
 - Raise or lower any single word of a finished take with a slider per word
+- Tune a cloned voice by hand: pitch, timbre and tempo sliders, with Female and Male presets
+- The composer bar switches engines
+- The Support and Pro pages are gone; Report a bug lives in Settings → Diagnostics
 
 ### Added
 
@@ -23,6 +29,11 @@ metadata and the backend fallback mirror it.
 ### Changed
 
 - The highlighted Support button is gone from the Settings sidebar
+- The Support (donation) and Pro pages are removed; Report a bug now sits in Settings → Diagnostics
+
+### Fixed
+
+- Voice design on Auto language no longer gives Uzbek text an English accent: Sado Pro now gets the text's language
 
 ## [0.5.9] — 2026-11-17
 
