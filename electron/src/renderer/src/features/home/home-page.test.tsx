@@ -34,12 +34,14 @@ vi.mock('@/hooks/use-engines', () => ({
 vi.mock('@/components/app-shell/workspace-header', () => ({
   WorkspaceHeader: ({ children }: { children: ReactNode }) => <header>{children}</header>,
 }));
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: { dir: () => 'ltr', language: 'en', resolvedLanguage: 'en' },
-  }),
+// One translation object for every render, as react-i18next gives: a fresh
+// `t` per render re-fires the engine picker's effects until the worker runs
+// out of heap.
+const translation = vi.hoisted(() => ({
+  t: (key: string) => key,
+  i18n: { dir: () => 'ltr', language: 'en', resolvedLanguage: 'en' },
 }));
+vi.mock('react-i18next', () => ({ useTranslation: () => translation }));
 import { HomePage } from './home-page';
 import en from '@/i18n/locales/en.json';
 import { cloneSettingsStore } from '@/lib/store/clone-settings';
