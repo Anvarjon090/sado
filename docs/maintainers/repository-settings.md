@@ -33,7 +33,7 @@ Requires a pull request, the backend/frontend test job, the commit-identity
 workflow and its privileged policy status, the CLA workflow job and its signature status, and
 blocks force-push and deletion. Without the pull request rule, a direct push
 whose commit already carries passing checks would be accepted. The rule needs
-no approving review, because `@debpalash` is the only maintainer and GitHub
+no approving review, because `@Anvarjon090` is the only maintainer and GitHub
 does not let authors approve their own pull requests.
 
 Each CLA recheck marks the head pending before looking up contributors and
@@ -138,7 +138,7 @@ green, for example to land an urgent fix, but never to push to `main` directly.
 For the CLA, prefer the `cla-override` label: it records that a maintainer
 reviewed the pull request by hand. Remove the bypass entry for a stricter
 setup. Do not enable "Require review from
-Code Owners" while `@debpalash` is the only code owner, because GitHub does not
+Code Owners" while `@Anvarjon090` is the only code owner, because GitHub does not
 let authors approve their own pull requests.
 
 UI: **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. Set the
@@ -186,10 +186,11 @@ gh api --method PATCH repos/Anvarjon090/sado --input - <<'JSON'
 JSON
 ```
 
-The PostHog project token committed in `backend/core/analytics.py` and
-`electron/src/shared/utils/analytics.ts` is a publishable write-only token by
-design (see `tests/test_no_committed_analytics_token.py`). If an alert flags it,
-close the alert as "used in tests" or "false positive". Do not remove the token.
+No PostHog project token is committed; release builds take it from the
+`POSTHOG_PROJECT_TOKEN` secret (see `tests/test_no_committed_analytics_token.py`).
+Git history still holds the upstream project's publishable write-only key. If an
+alert flags that historical value, close it as "false positive"; it is no longer
+used anywhere.
 
 ## Private vulnerability reporting
 

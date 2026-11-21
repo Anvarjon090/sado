@@ -160,7 +160,7 @@ and with no LLM configured (or on any LLM error) it simply does nothing.
 
 ## LLM Providers (for Cinematic / Autofit)
 
-**Settings → System → LLM Providers** is the one place to set up the LLM. Pick a
+**Settings → Models → LLM** (LLM providers) is the one place to set up the LLM. Pick a
 provider, paste its API key, choose a model, **Test** it, and "use for
 translation." Supported: OpenAI, OpenRouter, OrcaRouter, Cheaper Inference, Groq,
 Cerebras, Google AI (Gemini), Mistral, Cohere, NVIDIA, GitHub Models, Cloudflare,
@@ -216,7 +216,7 @@ appears to have "no effect," check whether `LLM_DEFAULT_PROVIDER` is exported.
 
 ## LLM Skills (per-feature routing)
 
-**Settings → System → LLM Skills** lists every LLM-powered feature — Cinematic &
+**Settings → Models → LLM** (LLM skills) lists every LLM-powered feature — Cinematic &
 Autofit translation, speech-rate slot fitting, glossary auto-extract, direction
 parsing, and dictation cleanup — and lets you toggle each one or route it to a
 specific provider instead of the global active one. That way sensitive work

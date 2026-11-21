@@ -40,7 +40,7 @@ which is a property of the bar, not a judgement of the contributor.
    exception is `audiocpp` with Breeze-TTS-2 research/non-commercial weights,
    approved by the owner on 2026-09-08 for its requested bilingual voice-design
    and direction workflow. It remains opt-in and discloses the restriction
-   before selection and download; `@debpalash` is its named steward.
+   before selection and download; `@Anvarjon090` is its named steward.
 3. **Every platform, or explicitly opt-in.** macOS (Apple Silicon and Intel),
    Windows, Linux. A CPU path is required — an engine that only runs on one
    accelerator is fine, but it must degrade rather than break, and a

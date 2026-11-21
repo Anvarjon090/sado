@@ -1155,7 +1155,7 @@
     "workers_token_qr_hint": "En el otro equipo: Ajustes → Sistema → Trabajadores remotos → Unirse, y luego escanea o pega.",
     "usage": "Uso",
     "usage_desc": "Lo que has creado con Sado, contabilizado en tu propio equipo.",
-    "usage_privacy": "Estas cifras se calculan a partir de tu historial en este equipo y nunca se envían a ningún sitio. Sado no utiliza ningún servicio de análisis: nada de aquí sale de tu ordenador.",
+    "usage_privacy": "Estas cifras se calculan a partir de tu historial en este equipo y nunca se envían a ningún sitio.",
     "usage_empty": "Aún no has generado nada. Crea algo y aparecerá aquí.",
     "usage_takes": "Tomas generadas",
     "usage_since": "desde {{date}}",
@@ -1284,13 +1284,13 @@
     "hf_token_set": "Configurado",
     "translation_providers": "Proveedores de traducción",
     "hf_token_sources": "Fuentes del token HF",
-    "hf_token_input": "Token de HuggingFace",
+    "hf_token_input": "Token de Hugging Face",
     "hf_token_clear_confirm": "¿Borrar el token de HuggingFace guardado por la aplicación?",
     "credentials": "Credenciales",
     "hf_token_test_now": "Probar ahora",
     "hf_source_env_label": "Variable de entorno",
     "hf_token_not_checked": "Sin probar",
-    "translation_providers_desc": "Claves API para traductores en línea, configuradas para esta sesión.",
+    "translation_providers_desc": "Claves de API y regiones para los traductores en línea: Google Cloud, Microsoft Azure, AWS y DeepL. Se conservan entre reinicios.",
     "hf_token_verified": "Verificado",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Sin configurar",
@@ -1528,7 +1528,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: dispositivo de cómputo fijado en CPU",
     "gpu_report_engine_no_family_path": "CPU: sin ruta para tu tipo de GPU",
     "gpu_report_engine_no_gpu": "CPU: no hay GPU disponible",
-    "gpu_report_engine_needs_accelerator": "Necesita una GPU ({{needs}}) que este equipo no tiene"
+    "gpu_report_engine_needs_accelerator": "Necesita una GPU ({{needs}}) que este equipo no tiene",
+    "models_dir_desc": "Aquí se guardan los modelos descargados. Mueve la carpeta a otra unidad para liberar espacio."
   },
   "gallery": {
     "title": "Sado Galería",
@@ -2887,7 +2888,8 @@
     "balanced": "Equilibrado",
     "quality": "Calidad",
     "hint": "Se aplica al muestreo OmniVoice y a la decodificación Faster-Whisper/NLLB. Otros motores mantienen su configuración actual.",
-    "auto": "Auto"
+    "auto": "Auto",
+    "per_engine": "Ajustes por motor"
   },
   "recording": {
     "input_device": "Dispositivo de entrada",
@@ -3502,5 +3504,15 @@
     "saving": "Guardando…",
     "saved": "Toma editada guardada",
     "failed": "No se pudo editar la entonación: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "Aplicación",
+    "group_voices": "Voces y modelos",
+    "group_device": "Dispositivo",
+    "group_data": "Privacidad y datos",
+    "group_connections": "Conexiones",
+    "group_developer": "Desarrollo y soporte",
+    "device": "Dispositivo y memoria",
+    "diagnostics": "Diagnóstico e información"
   }
 }

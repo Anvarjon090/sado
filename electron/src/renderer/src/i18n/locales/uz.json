@@ -1180,7 +1180,7 @@
   "settings": {
     "engine_switched": "{{family}} {{engine}} ga o'tkazildi",
     "worker_join": "Ulanish",
-    "workers_title": "Masofaviy ishchilar",
+    "workers_title": "Masofaviy kompyuterlar",
     "workers_desc": "Alohida vazifalarni boshqa kompyuterlaringizdagi GPU larga yuboring. Natijalar shu yerga qaytadi. Ishchi qo'shib, uni tasdiqlamaguningizcha hech narsa yuborilmaydi.",
     "workers_enable": "Masofaviy ishchilardan foydalanish",
     "workers_enable_hint": "Bu o'chiq ekan, hech qanday ulanish qabul qilinmaydi va bu kompyuterdan hech narsa chiqmaydi.",
@@ -1276,7 +1276,7 @@
     "workers_token_qr_hint": "Boshqa kompyuterda: Sozlamalar → Tizim → Masofaviy ishchilar → Qo'shilish, so'ng skanerlang yoki joylang.",
     "usage": "Foydalanish",
     "usage_desc": "Sado bilan nima yaratganingiz — o'z kompyuteringizda hisoblangan.",
-    "usage_privacy": "Bu raqamlar o'z tarixingizdan, shu kompyuterda hisoblanadi va hech qayerga yuborilmaydi. Sado da analitika xizmati yo'q — bu yerdagi hech narsa kompyuteringizdan chiqmaydi.",
+    "usage_privacy": "Bu raqamlar o'z tarixingizdan, shu kompyuterda hisoblanadi va hech qayerga yuborilmaydi.",
     "usage_empty": "Hali hech narsa yaratmadingiz — biror narsa yarating, u shu yerda ko'rinadi.",
     "usage_takes": "Yaratilgan yozuvlar",
     "usage_since": "{{date}} dan beri",
@@ -1365,7 +1365,7 @@
     "reset_done_restart": "Tiklash tugadi — Sado qayta ishga tushirilmoqda…",
     "reset_partial": "Ba'zi elementlarni o'chirib bo'lmadi: {{paths}}",
     "reset_failed": "Tiklab bo'lmadi: {{message}}",
-    "logs": "Jurnallar",
+    "logs": "Loglar",
     "storage_open_folder": "Papkani ochish",
     "clear_frontend_confirm": "Xotiradagi interfeys jurnali tozalansinmi?",
     "clear_backend_confirm": "Server ish jurnali va nosozlik jurnallari tozalansinmi? Buni qaytarib bo'lmaydi.",
@@ -1470,13 +1470,13 @@
     "hf_token_set": "O'rnatilgan",
     "translation_providers": "Tarjima provayderlari",
     "hf_token_sources": "HF token manbalari",
-    "hf_token_input": "HuggingFace tokeni",
+    "hf_token_input": "Hugging Face tokeni",
     "hf_token_clear_confirm": "Ilova manbasidagi HuggingFace tokeni tozalansinmi?",
-    "credentials": "Hisob ma'lumotlari",
+    "credentials": "Kalitlar va tokenlar",
     "hf_token_test_now": "Hozir sinash",
     "hf_source_env_label": "Muhit o'zgaruvchisi",
     "hf_token_not_checked": "Sinalmagan",
-    "translation_providers_desc": "DeepL va Microsoft onlayn tarjimonlari uchun API kalitlari. Qayta ishga tushirishlarda saqlanadi va tiklanadi.",
+    "translation_providers_desc": "Onlayn tarjimonlar uchun API kalitlari va hududlar: Google Cloud, Microsoft Azure, AWS va DeepL. Qayta ishga tushirilganda ham saqlanib qoladi.",
     "hf_token_verified": "Tasdiqlangan",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "O'rnatilmagan",
@@ -1563,7 +1563,7 @@
     "storage_clear_temp_confirm": "Sado ning vaqtinchalik ish fayllari o'chirilsinmi? Dublyaj yoki ommaviy vazifa ketayotganda buni qilmang.",
     "storage_cat_hf_cache": "Model keshi",
     "models_dir_choose": "Papka tanlash…",
-    "storage": "Xotira",
+    "storage": "Saqlash",
     "storage_warn_unreadable": "{{path}} ni to'liq skanerlab bo'lmadi — ko'rsatilgan hajm to'liq bo'lmasligi mumkin.",
     "storage_child_logs": "Jurnallar",
     "storage_child_dub_jobs": "Dublyaj vazifalari",
@@ -1649,7 +1649,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: hisoblash qurilmasi CPU ga qat'iy belgilangan",
     "gpu_report_engine_no_family_path": "CPU: GPU turingiz uchun yo'l yo'q",
     "gpu_report_engine_no_gpu": "CPU: GPU mavjud emas",
-    "gpu_report_engine_needs_accelerator": "Bu kompyuterda yo'q GPU ({{needs}}) kerak"
+    "gpu_report_engine_needs_accelerator": "Bu kompyuterda yo'q GPU ({{needs}}) kerak",
+    "models_dir_desc": "Yuklab olingan modellar shu yerda saqlanadi. Joy bo'shatish uchun papkani boshqa diskka ko'chiring."
   },
   "gallery": {
     "title": "Sado galereyasi",
@@ -2113,7 +2114,7 @@
     "save_bundle": "Diagnostika to'plamini saqlash",
     "bundle_saved": "Diagnostika to'plami saqlandi: {{filename}}",
     "title": "Ilova haqida",
-    "diagnostics": "Tizimni oldindan tekshirish"
+    "diagnostics": "Tizim tekshiruvi"
   },
   "privacy": {
     "translator_online": "Tarjimon onlayn: {{provider}}",
@@ -2925,7 +2926,8 @@
     "balanced": "Muvozanat",
     "quality": "Sifat",
     "hint": "OmniVoice sempling va Faster-Whisper / NLLB dekodlashga qo'llanadi. Boshqa dvigatellar joriy sozlamalarini saqlaydi.",
-    "auto": "Avto"
+    "auto": "Avto",
+    "per_engine": "Har bir engine uchun alohida"
   },
   "network": {
     "copied": "Nusxalandi",
@@ -3500,5 +3502,15 @@
     "saving": "Saqlanmoqda…",
     "saved": "Tahrirlangan yozuv saqlandi",
     "failed": "Ohangni tahrirlab bo'lmadi: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "Ilova",
+    "group_voices": "Ovozlar va modellar",
+    "group_device": "Qurilma",
+    "group_data": "Maxfiylik va ma'lumotlar",
+    "group_connections": "Ulanishlar",
+    "group_developer": "Dasturchi va yordam",
+    "device": "Qurilma va xotira",
+    "diagnostics": "Diagnostika va ma'lumot"
   }
 }

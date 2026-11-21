@@ -139,7 +139,9 @@ try {
     return route.fulfill({ json: { shadowed: body.key.includes('CPU') } });
   });
   const base = process.env.SADO_UI_URL || 'http://localhost:3902';
-  await page.goto(base + '/#/settings/performance');
+  // Speed / quality: one global preset; per-engine presets sit in a disclosure.
+  await page.goto(base + '/#/settings/speed');
+  await page.getByText(t('performanceProfile.per_engine'), { exact: true }).click();
   await page.getByRole('radiogroup').first().waitFor();
   assert.equal(await page.getByRole('radiogroup').count(), 7);
   await page.getByText('k2-fsa/OmniVoice', { exact: true }).waitFor();
@@ -162,19 +164,6 @@ try {
     .getByRole('radio', { name: t('performanceProfile.max'), exact: true });
   assert.equal(await unavailableMax.isDisabled(), true);
   assert.equal(await unavailableMax.getAttribute('aria-checked'), 'false');
-  const cpu = page.getByRole('button', { name: t('settings.device_family_cpu'), exact: true });
-  await cpu.click();
-  await cpu.and(page.locator('[aria-pressed="true"]')).waitFor();
-  assert.equal(await cpu.getAttribute('aria-pressed'), 'true');
-  await page.getByText(t('settings.compute_device_restart'), { exact: true }).first().waitFor();
-  assert.equal(
-    await page.locator('[aria-labelledby="compute-active"]').innerText(),
-    t('settings.device_family_cuda'),
-  );
-  rejectDevice = true;
-  await page.getByRole('button', { name: t('settings.compute_device_auto'), exact: true }).click();
-  await page.getByRole('alert').waitFor();
-  assert.equal(await cpu.getAttribute('aria-pressed'), 'true');
   const toggle = page.getByRole('switch', { name: t('settings.perf_torch_compile'), exact: true });
   await toggle.click();
   await toggle.and(page.locator('[aria-checked="true"]')).waitFor();
@@ -203,6 +192,21 @@ try {
     .filter({ hasText: t('settings.generate_timeout_shadowed_note') })
     .waitFor();
   assert.equal(budgets.length, 2);
+  // Device & memory: the compute-device choice.
+  await page.goto(base + '/#/settings/performance');
+  const cpu = page.getByRole('button', { name: t('settings.device_family_cpu'), exact: true });
+  await cpu.click();
+  await cpu.and(page.locator('[aria-pressed="true"]')).waitFor();
+  assert.equal(await cpu.getAttribute('aria-pressed'), 'true');
+  await page.getByText(t('settings.compute_device_restart'), { exact: true }).first().waitFor();
+  assert.equal(
+    await page.locator('[aria-labelledby="compute-active"]').innerText(),
+    t('settings.device_family_cuda'),
+  );
+  rejectDevice = true;
+  await page.getByRole('button', { name: t('settings.compute_device_auto'), exact: true }).click();
+  await page.getByRole('alert').waitFor();
+  assert.equal(await cpu.getAttribute('aria-pressed'), 'true');
   device = {
     ...device,
     value: 'mps',
@@ -217,11 +221,12 @@ try {
   await page.getByText(t('settings.compute_device_env_pinned')).waitFor();
   await page.getByText(t('settings.compute_device_ignored')).waitFor();
   assert.equal(await cpu.isDisabled(), true);
-  assert.equal(await toggle.isDisabled(), true);
   assert.equal(
     await page.getByRole('button', { name: t('settings.device_family_cuda'), exact: true }).count(),
     0,
   );
+  await page.goto(base + '/#/settings/speed');
+  assert.equal(await toggle.isDisabled(), true);
   assert.deepEqual(errors, []);
   console.log(
     'PASS: model-aware engine tiers, unavailable-family guard, compute rollback, environment pins, compile guard and timeout budgets',

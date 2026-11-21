@@ -1157,7 +1157,7 @@
     "workers_token_qr_hint": "На іншій машині: Налаштування → система → Віддалені воркери → Підключитися, потім відскануйте або вставте.",
     "usage": "Використання",
     "usage_desc": "Створене у Sado підраховується на вашому пристрої.",
-    "usage_privacy": "Ці числа обчислюються з історії на цьому пристрої й нікуди не надсилаються. Sado не використовує службу аналітики — нічого звідси не залишає ваш комп’ютер.",
+    "usage_privacy": "Ці числа обчислюються з історії на цьому пристрої й нікуди не надсилаються.",
     "usage_empty": "Ви ще нічого не створили — створіть щось, і воно з’явиться тут.",
     "usage_takes": "Створені варіанти",
     "usage_since": "з {{date}}",
@@ -1286,13 +1286,13 @@
     "hf_token_set": "Задано",
     "translation_providers": "Постачальники перекладів",
     "hf_token_sources": "Джерела токена HF",
-    "hf_token_input": "Токен HuggingFace",
+    "hf_token_input": "Токен Hugging Face",
     "hf_token_clear_confirm": "Очистити токен HuggingFace із джерела App?",
     "credentials": "Ключі",
     "hf_token_test_now": "Перевірити зараз",
     "hf_source_env_label": "Змінна середовища",
     "hf_token_not_checked": "Не перевірено",
-    "translation_providers_desc": "Ключі API для онлайн-перекладачів, встановлені для цього сеансу.",
+    "translation_providers_desc": "Ключі API та регіони для онлайн-перекладачів: Google Cloud, Microsoft Azure, AWS і DeepL. Зберігаються після перезапуску.",
     "hf_token_verified": "Перевірено",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Не задано",
@@ -1530,7 +1530,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: обчислювальний пристрій закріплено на CPU",
     "gpu_report_engine_no_family_path": "CPU: немає шляху для вашого типу GPU",
     "gpu_report_engine_no_gpu": "CPU: GPU недоступний",
-    "gpu_report_engine_needs_accelerator": "Потрібен GPU ({{needs}}), якого немає на цьому комп'ютері"
+    "gpu_report_engine_needs_accelerator": "Потрібен GPU ({{needs}}), якого немає на цьому комп'ютері",
+    "models_dir_desc": "Тут зберігаються завантажені моделі. Перенесіть теку на інший диск, щоб звільнити місце."
   },
   "gallery": {
     "title": "Sado Галерея",
@@ -2889,7 +2890,8 @@
     "balanced": "Баланс",
     "quality": "якість",
     "hint": "Застосовується до семплювання OmniVoice та декодування Faster-Whisper / NLLB. Інші рушії зберігають поточні налаштування.",
-    "auto": "Авто"
+    "auto": "Авто",
+    "per_engine": "Налаштування для кожного рушія"
   },
   "recording": {
     "input_device": "Пристрій введення",
@@ -3504,5 +3506,15 @@
     "saving": "Збереження…",
     "saved": "Змінений запис збережено",
     "failed": "Не вдалося змінити інтонацію: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "Застосунок",
+    "group_voices": "Голоси та моделі",
+    "group_device": "Пристрій",
+    "group_data": "Конфіденційність і дані",
+    "group_connections": "Підключення",
+    "group_developer": "Розробникам і підтримка",
+    "device": "Пристрій і пам'ять",
+    "diagnostics": "Діагностика й відомості"
   }
 }

@@ -90,6 +90,56 @@ it('tells a Radeon owner why the GPU is idle and which engines can still use it'
   expect(mock.api).toHaveBeenCalledWith('/api/settings/gpu-report', expect.anything());
 });
 
+// The OS inventory (`gpus`) can be empty while PyTorch drives a GPU: macOS
+// never fills it (MPS comes from torch) and a failed registry read on Windows
+// leaves it blank. The device torch reports must win over "no GPU".
+const acceleratedNoInventory = {
+  platform: 'win32',
+  family: 'cuda',
+  device_name: 'NVIDIA GeForce RTX 2070 SUPER',
+  vram_gb: 8,
+  gpus: [],
+  torch: { kind: 'cuda', version: '2.8.0+cu128' },
+  state: 'accelerated',
+  params: { family: 'cuda', device: 'NVIDIA GeForce RTX 2070 SUPER' },
+  options: [],
+  engines: [],
+};
+
+it('names the GPU torch uses when the OS inventory is empty, never "No GPU detected"', async () => {
+  mock.api.mockResolvedValue(acceleratedNoInventory);
+  renderIt();
+  expect(await screen.findByText(/is available and PyTorch engines/)).toBeInTheDocument();
+  expect(screen.getByText('NVIDIA GeForce RTX 2070 SUPER')).toBeInTheDocument();
+  expect(screen.queryByText('No GPU detected')).not.toBeInTheDocument();
+});
+
+it.each([
+  ['an accelerated host without a device name', { state: 'accelerated', params: {} }],
+  ['an older backend without device_name', { device_name: undefined }],
+  ['a host whose card PyTorch cannot drive', { state: 'nvidia_cpu_build', params: {} }],
+  ['a pinned-CPU host', { state: 'pinned_cpu', params: {}, device_name: '' }],
+])('never claims "No GPU detected" for %s', async (_, patch) => {
+  mock.api.mockResolvedValue({ ...acceleratedNoInventory, ...patch });
+  renderIt();
+  expect(await screen.findByText('This machine')).toBeInTheDocument();
+  expect(screen.queryByText('No GPU detected')).not.toBeInTheDocument();
+});
+
+it('still says "No GPU detected" when the backend found none', async () => {
+  mock.api.mockResolvedValue({
+    ...acceleratedNoInventory,
+    family: 'cpu',
+    device_name: '',
+    vram_gb: 0,
+    torch: { kind: 'cpu', version: '2.8.0+cpu' },
+    state: 'no_gpu',
+    params: {},
+  });
+  renderIt();
+  expect(await screen.findByText('No GPU detected')).toBeInTheDocument();
+});
+
 it('renders nothing for an empty payload', async () => {
   mock.api.mockResolvedValueOnce({});
   renderIt();

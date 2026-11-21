@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "もう一方のマシンで: 設定 → システム → リモートワーカー → 参加 を開き、スキャンするか貼り付けてください。",
     "usage": "使用状況",
     "usage_desc": "Sadoで作成したものを、このデバイス上で集計します。",
-    "usage_privacy": "これらの数値は、このデバイス上の履歴から集計され、外部には送信されません。Sadoは分析サービスを使用しておらず、ここにある情報がコンピューターの外へ出ることはありません。",
+    "usage_privacy": "これらの数値は、このデバイス上の履歴から集計され、外部には送信されません。",
     "usage_empty": "まだ何も生成していません。作成すると、ここに表示されます。",
     "usage_takes": "生成したテイク",
     "usage_since": "{{date}}以降",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "設定済み",
     "translation_providers": "翻訳プロバイダー",
     "hf_token_sources": "HF トークンのソース",
-    "hf_token_input": "HuggingFace トークン",
+    "hf_token_input": "Hugging Face トークン",
     "hf_token_clear_confirm": "アプリに保存された HuggingFace トークンをクリアしますか?",
     "credentials": "資格情報",
     "hf_token_test_now": "今すぐテスト",
     "hf_source_env_label": "環境変数",
     "hf_token_not_checked": "未テスト",
-    "translation_providers_desc": "このセッション用に設定されたオンライン翻訳者の API キー。",
+    "translation_providers_desc": "オンライン翻訳サービス（Google Cloud、Microsoft Azure、AWS、DeepL）の API キーとリージョン。再起動後も保持されます。",
     "hf_token_verified": "確認済み",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "未設定",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU：演算デバイスが CPU に固定されています",
     "gpu_report_engine_no_family_path": "CPU：お使いの GPU の種類に対応する経路がありません",
     "gpu_report_engine_no_gpu": "CPU：GPU がありません",
-    "gpu_report_engine_needs_accelerator": "このマシンにない GPU（{{needs}}）が必要です"
+    "gpu_report_engine_needs_accelerator": "このマシンにない GPU（{{needs}}）が必要です",
+    "models_dir_desc": "ダウンロードしたモデルの保存先です。空き容量を増やすには、フォルダーを別のドライブに移動してください。"
   },
   "gallery": {
     "title": "Sado ギャラリー",
@@ -2885,7 +2886,8 @@
     "balanced": "バランス",
     "quality": "品質",
     "hint": "OmniVoice のサンプリングと Faster-Whisper / NLLB のデコードに適用されます。他のエンジンは現在の設定を維持します。",
-    "auto": "自動"
+    "auto": "自動",
+    "per_engine": "エンジン別の設定"
   },
   "recording": {
     "input_device": "入力デバイス",
@@ -3500,5 +3502,15 @@
     "saving": "保存中…",
     "saved": "編集したテイクを保存しました",
     "failed": "イントネーションを編集できませんでした: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "アプリ",
+    "group_voices": "音声とモデル",
+    "group_device": "デバイス",
+    "group_data": "プライバシーとデータ",
+    "group_connections": "接続",
+    "group_developer": "開発者とサポート",
+    "device": "デバイスとメモリ",
+    "diagnostics": "診断と情報"
   }
 }

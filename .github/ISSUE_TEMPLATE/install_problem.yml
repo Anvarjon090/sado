@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         A first-run that *just works* is the whole point — sorry it didn't. Let's fix it.
-        If the app launched far enough to open Settings, **Settings → About → "Save diagnostic
+        If the app launched far enough to open Settings, **Settings → Diagnostics & About → "Save diagnostic
         bundle"** captures most of this; otherwise the fields below are enough.
   - type: dropdown
     id: stage

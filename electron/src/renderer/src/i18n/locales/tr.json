@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "Diğer makinede: Ayarlar → Sistem → Uzak işçiler → Katıl, sonra tarayın veya yapıştırın.",
     "usage": "Kullanım",
     "usage_desc": "Sado ile oluşturduklarınız kendi cihazınızda sayılır.",
-    "usage_privacy": "Bu sayılar bu cihazdaki geçmişinizden hesaplanır ve hiçbir yere gönderilmez. Sado bir analiz hizmeti kullanmaz — buradaki hiçbir şey bilgisayarınızdan ayrılmaz.",
+    "usage_privacy": "Bu sayılar bu cihazdaki geçmişinizden hesaplanır ve hiçbir yere gönderilmez.",
     "usage_empty": "Henüz bir şey oluşturmadınız — bir şey oluşturduğunuzda burada görünecek.",
     "usage_takes": "Oluşturulan kayıtlar",
     "usage_since": "{{date}} tarihinden beri",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "Ayarlı",
     "translation_providers": "Çeviri sağlayıcıları",
     "hf_token_sources": "HF belirteç kaynakları",
-    "hf_token_input": "HuggingFace belirteci",
+    "hf_token_input": "Hugging Face belirteci",
     "hf_token_clear_confirm": "Uygulama kaynaklı HuggingFace belirteci temizlensin mi?",
     "credentials": "Kimlik Bilgileri",
     "hf_token_test_now": "Şimdi test et",
     "hf_source_env_label": "Ortam değişkeni",
     "hf_token_not_checked": "Test edilmedi",
-    "translation_providers_desc": "Çevrimiçi çevirmenlere yönelik API anahtarları, bu oturum için ayarlandı.",
+    "translation_providers_desc": "Çevrimiçi çevirmenler için API anahtarları ve bölgeler: Google Cloud, Microsoft Azure, AWS ve DeepL. Yeniden başlatmalarda korunur.",
     "hf_token_verified": "Doğrulandı",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Ayarlanmamış",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: hesaplama aygıtı CPU'ya sabitlenmiş",
     "gpu_report_engine_no_family_path": "CPU: GPU türünüz için yol yok",
     "gpu_report_engine_no_gpu": "CPU: kullanılabilir GPU yok",
-    "gpu_report_engine_needs_accelerator": "Bu bilgisayarda olmayan bir GPU ({{needs}}) gerekir"
+    "gpu_report_engine_needs_accelerator": "Bu bilgisayarda olmayan bir GPU ({{needs}}) gerekir",
+    "models_dir_desc": "İndirilen modeller burada tutulur. Yer açmak için klasörü başka bir sürücüye taşıyın."
   },
   "gallery": {
     "title": "Sado Galeri",
@@ -2885,7 +2886,8 @@
     "balanced": "Dengeli",
     "quality": "Kalite",
     "hint": "OmniVoice örnekleme ve Faster-Whisper / NLLB kod çözme için geçerlidir. Diğer motorlar mevcut ayarlarını korur.",
-    "auto": "Otomatik"
+    "auto": "Otomatik",
+    "per_engine": "Motor başına ayarlar"
   },
   "recording": {
     "input_device": "Giriş aygıtı",
@@ -3500,5 +3502,15 @@
     "saving": "Kaydediliyor…",
     "saved": "Düzenlenen kayıt kaydedildi",
     "failed": "Tonlama düzenlenemedi: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "Uygulama",
+    "group_voices": "Sesler ve modeller",
+    "group_device": "Cihaz",
+    "group_data": "Gizlilik ve veriler",
+    "group_connections": "Bağlantılar",
+    "group_developer": "Geliştirici ve destek",
+    "device": "Cihaz ve bellek",
+    "diagnostics": "Tanılama ve hakkında"
   }
 }

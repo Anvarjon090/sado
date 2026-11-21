@@ -1,4 +1,4 @@
-import { BookOpenIcon, CpuIcon } from 'lucide-react';
+import { BookOpenIcon } from 'lucide-react';
 import { ShortcutSettings } from './shortcut-settings';
 import { RefinementSettings } from './refinement-settings';
 import { LlmSkills } from './llm-skills';
@@ -10,8 +10,7 @@ import { EngineLicense, licensedEngine } from './engine-license';
 import { EngineHealth } from './engine-health';
 import { ModelLibrary, PerformanceModelPacks } from './model-library';
 import { useModelCatalogue } from './model-catalogue-query';
-import { familyIcons, modelFamilies, type ModelFamily } from './model-family';
-import { Link } from '@tanstack/react-router';
+import { familyIcons, type ModelFamily } from './model-family';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -336,31 +335,6 @@ export function ModelSettings({
       <>
         <PerformanceModelPacks />
         <VoicePreviewsSettings />
-        <SettingsSection icon={CpuIcon} title={t('modelSettings.models')} contentVariant="cards">
-          {modelFamilies.map((item) =>
-            (() => {
-              const Icon = familyIcons[item];
-              return (
-                <Link
-                  key={item}
-                  to="/settings/models/$family"
-                  params={{ family: item }}
-                  className={buttonVariants({
-                    variant: 'ghost',
-                    className:
-                      'glass-panel min-h-20 min-w-0 justify-between rounded-xl border border-border/60 bg-card/40 px-4 py-4 shadow-xs/5 transition-[border-color,background-color,box-shadow] hover:border-primary/25 hover:bg-primary/[0.04]',
-                  })}
-                >
-                  <span className="flex items-center gap-2.5">
-                    <Icon className="size-4 text-muted-foreground transition-colors duration-150 group-hover:text-foreground" />
-                    {t('engineSidebar.' + item)}
-                  </span>
-                  <ChevronRightIcon className="text-muted-foreground transition-colors duration-150 group-hover:text-foreground" />
-                </Link>
-              );
-            })(),
-          )}
-        </SettingsSection>
       </>
     );
   if (family === 'translation')

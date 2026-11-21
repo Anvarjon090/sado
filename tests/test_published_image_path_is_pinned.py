@@ -1,4 +1,4 @@
-"""Keep the canonical and compatibility GHCR coordinates in one tag stream."""
+"""Sado publishes only to its own registry coordinates, never upstream's."""
 
 import os
 
@@ -15,11 +15,27 @@ def _env():
         return yaml.safe_load(fh)["env"]
 
 
-def test_the_ghcr_paths_are_explicit_and_keep_the_legacy_alias():
+def test_the_ghcr_path_is_explicit_and_owned_by_this_repo():
     env = _env()
-    assert env["IMAGE_NAME"] == "debpalash/sado"
-    assert env["LEGACY_IMAGE_NAME"] == "debpalash/omnivoice-studio"
+    assert env["IMAGE_NAME"] == "anvarjon090/sado"
+    assert "LEGACY_IMAGE_NAME" not in env
     assert "github.repository" not in str(env)
+
+
+def test_nothing_publishes_to_upstream_coordinates():
+    """The fork cannot push there, and pointing users at them hands them
+    another project's builds."""
+    for rel in (
+        ".github/workflows/docker.yml",
+        "deploy/docker-compose.yml",
+        "deploy/dockerhub-overview.md",
+        "docs/install/docker.md",
+        "docs/integration-directory.md",
+        "electron/src/renderer/src/features/integrations/setup-registry.ts",
+    ):
+        text = open(os.path.join(ROOT, rel), encoding="utf-8").read()
+        for upstream in ("ghcr.io/debpalash/sado", "debpalash/omnivoice-studio:", "palashdeb/omnivoice-studio"):
+            assert upstream not in text, f"{rel} still names upstream image {upstream}"
 
 
 def test_release_backfills_require_an_actual_git_tag():
@@ -28,10 +44,9 @@ def test_release_backfills_require_an_actual_git_tag():
     assert 'git rev-parse "${RELEASE_REF}^{commit}"' not in workflow
 
 
-def test_both_ghcr_paths_are_published_by_both_builds():
+def test_the_ghcr_path_is_published_by_both_builds():
     text = open(WORKFLOW, encoding="utf-8").read()
     assert text.count("${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}") == 2
-    assert text.count("${{ env.REGISTRY }}/${{ env.LEGACY_IMAGE_NAME }}") == 2
 
 
 def test_current_release_tags_are_backfilled_for_both_gpu_flavors():
@@ -52,12 +67,12 @@ def test_sha_tags_follow_the_checked_out_source_commit():
     assert "GITHUB_SHA::7" not in text
 
 
-def test_docker_hub_keeps_its_existing_coordinate():
-    assert _env()["DOCKERHUB_IMAGE"] == "palashdeb/omnivoice-studio"
+def test_docker_hub_uses_this_repos_namespace():
+    assert _env()["DOCKERHUB_IMAGE"] == "anvarjon090/sado"
 
 
 def test_active_templates_use_the_canonical_public_path():
-    canonical = "ghcr.io/debpalash/sado"
+    canonical = "ghcr.io/anvarjon090/sado"
     for rel in (
         "deploy/docker-compose.yml",
         "docs/integration-directory.md",
@@ -72,7 +87,6 @@ def test_the_docs_name_the_path_that_is_actually_published():
     """Docs drift here is invisible: a wrong pull command fails only for users."""
     env = _env()
     published = f"ghcr.io/{env['IMAGE_NAME']}"
-    legacy = f"ghcr.io/{env['LEGACY_IMAGE_NAME']}"
     for rel in ("docs/install/docker.md", "deploy/dockerhub-overview.md"):
         path = os.path.join(ROOT, rel)
         if not os.path.isfile(path):
@@ -81,4 +95,3 @@ def test_the_docs_name_the_path_that_is_actually_published():
         if "ghcr.io/" not in text:
             continue
         assert published in text, f"{rel} does not document {published}"
-        assert legacy in text, f"{rel} does not document compatibility alias {legacy}"

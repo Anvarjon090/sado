@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "บนเครื่องอีกเครื่อง: การตั้งค่า → ระบบ → ผู้ปฏิบัติงานระยะไกล → เข้าร่วม แล้วสแกนหรือวาง",
     "usage": "การใช้งาน",
     "usage_desc": "สิ่งที่คุณสร้างด้วย Sado — นับบนอุปกรณ์ของคุณเอง",
-    "usage_privacy": "ตัวเลขเหล่านี้คำนวณจากประวัติบนอุปกรณ์นี้และจะไม่ถูกส่งไปที่ใด Sado ไม่มีบริการวิเคราะห์ — ไม่มีข้อมูลใดออกจากคอมพิวเตอร์ของคุณ",
+    "usage_privacy": "ตัวเลขเหล่านี้คำนวณจากประวัติบนอุปกรณ์นี้และจะไม่ถูกส่งไปที่ใด",
     "usage_empty": "คุณยังไม่ได้สร้างอะไร — เมื่อสร้างแล้วจะแสดงที่นี่",
     "usage_takes": "เทคที่สร้าง",
     "usage_since": "ตั้งแต่ {{date}}",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "ตั้งค่าแล้ว",
     "translation_providers": "ผู้ให้บริการแปล",
     "hf_token_sources": "แหล่งที่มาของโทเค็น HF",
-    "hf_token_input": "โทเค็น HuggingFace",
+    "hf_token_input": "โทเค็น Hugging Face",
     "hf_token_clear_confirm": "ล้างโทเค็น HuggingFace ที่ตั้งจากแอปหรือไม่",
     "credentials": "สิทธิ์การใช้งาน",
     "hf_token_test_now": "ทดสอบตอนนี้",
     "hf_source_env_label": "ตัวแปรสภาพแวดล้อม",
     "hf_token_not_checked": "ยังไม่ได้ทดสอบ",
-    "translation_providers_desc": "คีย์ API สำหรับนักแปลออนไลน์ ตั้งค่าสำหรับเซสชันนี้",
+    "translation_providers_desc": "คีย์ API และภูมิภาคสำหรับบริการแปลออนไลน์: Google Cloud, Microsoft Azure, AWS และ DeepL บันทึกไว้แม้รีสตาร์ต",
     "hf_token_verified": "ตรวจสอบแล้ว",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "ยังไม่ตั้งค่า",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: อุปกรณ์ประมวลผลถูกตรึงไว้ที่ CPU",
     "gpu_report_engine_no_family_path": "CPU: ไม่มีเส้นทางสำหรับ GPU ประเภทของคุณ",
     "gpu_report_engine_no_gpu": "CPU: ไม่มี GPU ให้ใช้",
-    "gpu_report_engine_needs_accelerator": "ต้องใช้ GPU ({{needs}}) ซึ่งเครื่องนี้ไม่มี"
+    "gpu_report_engine_needs_accelerator": "ต้องใช้ GPU ({{needs}}) ซึ่งเครื่องนี้ไม่มี",
+    "models_dir_desc": "โมเดลที่ดาวน์โหลดจะเก็บไว้ที่นี่ ย้ายโฟลเดอร์ไปยังไดรฟ์อื่นเพื่อเพิ่มพื้นที่ว่าง"
   },
   "gallery": {
     "title": "Sado แกลเลอรี่",
@@ -2885,7 +2886,8 @@
     "balanced": "สมดุล",
     "quality": "คุณภาพ",
     "hint": "ใช้กับการสุ่มตัวอย่างของ OmniVoice และการถอดรหัสของ Faster-Whisper / NLLB เอนจินอื่นจะคงการตั้งค่าปัจจุบันไว้",
-    "auto": "อัตโนมัติ"
+    "auto": "อัตโนมัติ",
+    "per_engine": "การตั้งค่าแยกตามเอนจิน"
   },
   "recording": {
     "input_device": "อุปกรณ์อินพุต",
@@ -3500,5 +3502,15 @@
     "saving": "กำลังบันทึก…",
     "saved": "บันทึกเทคที่แก้ไขแล้ว",
     "failed": "แก้ไขน้ำเสียงไม่สำเร็จ: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "แอป",
+    "group_voices": "เสียงและโมเดล",
+    "group_device": "อุปกรณ์",
+    "group_data": "ความเป็นส่วนตัวและข้อมูล",
+    "group_connections": "การเชื่อมต่อ",
+    "group_developer": "นักพัฒนาและการสนับสนุน",
+    "device": "อุปกรณ์และหน่วยความจำ",
+    "diagnostics": "การวินิจฉัยและเกี่ยวกับ"
   }
 }

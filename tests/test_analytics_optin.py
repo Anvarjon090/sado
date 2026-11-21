@@ -72,29 +72,30 @@ def test_off_by_default_even_when_the_build_ships_a_token(monkeypatch):
     assert analytics.enabled() is False
 
 
-def test_source_builds_have_a_destination_via_the_in_repo_default(monkeypatch):
-    """#1193: with no env/baked token, the committed publishable key is the
-    fallback — so source builds get the SAME consent flow as installers. Consent
-    is still the gate: available ≠ enabled."""
-    assert analytics.token_configured() is True  # no env token set by _isolate
-    assert analytics.enabled() is False          # …but silence is still not consent
-    analytics.set_opted_in(True)
-    assert analytics.enabled() is True
+def test_a_build_without_a_token_has_no_destination(monkeypatch):
+    """The in-repo default is empty (2026-11-21): a source build with no env or
+    baked token has no destination, so it never asks for consent."""
+    assert analytics._PUBLIC_PROJECT_TOKEN == ""
+    assert analytics.token_configured() is False  # no env token set by _isolate
+    assert analytics.enabled() is False
 
 
-def test_the_env_token_beats_the_in_repo_default(monkeypatch):
+def test_the_env_token_is_the_destination(monkeypatch):
     """Release builds bake a token through the shell env; developers set their
-    own. Either must override the committed default."""
+    own. Consent is still the gate: available ≠ enabled."""
     monkeypatch.setenv("POSTHOG_PROJECT_TOKEN", "  phc_env_wins  ")
     assert analytics._resolved_token() == "phc_env_wins"
+    assert analytics.token_configured() is True
+    assert analytics.enabled() is False
+    analytics.set_opted_in(True)
+    assert analytics.enabled() is True
     monkeypatch.delenv("POSTHOG_PROJECT_TOKEN")
-    assert analytics._resolved_token() == analytics._PUBLIC_PROJECT_TOKEN
+    assert analytics._resolved_token() == ""
 
 
 def test_opting_in_without_any_token_still_cannot_transmit(monkeypatch):
-    """A build with no destination at all (env absent AND in-repo default
-    blanked) — the toggle must not pretend otherwise."""
-    monkeypatch.setattr(analytics, "_PUBLIC_PROJECT_TOKEN", "")
+    """A build with no destination at all — the toggle must not pretend
+    otherwise."""
     analytics.set_opted_in(True)
     assert analytics.user_opted_in() is True
     assert analytics.token_configured() is False

@@ -262,7 +262,7 @@ an AMD-only machine `torch.cuda.is_available()` is `False` and Sado runs
 on CPU until you opt into the ROCm variant.
 
 > **Running in Docker or Podman instead?** There's a prebuilt ROCm image —
-> `ghcr.io/debpalash/sado:stable-rocm` — with GPU acceleration out of the
+> `ghcr.io/anvarjon090/sado:stable-rocm` — with GPU acceleration out of the
 > box; see [docker.md](docker.md#pull-and-run-amd-gpu--rocm). The rest of this
 > section is about source/desktop installs. (Sado has no ROCm path on
 Windows; see [windows.md](windows.md#gpu-support) for what a Radeon card can
@@ -277,7 +277,7 @@ Ways to opt in, in order of preference:
 Runtime setup then reinstalls `torch`/`torchaudio` from the ROCm wheel index
 (`https://download.pytorch.org/whl/rocm6.4` by default) right after the
 dependency sync, matched to the app's pinned `torch==2.8.0` (the rocm6.2 index
-only ever published up to torch 2.5.1). **Settings → Performance → GPU
+only ever published up to torch 2.5.1). **Settings → Device & memory → GPU
 acceleration** reports which PyTorch build is installed. The option is ignored
 on macOS and Windows.
 
@@ -314,7 +314,7 @@ Once a ROCm build of PyTorch is in the venv, detection is automatic —
 `get_best_device()` returns the GPU (ROCm-built PyTorch reports through
 `torch.cuda.is_available()`), and Sado auto-sets
 `HSA_OVERRIDE_GFX_VERSION` for consumer cards whose GFX ID isn't in the
-official ROCm support matrix. Relaunch and **Settings → Performance → GPU acceleration** should
+official ROCm support matrix. Relaunch and **Settings → Device & memory → GPU acceleration** should
 report the GPU device instead of `cpu`. Verify the wheel sees your card:
 
 ```bash

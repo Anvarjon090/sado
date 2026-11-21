@@ -1161,7 +1161,7 @@
     "workers_token_qr_hint": "على الجهاز الآخر: الإعدادات ← النظام ← العاملون البعيدون ← انضمام، ثم امسح أو الصق.",
     "usage": "الاستخدام",
     "usage_desc": "ما أنشأته باستخدام Sado — محسوب على جهازك.",
-    "usage_privacy": "تُحسب هذه الأرقام من سجلك على هذا الجهاز ولا تُرسل أبداً إلى أي مكان. لا تستخدم Sado خدمة تحليلات — لا يغادر أي شيء هنا جهازك.",
+    "usage_privacy": "تُحسب هذه الأرقام من سجلك على هذا الجهاز ولا تُرسل أبداً إلى أي مكان.",
     "usage_empty": "لم تنشئ أي شيء بعد — أنشئ شيئاً وسيظهر هنا.",
     "usage_takes": "المقاطع المنشأة",
     "usage_since": "منذ {{date}}",
@@ -1290,13 +1290,13 @@
     "hf_token_set": "مضبوط",
     "translation_providers": "مقدمو خدمات الترجمة",
     "hf_token_sources": "مصادر رمز HF",
-    "hf_token_input": "رمز HuggingFace",
+    "hf_token_input": "رمز Hugging Face",
     "hf_token_clear_confirm": "هل تريد مسح رمز HuggingFace المحفوظ من التطبيق؟",
     "credentials": "بيانات الاعتماد",
     "hf_token_test_now": "اختبر الآن",
     "hf_source_env_label": "متغير البيئة",
     "hf_token_not_checked": "لم يتم اختباره",
-    "translation_providers_desc": "مفاتيح واجهة برمجة التطبيقات (API) للمترجمين عبر الإنترنت، مُعيَّنة لهذه الجلسة.",
+    "translation_providers_desc": "مفاتيح API والمناطق لخدمات الترجمة عبر الإنترنت: Google Cloud وMicrosoft Azure وAWS وDeepL. تُحفظ بعد إعادة التشغيل.",
     "hf_token_verified": "تم التحقق",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "غير مضبوط",
@@ -1534,7 +1534,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: جهاز الحوسبة مثبّت على CPU",
     "gpu_report_engine_no_family_path": "CPU: لا يوجد مسار لنوع GPU لديك",
     "gpu_report_engine_no_gpu": "CPU: لا يتوفر GPU",
-    "gpu_report_engine_needs_accelerator": "يحتاج إلى GPU ({{needs}}) غير موجود في هذا الجهاز"
+    "gpu_report_engine_needs_accelerator": "يحتاج إلى GPU ({{needs}}) غير موجود في هذا الجهاز",
+    "models_dir_desc": "تُحفظ النماذج التي تم تنزيلها هنا. انقل المجلد إلى قرص آخر لتوفير مساحة."
   },
   "gallery": {
     "title": "Sado معرض",
@@ -2893,7 +2894,8 @@
     "balanced": "متوازن",
     "quality": "الجودة",
     "hint": "ينطبق على أخذ العينات في OmniVoice وفك الترميز في Faster-Whisper / NLLB. تحتفظ المحركات الأخرى بإعداداتها الحالية.",
-    "auto": "تلقائي"
+    "auto": "تلقائي",
+    "per_engine": "إعدادات كل محرك"
   },
   "recording": {
     "input_device": "جهاز الإدخال",
@@ -3508,5 +3510,15 @@
     "saving": "جارٍ الحفظ…",
     "saved": "تم حفظ التسجيل المعدّل",
     "failed": "تعذّر تعديل التنغيم: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "التطبيق",
+    "group_voices": "الأصوات والنماذج",
+    "group_device": "الجهاز",
+    "group_data": "الخصوصية والبيانات",
+    "group_connections": "الاتصالات",
+    "group_developer": "المطوّرون والدعم",
+    "device": "الجهاز والذاكرة",
+    "diagnostics": "التشخيص وحول التطبيق"
   }
 }

@@ -68,8 +68,7 @@ export interface IntegrationSetup {
 }
 
 const REPO_DOCS = 'https://github.com/Anvarjon090/sado/blob/main/docs';
-const DOCKER_HUB_IMAGE = 'palashdeb/omnivoice-studio';
-const GHCR_IMAGE = 'ghcr.io/debpalash/sado';
+const GHCR_IMAGE = 'ghcr.io/anvarjon090/sado';
 
 function mcpClient(slug: keyof typeof MCP_CLIENTS): IntegrationSetup {
   return {
@@ -315,7 +314,7 @@ export const INTEGRATION_SETUPS: Record<string, IntegrationSetup> = {
       ];
     },
   },
-  docker: container(DOCKER_HUB_IMAGE, `${REPO_DOCS}/install/docker.md`),
+  docker: container(GHCR_IMAGE, `${REPO_DOCS}/install/docker.md`),
   'github-container-registry': container(GHCR_IMAGE, `${REPO_DOCS}/install/docker.md`),
   'openai-agents': {
     // Sado serves the pipeline's speech-to-text and text-to-speech; the

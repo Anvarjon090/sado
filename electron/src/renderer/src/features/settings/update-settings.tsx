@@ -15,7 +15,7 @@ import {
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { MarkdownLite } from '@/components/markdown-lite';
+import { InlineMarkdown, MarkdownLite } from '@/components/markdown-lite';
 import { appVersion, getBridge } from '@/components/bridge';
 import { dubSession, flushDubDraft, useDubSession } from '@/features/dub/dub-session';
 import { hasActiveAppWork, useAppActivityCount } from '@/lib/app-activity';
@@ -43,11 +43,6 @@ interface ChangelogRelease {
 interface ChangelogResponse {
   available: boolean;
   releases: ChangelogRelease[];
-}
-
-interface BackupState {
-  available: boolean;
-  latest?: { path: string; created_at: number; size_bytes: number } | null;
 }
 
 const serverWorkActive = (models?: ModelInstallJobs, batches?: unknown[]) =>
@@ -98,11 +93,6 @@ export function UpdateSettings() {
       apiJson<ChangelogResponse>('/api/settings/changelog?limit_versions=5', {
         signal,
       }),
-    staleTime: 300_000,
-  });
-  const backup = useQuery({
-    queryKey: ['db-backup'],
-    queryFn: ({ signal }) => apiJson<BackupState>('/api/settings/db-backup', { signal }),
     staleTime: 300_000,
   });
   const releaseHistory = useQuery({
@@ -330,18 +320,6 @@ export function UpdateSettings() {
         </SettingsSection>
       )}
 
-      <SettingsSection icon={ShieldCheckIcon} title={t('updates.backup_line')}>
-        <div className="px-4 py-3 text-sm text-muted-foreground">
-          {backup.isPending
-            ? t('common.loading')
-            : backup.data?.available && backup.data.latest
-              ? t('updates.backup_latest', {
-                  when: new Date(backup.data.latest.created_at * 1000).toLocaleString(),
-                })
-              : t('updates.backup_none')}
-        </div>
-      </SettingsSection>
-
       {changelog.data?.available && changelog.data.releases.length > 0 && (
         <SettingsSection icon={SparklesIcon} title={t('update.whats_new')}>
           <div className="divide-y divide-border/50">
@@ -368,7 +346,7 @@ export function UpdateSettings() {
                   <div className="mt-3 space-y-4 pl-6 text-xs leading-5 text-muted-foreground">
                     {release.intro && (
                       <p className="font-medium text-foreground">
-                        {release.intro.replaceAll('**', '')}
+                        <InlineMarkdown text={release.intro} />
                       </p>
                     )}
                     {release.sections?.map((section, sectionIndex) => (
@@ -378,7 +356,9 @@ export function UpdateSettings() {
                         )}
                         <ul className="list-disc space-y-1.5 pl-4">
                           {section.bullets.map((bullet, bulletIndex) => (
-                            <li key={bulletIndex}>{bullet}</li>
+                            <li key={bulletIndex}>
+                              <InlineMarkdown text={bullet} />
+                            </li>
                           ))}
                         </ul>
                       </section>

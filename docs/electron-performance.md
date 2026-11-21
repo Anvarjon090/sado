@@ -6,14 +6,14 @@
 > now lives in `electron/src/shared/`. Existing Tauri installs: see the
 > [migration guide](electron-migration.md).
 
-Settings > Compute device exposes the existing device override, a physical CUDA adapter selector on multi-GPU NVIDIA hosts, the torch.compile workaround, generation time budgets, and hardware readouts. The CUDA selector persists a stable GPU UUID through `CUDA_VISIBLE_DEVICES`; restart the app to apply it to the backend and every engine subprocess.
+Settings > Device & memory exposes the existing device override, a physical CUDA adapter selector on multi-GPU NVIDIA hosts, GPU acceleration, hardware readouts and memory management. Settings > Speed / quality holds the global speed/quality preset (per-engine presets in a fold beneath it), the torch.compile workaround and the generation time budgets. The system preflight check moved to Settings > Diagnostics & About. The CUDA selector persists a stable GPU UUID through `CUDA_VISIBLE_DEVICES`; restart the app to apply it to the backend and every engine subprocess.
 
 CUDA selection uses the validated `/api/settings/cuda-device` endpoint; the generic environment setter cannot change it or alter the running process's GPU visibility.
 Adapter discovery checks PATH, the Windows NVSMI installation directory, and the WSL NVIDIA CLI location so non-DCH Windows drivers do not require a manual PATH edit.
 An externally set, empty `CUDA_VISIBLE_DEVICES` is shown as Disabled, not Auto: it hides all CUDA adapters and keeps the selector pinned.
 After a failed save, Retry reloads both compute settings and clears the observed error only when both requests succeed; it does not silently retry the write or dismiss failures from a newer save.
 
-Settings > Performance > GPU acceleration reads `GET /api/settings/gpu-report`: the GPUs the OS reports (independent of PyTorch), the installed PyTorch build, a host state with the options that really exist on that OS, and a per-engine verdict (uses the GPU, CPU and why, CPU by design). Engines that are not installed get no verdict. The backend sends codes; the renderer owns the text.
+Settings > Device & memory > GPU acceleration reads `GET /api/settings/gpu-report`: the GPUs the OS reports (independent of PyTorch), the installed PyTorch build, a host state with the options that really exist on that OS, and a per-engine verdict (uses the GPU, CPU and why, CPU by design). Engines that are not installed get no verdict. The backend sends codes; the renderer owns the text.
 
 Device choices come from the backend's detected families plus Auto. The chosen preference and currently active family are displayed separately. Environment-pinned choices are disabled, an ignored unavailable override is explained, and a changed preference shows its actual restart requirement. Failed saves keep the last confirmed state. Nothing automatically restarts the backend or changes the active model.
 

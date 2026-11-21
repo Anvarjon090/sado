@@ -585,7 +585,7 @@ export function WorkersSettings() {
                 <ol className="mt-3 space-y-2">
                   {[1, 2, 3].map((step) => (
                     <li key={step} className="flex items-start gap-2 text-xs text-muted-foreground">
-                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted font-mono text-[10px]">
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted font-mono text-[11px]">
                         {step}
                       </span>
                       {t(`settings.workers_step_${step}`)}

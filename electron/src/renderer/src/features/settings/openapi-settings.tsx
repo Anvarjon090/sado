@@ -1,7 +1,7 @@
 import { LoadingOrb } from '@/components/motion-fx';
 import { CheckCircle2Icon, CopyIcon, ExternalLinkIcon, RefreshCwIcon } from 'lucide-react';
-import { lazy, Suspense } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,15 @@ import { apiJson, apiPath, describeError } from '@/lib/api/client';
 import { SettingsActionError } from './settings-action-error';
 
 const ScalarApiReference = lazy(() => import('./scalar-api-reference'));
+
+/**
+ * How long the spec may stay pending before the page gives up waiting. A
+ * pending query covers both a request that never answers (no fetch timeout)
+ * and one paused because the backend is not reachable yet; either way the user
+ * gets the error state instead of an endless spinner. A late answer still
+ * replaces the error with the reference.
+ */
+const SPEC_DEADLINE_MS = 15_000;
 
 function LoadingReference() {
   const { t } = useTranslation();
@@ -29,8 +38,10 @@ export function OpenApiSettings() {
   const baseUrl = backend.baseUrl.replace(/\/+$/, '');
   const displayedBaseUrl = baseUrl || window.location.origin;
   const rawUrl = `${displayedBaseUrl}/openapi.json`;
+  const queryClient = useQueryClient();
+  const specKey = ['openapi-spec', rawUrl];
   const spec = useQuery({
-    queryKey: ['openapi-spec', rawUrl],
+    queryKey: specKey,
     queryFn: async ({ signal }) => {
       const data = await apiJson<Record<string, unknown>>('/openapi.json', { signal });
       return {
@@ -40,6 +51,22 @@ export function OpenApiSettings() {
     },
     staleTime: 60_000,
   });
+  // Keyed by URL so switching backends starts a fresh deadline.
+  const [timedOutFor, setTimedOutFor] = useState<string | null>(null);
+  const timedOut = spec.isPending && timedOutFor === rawUrl;
+  useEffect(() => {
+    if (!spec.isPending || timedOutFor === rawUrl) return;
+    const timer = window.setTimeout(() => setTimedOutFor(rawUrl), SPEC_DEADLINE_MS);
+    return () => window.clearTimeout(timer);
+  }, [spec.isPending, timedOutFor, rawUrl]);
+
+  const retry = async () => {
+    setTimedOutFor(null);
+    // refetch() joins a request that is still in flight when there is no data
+    // yet, so a hung request must be cancelled first or Retry does nothing.
+    await queryClient.cancelQueries({ queryKey: specKey });
+    void spec.refetch();
+  };
 
   const copyUrl = async () => {
     try {
@@ -83,10 +110,10 @@ export function OpenApiSettings() {
             size="sm"
             aria-label={t('common.refresh')}
             title={t('common.refresh')}
-            disabled={spec.isFetching}
-            onClick={() => void spec.refetch()}
+            disabled={spec.isFetching && !timedOut}
+            onClick={() => void retry()}
           >
-            <RefreshCwIcon className={spec.isFetching ? 'animate-spin' : undefined} />
+            <RefreshCwIcon className={spec.isFetching && !timedOut ? 'animate-spin' : undefined} />
             <span className="hidden @2xl:inline">{t('common.refresh')}</span>
           </Button>
           <Button
@@ -111,20 +138,31 @@ export function OpenApiSettings() {
           </Button>
         </div>
       </div>
-      {spec.isPending ? (
+      {spec.isPending && !timedOut ? (
         <main className="min-h-0 flex-1">
           <LoadingReference />
         </main>
-      ) : spec.isError ? (
+      ) : spec.isPending || spec.isError ? (
         <main className="min-h-0 flex-1 p-4">
           <SettingsActionError
             title={t('openapi.unreachable_title')}
-            detail={`${t('openapi.unreachable_body', { url: rawUrl })} ${describeError(spec.error)}`}
+            detail={[
+              t('openapi.unreachable_body', { url: rawUrl }),
+              spec.isError ? describeError(spec.error) : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             action={
-              <Button variant="ghost" size="xs" onClick={() => void spec.refetch()}>
-                <RefreshCwIcon />
-                {t('common.retry')}
-              </Button>
+              <>
+                <Button variant="ghost" size="xs" onClick={openRaw}>
+                  <ExternalLinkIcon />
+                  {t('openapi.open_raw')}
+                </Button>
+                <Button variant="ghost" size="xs" onClick={() => void retry()}>
+                  <RefreshCwIcon />
+                  {t('common.retry')}
+                </Button>
+              </>
             }
           />
         </main>

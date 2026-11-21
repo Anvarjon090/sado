@@ -2,8 +2,7 @@ import { NetworkIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Link } from '@tanstack/react-router';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiJson } from '@/lib/api/client';
 import { SettingsSection, SettingsRow } from './settings-layout';
@@ -47,6 +46,8 @@ export function NetworkSettings() {
         >
           <Input
             aria-label={t('settings.proxy')}
+            placeholder="http://127.0.0.1:8080"
+            className="min-w-56 flex-1"
             value={value}
             disabled={action.busy || query.isPending}
             autoComplete="off"
@@ -57,7 +58,7 @@ export function NetworkSettings() {
               action.reset();
             }}
           />
-          <Button type="submit" size="sm" disabled={action.busy || !value.trim()}>
+          <Button variant="outline" type="submit" size="sm" disabled={action.busy || !value.trim()}>
             {t('common.save')}
           </Button>
           <Button
@@ -84,11 +85,6 @@ export function NetworkSettings() {
           {t(value ? 'settings.proxy_saved' : 'settings.proxy_cleared')}
         </p>
       )}
-      <SettingsRow id="network-media" title={t('settings.ffmpeg')}>
-        <Link to="/settings/media" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
-          {t('settings.audio_tools')}
-        </Link>
-      </SettingsRow>
     </SettingsSection>
   );
 }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useBackendStatus } from '@/hooks/use-backend-status';
 import { apiJson, describeError } from '@/lib/api/client';
 import { SettingsRow, SettingsSection } from './settings-layout';
+import { mergeLanguageRows, modeLabelKey } from './usage-rows';
 
 interface UsageRow {
   name: string;
@@ -37,7 +38,9 @@ function formatDuration(value: number): string {
 function Stat({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
     <div className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
-      <p className="font-mono text-lg font-medium tabular-nums text-foreground">{value}</p>
+      <p className="text-xl font-semibold tabular-nums tracking-[-0.01em] text-foreground">
+        {value}
+      </p>
       <p className="mt-1 text-sm text-muted-foreground">{label}</p>
       {sub && <p className="mt-0.5 text-xs text-muted-foreground/70">{sub}</p>}
     </div>
@@ -58,13 +61,11 @@ function Bars({ title, rows }: { title: string; rows: UsageRow[] }) {
           <span className="truncate text-sm">{row.name}</span>
           <span className="h-1.5 overflow-hidden rounded-full bg-muted">
             <span
-              className="block h-full rounded-full bg-primary transition-[width] duration-300 motion-reduce:transition-none"
+              className="block h-full rounded-full bg-foreground/55 transition-[width] duration-300 motion-reduce:transition-none"
               style={{ width: `${Math.round((row.count / maximum) * 100)}%` }}
             />
           </span>
-          <span className="text-right font-mono text-sm tabular-nums text-muted-foreground">
-            {row.count}
-          </span>
+          <span className="text-right text-sm tabular-nums text-muted-foreground">{row.count}</span>
         </div>
       ))}
     </div>
@@ -72,7 +73,7 @@ function Bars({ title, rows }: { title: string; rows: UsageRow[] }) {
 }
 
 export function UsageSettings() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const backend = useBackendStatus();
   const bridge = getBridge();
   const [switching, setSwitching] = useState(false);
@@ -89,13 +90,9 @@ export function UsageSettings() {
 
   return (
     <SettingsSection icon={BarChart3Icon} title={t('settings.usage')}>
-      <SettingsRow
-        id="usage-overview"
-        title={t('settings.usage')}
-        description={t('settings.usage_desc')}
-      >
-        <ShieldCheckIcon aria-hidden="true" className="size-4 text-emerald-500" />
-      </SettingsRow>
+      <p className="max-w-[62ch] px-4 py-3.5 text-[13px] leading-[1.45] text-muted-foreground">
+        {t('settings.usage_desc')}
+      </p>
       {backend.remote ? (
         <SettingsRow
           id="usage-local-backend"
@@ -125,7 +122,7 @@ export function UsageSettings() {
       ) : (
         <>
           <p className="flex items-start gap-2 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
-            <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+            <ShieldCheckIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
             <span>{t('settings.usage_privacy')}</span>
           </p>
           {query.isError && (
@@ -167,8 +164,17 @@ export function UsageSettings() {
                   <Stat label={t('settings.usage_starred')} value={summary.starred} />
                 )}
               </div>
-              <Bars title={t('settings.usage_by_mode')} rows={summary.by_mode ?? []} />
-              <Bars title={t('settings.usage_by_language')} rows={summary.by_language ?? []} />
+              <Bars
+                title={t('settings.usage_by_mode')}
+                rows={(summary.by_mode ?? []).map((row) => {
+                  const key = modeLabelKey(row.name);
+                  return key ? { ...row, name: t(key) } : row;
+                })}
+              />
+              <Bars
+                title={t('settings.usage_by_language')}
+                rows={mergeLanguageRows(summary.by_language ?? [], i18n.resolvedLanguage || 'en')}
+              />
             </div>
           )}
         </>

@@ -16,7 +16,7 @@ sys.modules["cla_check"] = cla  # dataclasses resolve their module by name
 _spec.loader.exec_module(cla)
 
 OPENER = cla.Person("alice", 1001)
-MAINTAINER = cla.Person("debpalash", 4178343)
+MAINTAINER = cla.Person("Anvarjon090", 199935261)
 
 
 def actor(login=None, id=None, name="Someone", email="someone@example.com"):
@@ -41,7 +41,7 @@ def test_sign_phrase_is_recognised_on_its_own_line(body):
 @pytest.mark.parametrize("body", [
     "> " + cla.SIGN_PHRASE,  # quoting the bot is not signing
     "I will sign: " + cla.SIGN_PHRASE,
-    cla.SIGN_PHRASE.replace("1.0", "0.9"),
+    cla.SIGN_PHRASE.replace(cla.CLA_VERSION, "0.9"),
     "",
     None,
 ])
@@ -69,13 +69,13 @@ def test_opener_must_sign_even_without_commits():
 
 def test_git_name_cannot_impersonate_the_maintainer():
     # Unlinked email with the maintainer's name: matched by account, not name.
-    spoof = actor(name="debpalash", email="someone@gmail.com")
+    spoof = actor(name="Anvarjon090", email="someone@gmail.com")
     result = cla.evaluate(OPENER, False, [spoof], {1001})
-    assert result.unknown == ["debpalash <someone@gmail.com>"]
+    assert result.unknown == ["Anvarjon090 <someone@gmail.com>"]
 
 
 def test_maintainer_and_bots_are_exempt_by_id():
-    actors = [actor("debpalash", 4178343), actor("dependabot[bot]", 49699333)]
+    actors = [actor("Anvarjon090", 199935261), actor("dependabot[bot]", 49699333)]
     assert cla.evaluate(MAINTAINER, False, actors, set()).passed
 
 
@@ -560,7 +560,7 @@ def test_no_reply_to_ordinary_comments_bots_or_valid_signatures(comment):
 @pytest.mark.parametrize("comment", [
     {**_comment(body="To sign, post: `" + cla.SIGN_PHRASE + "`"), "author_association": "COLLABORATOR"},
     {**_comment(body="Post this line: " + cla.SIGN_PHRASE), "author_association": "MEMBER"},
-    _comment(user_id=4178343, login="debpalash", body="Please post exactly: " + cla.SIGN_PHRASE),
+    _comment(user_id=199935261, login="Anvarjon090", body="Please post exactly: " + cla.SIGN_PHRASE),
 ])
 def test_maintainers_explaining_how_to_sign_get_no_reply(comment):
     gh = _with_reactions(FakeGitHub([comment], [], store=cla.empty_store()))

@@ -119,6 +119,7 @@ export function HuggingFaceToken() {
           className="min-w-48 flex-1"
           type="password"
           aria-label={t('settings.hf_token_input')}
+          placeholder="hf_…"
           value={token}
           autoComplete="new-password"
           spellCheck={false}
@@ -128,7 +129,7 @@ export function HuggingFaceToken() {
             action.reset();
           }}
         />
-        <Button type="submit" size="sm" disabled={busy || !token.trim()}>
+        <Button variant="outline" type="submit" size="sm" disabled={busy || !token.trim()}>
           {t('common.save')}
         </Button>
         {query.data?.sources.some((source) => source.source !== 'env' && source.set) && (
@@ -234,7 +235,7 @@ function ProviderCredential({ field }: { field: (typeof PROVIDER_FIELDS)[number]
               action.reset();
             }}
           />
-          <Button size="sm" type="submit" disabled={action.busy || !value.trim()}>
+          <Button variant="outline" size="sm" type="submit" disabled={action.busy || !value.trim()}>
             {t('common.save')}
           </Button>
         </form>

@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "在另一台机器上：设置 → 系统 → 远程工作机 → 加入，然后扫描或粘贴。",
     "usage": "使用情况",
     "usage_desc": "你用 Sado 制作了什么——完全在本机统计。",
-    "usage_privacy": "这些数字来自你本机上的历史记录，绝不会发送到任何地方。Sado 没有分析服务——这里的内容不会离开你的电脑。",
+    "usage_privacy": "这些数字来自你本机上的历史记录，绝不会发送到任何地方。",
     "usage_empty": "你还没有生成任何内容——做点什么，它会出现在这里。",
     "usage_takes": "生成次数",
     "usage_since": "自 {{date}} 起",
@@ -1347,13 +1347,13 @@
     "hf_token_set": "已设置",
     "translation_providers": "翻译提供商",
     "hf_token_sources": "HF 令牌来源",
-    "hf_token_input": "HuggingFace 令牌",
+    "hf_token_input": "Hugging Face 令牌",
     "hf_token_clear_confirm": "清除“应用”来源的 HuggingFace 令牌？",
     "credentials": "凭证",
     "hf_token_test_now": "立即测试",
     "hf_source_env_label": "环境变量",
     "hf_token_not_checked": "未测试",
-    "translation_providers_desc": "为此会话配置的 DeepL 和 Microsoft 在线翻译器 API 密钥。保存并跨重启恢复。",
+    "translation_providers_desc": "在线翻译服务（Google Cloud、Microsoft Azure、AWS 和 DeepL）的 API 密钥与区域。重启后仍会保留。",
     "hf_token_verified": "已验证",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "未设置",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU：计算设备已固定为 CPU",
     "gpu_report_engine_no_family_path": "CPU：没有适用于你的 GPU 类型的路径",
     "gpu_report_engine_no_gpu": "CPU：没有可用的 GPU",
-    "gpu_report_engine_needs_accelerator": "需要此电脑没有的 GPU（{{needs}}）"
+    "gpu_report_engine_needs_accelerator": "需要此电脑没有的 GPU（{{needs}}）",
+    "models_dir_desc": "已下载的模型保存在此处。将文件夹移到其他磁盘可释放空间。"
   },
   "gallery": {
     "title": "Sado 音色库",
@@ -2885,7 +2886,8 @@
     "balanced": "均衡",
     "quality": "质量",
     "hint": "适用于 OmniVoice 采样和 Faster-Whisper / NLLB 解码。其他引擎保留当前设置。",
-    "auto": "自动"
+    "auto": "自动",
+    "per_engine": "按引擎设置"
   },
   "recording": {
     "input_device": "输入设备",
@@ -3500,5 +3502,15 @@
     "saving": "保存中…",
     "saved": "已保存编辑后的录音",
     "failed": "无法编辑语调：{{message}}"
+  },
+  "settingsNav": {
+    "group_app": "应用",
+    "group_voices": "声音与模型",
+    "group_device": "设备",
+    "group_data": "隐私与数据",
+    "group_connections": "连接",
+    "group_developer": "开发者与支持",
+    "device": "设备与内存",
+    "diagnostics": "诊断与关于"
   }
 }

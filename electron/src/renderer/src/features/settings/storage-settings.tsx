@@ -8,6 +8,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { apiJson } from '@/lib/api/client';
 import { getBridge } from '@/components/bridge';
 import { SettingsSection } from './settings-layout';
+import { meterTone } from './meter-tone';
 import { HistoryRetention } from './privacy-settings';
 import { useSettingsAction } from './use-settings-action';
 import { fmtBytes } from '@shared/components/settings/models/format';
@@ -15,10 +16,7 @@ import { ModelsDirectorySettings } from './models-directory-settings';
 import { ResetSettings } from './reset-settings';
 import { DataDirectorySettings } from './data-directory-settings';
 import { UninstallSettings } from './uninstall-settings';
-import {
-  warningText,
-  type StorageWarning,
-} from '@shared/utils/storageWarnings';
+import { warningText, type StorageWarning } from '@shared/utils/storageWarnings';
 interface Item {
   id: string;
   path?: string;
@@ -132,7 +130,7 @@ export function StorageSettings() {
               className="h-1.5 overflow-hidden rounded-full bg-muted"
             >
               <div
-                className="h-full bg-primary"
+                className={'h-full ' + meterTone(volume.used_percent)}
                 style={{ width: Math.max(0, Math.min(100, volume.used_percent)) + '%' }}
               />
             </div>

@@ -4,8 +4,7 @@
 
 | Channel | Best for |
 |---|---|
-| [Discord](https://discord.gg/bzQavDfVV9) — `#help` | Setup problems, quick questions, sharing results |
-| [GitHub Issues](https://github.com/Anvarjon090/sado/issues) | Bugs and feature requests — use the templates; attach the diagnostic bundle (Settings → About → "Save diagnostic bundle") |
+| [GitHub Issues](https://github.com/Anvarjon090/sado/issues) | Bugs and feature requests — use the templates; attach the diagnostic bundle (Settings → Diagnostics & About → "Save diagnostic bundle") |
 | [GitHub Discussions](https://github.com/Anvarjon090/sado/discussions) | Design questions, ideas, show & tell |
 | Security issues | **Never a public issue** — see [SECURITY.md](SECURITY.md) for private reporting |
 
@@ -33,7 +32,7 @@ archive.
 ## Before filing a bug
 
 1. Update to the latest release (or `main` if you follow previews) — fixes ship continuously.
-2. Run the in-app self-check: **Settings → About → Run self-check**.
+2. Run the in-app self-check: **Settings → Diagnostics & About → Run self-check**.
 3. Search existing issues; add a 👍 + your details to an existing one rather than opening a duplicate.
 
 ## Response expectations

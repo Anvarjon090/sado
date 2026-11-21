@@ -10,6 +10,7 @@ const settingsRoutes = new Set([
   '/settings/sharing',
   '/settings/credentials',
   '/settings/performance',
+  '/settings/speed',
   '/settings/usage',
   '/settings/workers',
   '/settings/privacy',
@@ -41,4 +42,16 @@ export function rememberSettingsRoute(pathname: string): void {
   } catch {
     // The current route remains usable when storage is unavailable.
   }
+}
+
+/* Where Settings' Back button returns: the last page outside Settings. Kept in
+   memory only; a fresh window has no history to return to, so Back goes Home. */
+let lastWorkspaceRoute = '/';
+
+export function rememberWorkspaceRoute(pathname: string): void {
+  if (!pathname.startsWith('/settings')) lastWorkspaceRoute = pathname || '/';
+}
+
+export function readLastWorkspaceRoute(): string {
+  return lastWorkspaceRoute;
 }

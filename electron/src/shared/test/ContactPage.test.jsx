@@ -1,5 +1,5 @@
 // Contact channels — render-level coverage for every guidance section
-// (bug / feature / community / support / security), each channel pointing at
+// (bug / feature / support / security), each channel pointing at
 // the right URL, and the in-app bug-report affordance.
 //
 // Contact is a SECTION of SupportPage now, not a page of its own: sponsoring,
@@ -31,7 +31,6 @@ describe('contact sections', () => {
     for (const name of [
       'Report a bug',
       'Request a feature or ask',
-      'Get help & community',
       'Support the project',
       'Report a security issue',
     ]) {
@@ -48,20 +47,21 @@ describe('contact sections', () => {
     render(<ContactSections />);
     const href = (name) => screen.getByRole('link', { name }).getAttribute('href');
     expect(href('Open GitHub Issues')).toBe(`${REPO}/issues`);
-    expect(href('Join the Discord')).toBe('https://discord.gg/bzQavDfVV9');
-    expect(href('Follow on X')).toBe('https://x.com/idebpalash');
     expect(href('Report privately')).toBe(`${REPO}/security/advisories/new`);
-    expect(href(/licensing/i)).toBe(`mailto:hi@sado.sh`);
-    expect(href(/more about the project/i)).toBe('https://palash.dev');
+    expect(href(/more about the project/i)).toBe(REPO);
+    // Sado's channels are its own GitHub repository only — never upstream's.
+    for (const link of screen.getAllByRole('link')) {
+      expect(link.getAttribute('href')).not.toMatch(/discord\.gg|x\.com|palash|mailto:/);
+    }
   });
 
   it('opens external links via the shared opener and marks them noreferrer', () => {
     render(<ContactSections />);
-    const link = screen.getByRole('link', { name: 'Join the Discord' });
+    const link = screen.getByRole('link', { name: 'Open GitHub Issues' });
     expect(link).toHaveAttribute('rel', 'noreferrer');
     expect(link).toHaveAttribute('target', '_blank');
     fireEvent.click(link);
-    expect(openExternal).toHaveBeenCalledWith('https://discord.gg/bzQavDfVV9');
+    expect(openExternal).toHaveBeenCalledWith(`${REPO}/issues`);
   });
 
   it('sends "Support the project" to the support section, not out to Ko-fi', () => {

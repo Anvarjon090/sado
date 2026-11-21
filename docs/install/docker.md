@@ -6,15 +6,14 @@ it in a normal browser. It is built from the same maintained renderer as the
 Electron desktop app; controls that require native desktop access are hidden.
 
 Inference runs inside the container. Nothing is sent off the machine without
-your explicit yes: product analytics are opt-in (PostHog, content-free usage
-metadata only) behind the same first-run consent prompt as the desktop app,
-and declining or skipping it keeps them off. Set
+your explicit yes. The image ships no analytics token, so it sends no
+analytics at all unless you pass `-e POSTHOG_PROJECT_TOKEN=...`; even then they
+are opt-in (PostHog, content-free usage metadata only) behind the first-run
+consent prompt, and declining or skipping it keeps them off. Set
 `-e OMNIVOICE_ANALYTICS_DISABLED=1` to switch analytics off entirely. Model
 weights download from Hugging Face when you install a model.
 
-**Official images:** [`ghcr.io/debpalash/sado`](https://github.com/Anvarjon090/sado/pkgs/container/sado)
-and [`palashdeb/omnivoice-studio` on Docker Hub](https://hub.docker.com/r/palashdeb/omnivoice-studio) — same images, same tags.
-The former `ghcr.io/debpalash/omnivoice-studio` path remains a compatible alias.
+**Official images:** [`ghcr.io/anvarjon090/sado`](https://github.com/Anvarjon090/sado/pkgs/container/sado)
 
 ## Architecture
 
@@ -73,20 +72,18 @@ master key.
 ## Pull and run (CPU)
 
 ```bash
-docker pull ghcr.io/debpalash/sado:stable
+docker pull ghcr.io/anvarjon090/sado:stable
 
 docker run -d --name omnivoice \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  ghcr.io/debpalash/sado:stable
+  ghcr.io/anvarjon090/sado:stable
 ```
 
-> **Docker Hub mirror:** the same images are published to
-> `palashdeb/omnivoice-studio` on Docker Hub with identical tags — swap the
-> image for `palashdeb/omnivoice-studio:stable` if you prefer Docker Hub.
-> Tag semantics (`:latest` = rolling main preview, `:stable`/`:X.Y.Z` =
-> releases) are the same on both registries.
+> **Tags:** `:latest` is the rolling main preview; `:stable` and `:X.Y.Z` are
+> tagged releases. Images under the upstream VoiceStudio accounts are a
+> different project's builds, not Sado's.
 
 Open [http://localhost:3900](http://localhost:3900). The first run downloads
 ~2.4 GB of model weights — follow `docker logs -f omnivoice` to watch.
@@ -98,7 +95,7 @@ docker run -d --name omnivoice --gpus all \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  ghcr.io/debpalash/sado:stable
+  ghcr.io/anvarjon090/sado:stable
 ```
 
 GPU mode requires the
@@ -118,7 +115,7 @@ docker run -d --name omnivoice \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  ghcr.io/debpalash/sado:stable-rocm
+  ghcr.io/anvarjon090/sado:stable-rocm
 ```
 
 ### AMD GPU on WSL2
@@ -141,7 +138,7 @@ docker run -d --name omnivoice \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  ghcr.io/debpalash/sado:stable-rocm
+  ghcr.io/anvarjon090/sado:stable-rocm
 ```
 
 The image currently uses ROCm 7.2.x, so `HSA_ENABLE_DXG_DETECTION=1` is
@@ -184,7 +181,7 @@ The same flags work with **Podman** (`podman run --device /dev/kfd
 ```ini
 # ~/.config/containers/systemd/omnivoice.container
 [Container]
-Image=ghcr.io/debpalash/sado:stable-rocm
+Image=ghcr.io/anvarjon090/sado:stable-rocm
 AddDevice=/dev/kfd
 AddDevice=/dev/dri
 PublishPort=127.0.0.1:3900:3900
@@ -222,7 +219,7 @@ ROCm container `omnivoice-studio-rocm` (CPU: `omnivoice-studio`, NVIDIA:
 
 (ROCm-built PyTorch reports through `torch.cuda.*` — `True` plus your card's
 name means torch can see the GPU.) That check alone isn't proof the app is
-using it: **Settings → Performance & Device** shows the device Sado
+using it: **Settings → Device & memory** shows the device Sado
 actually resolved.
 **Model Catalogue** should report both `omnivoice` and
 `omnivoice-subprocess` as accelerated on ROCm, rather than a CPU-fallback
@@ -236,7 +233,7 @@ interpreter. To verify this invariant on an older or custom image, compare
 torch.version.hip)"` with `docker exec <container> sh -c 'tr "\\0" " "
 </proc/1/cmdline'`; PID 1 must begin with `python3 -m uvicorn`.
 
-If the command prints `False`, run **Settings → About → Run self-check**;
+If the command prints `False`, run **Settings → Diagnostics & About → Run self-check**;
 the GPU row says why. Native Linux has three common answers:
 
 | What it says | What to do |
@@ -363,7 +360,7 @@ prebuilt image via `docker run -e` (the older `VITE_OMNIVOICE_API` is inlined at
 docker run -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -e OMNIVOICE_PUBLIC_API_BASE=https://api.your-host.example \
   -p 0.0.0.0:3900:3900 \
-  ghcr.io/debpalash/sado:stable
+  ghcr.io/anvarjon090/sado:stable
 ```
 
 > `OMNIVOICE_PUBLIC_API_BASE` must be a plain `http(s)://…` URL; anything else
@@ -400,7 +397,7 @@ as root, so files it adds there are root-owned on the host.
 - **Container reports an older or newer version than expected:** `:latest`
   follows `main`, not releases. For a released version, pull `:stable` or the
   exact `:X.Y.Z` tag and recreate the container. The running version is shown
-  in **Settings → About → Version** (read live from the backend).
+  in **Settings → Diagnostics & About → App** (read live from the backend).
 - **Checking which version is running:** `docker exec <container> python3 -c "import importlib.metadata; print(importlib.metadata.version('omnivoice'))"`, or hit the `/health` endpoint — it returns `{"status": "ok", "device": ..., "version": "0.3.x"}`. Use the container name listed by `docker compose ps` (or `omnivoice` for the `docker run` examples).
 - **Watching startup:** the port answers within about a second of container
   start, but heavy initialization (PyTorch, API routes, database migration)

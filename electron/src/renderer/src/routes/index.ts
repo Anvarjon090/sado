@@ -207,6 +207,11 @@ export const performanceRoute = createRoute({
   path: '/settings/performance',
   component: SettingsPage,
 });
+export const speedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/settings/speed',
+  component: SettingsPage,
+});
 export const usageRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings/usage',
@@ -255,6 +260,7 @@ export const routeTree = rootRoute.addChildren([
   privacyRoute,
   permissionsRoute,
   performanceRoute,
+  speedRoute,
   usageRoute,
   workersRoute,
   networkRoute,

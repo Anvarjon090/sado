@@ -17,7 +17,7 @@ before they are released:
   [Windows](install/windows.md#building-from-source) ·
   [Linux](install/linux.md#building-from-source)), or build and install a
   package from `main` with the [install script's `--main` mode](install/script.md#building-main).
-- **Docker** — `ghcr.io/debpalash/sado:latest` follows `main`; see
+- **Docker** — `ghcr.io/anvarjon090/sado:latest` follows `main`; see
   [image tags](install/docker.md#image-tags).
 
 Downloads show transferred size, total size, speed, percentage and ETA, and

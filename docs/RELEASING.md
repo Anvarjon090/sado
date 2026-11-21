@@ -16,9 +16,10 @@ Electron publication uses these GitHub Actions secrets:
 - The repository `GITHUB_TOKEN` for draft creation and asset uploads.
 - `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` for the Docker Hub mirror.
 - `POSTHOG_PROJECT_TOKEN` (secret) and `POSTHOG_HOST` (repository variable),
-  baked into packaged builds as the analytics token and host. They override the
-  in-repo publishable token; analytics still sends nothing without a yes at the
-  first-run consent prompt.
+  baked into packaged builds as the analytics token and host. The repository
+  commits no token: without the secret, packaged builds have no analytics
+  destination and never show the consent prompt. With it, analytics still sends
+  nothing without a yes at the first-run consent prompt.
 
 The archived `TAURI_SIGNING_PRIVATE_KEY*` secrets are retained only so the final
 Tauri release can be audited. The Tauri release workflow has been removed; every
@@ -67,7 +68,7 @@ version only after validation.
 5. Run `uv run pytest tests/test_app_version.py tests/test_changelog_style.py -q`.
 6. Audit contributor agreements: `git fetch origin cla-signatures`, then
    `GH_TOKEN=... python scripts/cla_audit.py`. Follow up with each unsigned
-   contributor it lists, asking them to sign `.github/CLA-1.0.md` (or their
+   contributor it lists, asking them to sign `.github/CLA-2.0.md` (or their
    employer the Corporate CLA). This step applies once the CLA workflow and
    `scripts/cla_audit.py` are on `main`. The audit aborts if Git cannot read
    any file’s history; restore access to missing objects and rerun before

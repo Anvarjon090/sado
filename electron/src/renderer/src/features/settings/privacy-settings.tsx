@@ -38,7 +38,6 @@ export function PrivacySettings({ showAnalytics = true }: { showAnalytics?: bool
         <PrivacyToggle kind="watermark" />
         {showAnalytics && <PrivacyToggle kind="analytics" />}
       </SettingsSection>
-      <HistoryRetention />
     </>
   );
 }
@@ -163,7 +162,12 @@ export function HistoryRetention() {
               action.reset();
             }}
           />
-          <Button type="submit" size="sm" disabled={!query.data || action.busy || !valid}>
+          <Button
+            variant="outline"
+            type="submit"
+            size="sm"
+            disabled={!query.data || action.busy || !valid}
+          >
             {t('common.save')}
           </Button>
         </form>

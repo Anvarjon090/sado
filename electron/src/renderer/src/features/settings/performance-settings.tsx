@@ -1,13 +1,12 @@
 import {
+  ChevronRightIcon,
   CpuIcon,
   MemoryStickIcon,
   MonitorUpIcon,
-  ServerIcon,
-  Trash2Icon,
+  PowerOffIcon,
   ZapIcon,
 } from 'lucide-react';
 import { GpuAcceleration } from './gpu-acceleration';
-import { SystemPreflight } from './system-preflight';
 import { PerformanceProfile } from '@/components/performance-profile';
 import { familyIcons, modelFamilies } from './model-family';
 import { useEffect, useRef, useState } from 'react';
@@ -22,6 +21,7 @@ import { useAppActivities } from '@/lib/app-activity';
 import { relaxWhenBackendBusy } from '@/lib/status-polling';
 import { SettingsSection, SettingsRow } from './settings-layout';
 import { useSettingsAction } from './use-settings-action';
+import { meterTone } from './meter-tone';
 // @ts-expect-error shared JSX component has no declaration file
 import SearchableSelect from '@shared/components/SearchableSelect';
 interface DeviceState {
@@ -82,7 +82,10 @@ function UsageBar({ label, value, percent }: { label: string; value: string; per
         className="h-1.5 overflow-hidden rounded-full bg-muted/80"
       >
         <span
-          className="block h-full rounded-full bg-primary transition-[width] duration-300 motion-reduce:transition-none"
+          className={
+            'block h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none ' +
+            meterTone(bounded)
+          }
           style={{ width: `${bounded}%` }}
         />
       </div>
@@ -107,49 +110,8 @@ export function PerformanceSettings() {
     : 0;
   return (
     <>
-      <SystemPreflight />
-      <SettingsSection icon={ZapIcon} title={t('performanceProfile.title')}>
-        <div className="p-4">
-          <PerformanceProfile variant="settings" />
-          <p className="mt-2 text-xs text-muted-foreground">{t('performanceProfile.hint')}</p>
-        </div>
-        {modelFamilies.map((family) => {
-          const Icon = familyIcons[family];
-          return (
-            <SettingsRow
-              key={family}
-              id={'performance-' + family}
-              title={
-                <span className="inline-flex items-center gap-2">
-                  <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
-                  {t('engineSidebar.' + family)}
-                </span>
-              }
-            >
-              <PerformanceProfile family={family} variant="settings" />
-            </SettingsRow>
-          );
-        })}
-      </SettingsSection>
       <ComputeDevice />
       <GpuAcceleration />
-      <CompileSetting />
-      <MemoryManagement />
-      <SettingsSection icon={CpuIcon} title={t('settings.generate_budget_title')}>
-        <p className="p-4 text-sm text-muted-foreground">{t('settings.generate_budget_desc')}</p>
-        <BudgetRow
-          kind="gpu"
-          envKey="OMNIVOICE_GENERATE_TIMEOUT_S"
-          current={info.data?.generate_timeout_s}
-          shadowed={!!info.data?.generate_timeout_shadowed}
-        />
-        <BudgetRow
-          kind="cpu"
-          envKey="OMNIVOICE_CPU_GENERATE_TIMEOUT_S"
-          current={info.data?.cpu_generate_timeout_s}
-          shadowed={!!info.data?.cpu_generate_timeout_shadowed}
-        />
-      </SettingsSection>
       <SettingsSection icon={CpuIcon} title={t('engineSidebar.localDevice')} contentVariant="cards">
         <SettingsRow
           className="min-h-32"
@@ -239,25 +201,6 @@ export function PerformanceSettings() {
             percent={memoryPercent}
           />
         </SettingsRow>
-        <SettingsRow
-          className="col-span-full min-h-24"
-          id="hardware-runtime"
-          variant="card"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <ServerIcon className="size-4 text-muted-foreground" />
-              {t('about.platform')}
-            </span>
-          }
-          description={
-            info.data ? `${info.data.platform} · ${info.data.arch}` : t('common.loading')
-          }
-        >
-          <p className="text-xs text-muted-foreground">
-            {t('about.python')}:{' '}
-            <span className="font-mono text-foreground/80">{info.data?.python || '—'}</span>
-          </p>
-        </SettingsRow>
         {(info.isError || hardware.isError) && (
           <div className="col-span-full">
             <ErrorRow
@@ -268,6 +211,75 @@ export function PerformanceSettings() {
             />
           </div>
         )}
+      </SettingsSection>
+      <MemoryManagement />
+    </>
+  );
+}
+
+/* Speed and quality: one global preset first; per-engine overrides and the
+   expert knobs (compile, time budget) stay folded until asked for. */
+export function SpeedQualitySettings() {
+  const { t } = useTranslation();
+  const info = useQuery({
+    queryKey: ['system-info'],
+    queryFn: ({ signal }) => apiJson<SystemInfo>('/system/info', { signal }),
+  });
+  return (
+    <>
+      <SettingsSection icon={ZapIcon} title={t('performanceProfile.title')}>
+        <div className="space-y-2 p-4">
+          <PerformanceProfile variant="settings" />
+          <p className="max-w-[62ch] text-[13px] leading-[1.45] text-muted-foreground">
+            {t('performanceProfile.hint')}
+          </p>
+        </div>
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-medium outline-none hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/40 [&::-webkit-details-marker]:hidden">
+            <ChevronRightIcon
+              aria-hidden="true"
+              className="size-4 text-muted-foreground transition-transform duration-150 group-open:rotate-90 motion-reduce:transition-none"
+            />
+            {t('performanceProfile.per_engine')}
+          </summary>
+          <div className="border-t border-border [&>*+*]:border-t [&>*+*]:border-border">
+            {modelFamilies.map((family) => {
+              const Icon = familyIcons[family];
+              return (
+                <SettingsRow
+                  key={family}
+                  id={'performance-' + family}
+                  title={
+                    <span className="inline-flex items-center gap-2">
+                      <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+                      {t('engineSidebar.' + family)}
+                    </span>
+                  }
+                >
+                  <PerformanceProfile family={family} variant="settings" />
+                </SettingsRow>
+              );
+            })}
+          </div>
+        </details>
+      </SettingsSection>
+      <CompileSetting />
+      <SettingsSection icon={CpuIcon} title={t('settings.generate_budget_title')}>
+        <p className="max-w-[62ch] p-4 text-[13px] leading-[1.45] text-muted-foreground">
+          {t('settings.generate_budget_desc')}
+        </p>
+        <BudgetRow
+          kind="gpu"
+          envKey="OMNIVOICE_GENERATE_TIMEOUT_S"
+          current={info.data?.generate_timeout_s}
+          shadowed={!!info.data?.generate_timeout_shadowed}
+        />
+        <BudgetRow
+          kind="cpu"
+          envKey="OMNIVOICE_CPU_GENERATE_TIMEOUT_S"
+          current={info.data?.cpu_generate_timeout_s}
+          shadowed={!!info.data?.cpu_generate_timeout_shadowed}
+        />
       </SettingsSection>
     </>
   );
@@ -385,13 +397,13 @@ function MemoryManagement() {
       <SettingsRow id="unload-all" title={t('header.unload_all_flush')}>
         <Button
           size="sm"
-          variant="destructive"
+          variant="outline"
           disabled={
             active || busy !== null || !loaded.data?.models.some((model) => model.unloadable)
           }
           onClick={() => void flush(true)}
         >
-          <Trash2Icon />
+          <PowerOffIcon />
           {t('header.unload_all_flush')}
         </Button>
       </SettingsRow>
@@ -638,7 +650,12 @@ function BudgetRow({
               action.reset();
             }}
           />
-          <Button type="submit" size="sm" disabled={action.busy || !valid || current == null}>
+          <Button
+            variant="outline"
+            type="submit"
+            size="sm"
+            disabled={action.busy || !valid || current == null}
+          >
             {t('common.save')}
           </Button>
         </form>

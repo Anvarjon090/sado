@@ -8,6 +8,37 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
+**Highlights**
+
+- Sado no longer sends anything to the upstream project: analytics key, Docker images, update feed and links are Sado's own
+- Contributors sign CLA 2.0, which names the Sado maintainer
+- Settings is regrouped into six sections, each setting in one place, with readable values and working search
+- Windows now detects the graphics card, so GPU status and fix-it options are right
+
+### Changed
+
+- Analytics no longer ship the upstream project's PostHog key; only builds with their own token can ask for consent
+- Docker images publish to `ghcr.io/anvarjon090/sado`; the upstream image paths are no longer referenced
+- Linux AppImage update information now follows Sado's own releases
+- Contributors sign CLA 2.0, which names the Sado maintainer; CLA 1.0 signatures do not carry over
+- Settings: six groups (App, Voices & models, Device, Privacy & data, Connections, Developer & support); Remote workers joins Sharing, Permissions joins Privacy, the HF mirror joins Network, and old links still open the right page
+- Settings: Speed / quality has its own page with per-engine presets folded away; Device & memory keeps the hardware; the system check moved to Diagnostics & About
+- Settings: page titles no longer repeat, values sit beside their labels, cards are opaque in both themes, and one primary button per page
+- Settings search finds what is inside each page (ffmpeg, GPU, proxy, token…); Back returns to the page you came from
+- Usage merges a language counted as both "uz" and "Uzbek" and names generation modes
+- Changelog notes in Updates render bold and code instead of raw markdown
+- Windows finds the graphics card again: the GPU check read the wrong registry key and always came back empty
+- GPU acceleration no longer says "No GPU detected" while it is using the GPU
+- The Sado API page stops waiting after 15 seconds and offers Retry
+- Log lines such as "failures: 0" are no longer coloured as errors
+- The pronunciation entry form no longer squeezes its title on narrow windows
+- Uzbek labels: Saqlash, Loglar, Kalitlar va tokenlar, Masofaviy kompyuterlar, Tizim tekshiruvi
+
+### Docs
+
+- LICENSE-NOTICE names Sado as a modified version of VoiceStudio and keeps the upstream copyright
+- Community and support links point to Sado's GitHub Issues instead of the upstream Discord, Ko-fi and PayPal
+
 ## [0.5.10] — 2026-11-19
 
 Designed voices now speak Uzbek without an English accent, and a finished take can be shaped word by word.
