@@ -283,7 +283,7 @@ def _generator_checkpoint_cached() -> bool:
 _GENERATOR_CHECKPOINT_URL_PATH = "/facebook/audioseal/resolve/main/generator_base.pth"
 _GENERATOR_CHECKPOINT_NAMES = (
     "generator_base.pth",
-    hashlib.sha1(_GENERATOR_CHECKPOINT_URL_PATH.encode()).hexdigest()[:24],
+    hashlib.sha1(_GENERATOR_CHECKPOINT_URL_PATH.encode(), usedforsecurity=False).hexdigest()[:24],
 )
 
 
