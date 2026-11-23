@@ -551,6 +551,38 @@ _CONFIG_PATH_CONSTANTS = (
 )
 
 
+@pytest.fixture(autouse=True)
+def _model_loads_armed(request):
+    """Every test starts with model loads armed, as backend/tests does (#1269).
+
+    A test that runs the app lifespan ends it with ``begin_shutdown()``: correct
+    for a real process, poison for the next test, whose first load then raises
+    ``ModelLoadInterruptedByShutdown``. A fresh module re-imported after a purge
+    used to hide that; once the collected modules are restored (below), the flag
+    survives — test_model_cache_repair and test_model_manager_preload failed on
+    CI exactly so. Cheap when nothing is set: it only looks at an already
+    imported module and the test module's own aliases.
+    """
+    import types
+
+    def _rearm():
+        mods = {}
+        live = sys.modules.get("services.model_manager")
+        if live is not None:
+            mods[id(live)] = live
+        for val in vars(getattr(request, "module", None) or types.SimpleNamespace()).values():
+            if isinstance(val, types.ModuleType) and getattr(val, "__name__", "") == "services.model_manager":
+                mods[id(val)] = val
+        for mod in mods.values():
+            if mod.is_shutting_down():
+                mod.reset_shutdown_flag()
+                mod._reset_gpu_pool()
+
+    _rearm()
+    yield
+    _rearm()
+
+
 @pytest.fixture(scope="module", autouse=True)
 def _restore_backend_modules_after_a_purge():
     """Hand the next test file the backend modules the collected tests hold.
