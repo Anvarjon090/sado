@@ -769,14 +769,24 @@ export function ModelLibrary({
       setPending(null);
     }
   };
-  const selectableAsrModel = (repoId: string) =>
-    repoId.startsWith('Systran/faster-') || repoId === 'deepdml/faster-whisper-large-v3-turbo-ct2';
+  // transformers Whisper checkpoints (OpenAI's own, the Uzbek Sado ASR) load
+  // through the PyTorch engine; everything else selectable is CTranslate2.
+  const pytorchAsrModel = (model: CatalogueModel) =>
+    model.engines?.includes('pytorch-whisper') === true;
+  const selectableAsrModel = (model: CatalogueModel) =>
+    pytorchAsrModel(model) ||
+    model.repo_id.startsWith('Systran/faster-') ||
+    model.repo_id === 'deepdml/faster-whisper-large-v3-turbo-ct2';
   const selectAsrModel = async (model: CatalogueModel) => {
     setPending(model.repo_id);
     setFailed(false);
     try {
       const current = engineQuery.data?.asr?.active;
-      const backendId = current === 'faster-whisper-isolated' ? current : 'faster-whisper';
+      const backendId = pytorchAsrModel(model)
+        ? 'pytorch-whisper'
+        : current === 'faster-whisper-isolated'
+          ? current
+          : 'faster-whisper';
       const result = await apiJson<EngineSelectionResult>('/engines/select', {
         method: 'POST',
         body: JSON.stringify({
@@ -885,7 +895,7 @@ export function ModelLibrary({
       : null;
     const resident = residentFor(model);
     const isAsrModel = model.role.toLowerCase() === 'asr' && !model.dictation_id;
-    const selectableAsr = isAsrModel && selectableAsrModel(model.repo_id);
+    const selectableAsr = isAsrModel && selectableAsrModel(model);
     const checkingAsrSelection = selectableAsr && !engineQuery.data;
     const activeAsrModel = isAsrModel && engineQuery.data?.asr?.active_model === model.repo_id;
     const engineFamily = model.role.toLowerCase();

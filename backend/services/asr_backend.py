@@ -28,6 +28,7 @@ import inspect
 import ipaddress
 import logging
 import os
+import sys
 import re
 import contextlib
 import threading
@@ -1446,6 +1447,10 @@ class PyTorchWhisperBackend(ASRBackend):
     def __init__(self, asr_pipe=None):
         # Reuses the `_asr_pipe` attached to the TTS model when available.
         self._pipe = asr_pipe
+        # The repo this backend built its own pipeline from; None for a
+        # borrowed pipe. A model picked in the catalogue after the build makes
+        # the next load rebuild instead of serving the old model.
+        self._pipe_model: str | None = None
 
     # Free VRAM needed on CUDA, where _ensure_pipe loads fp16 weights: the
     # weights (parameters x 2 bytes), the batch-16 decode workspace, and
@@ -1492,9 +1497,7 @@ class PyTorchWhisperBackend(ASRBackend):
 
     @staticmethod
     def _model_name() -> str:
-        return os.environ.get(
-            "OMNIVOICE_PYTORCH_ASR_MODEL", "openai/whisper-large-v3-turbo"
-        )
+        return pytorch_whisper_model_id()
 
     @classmethod
     def is_available(cls) -> tuple[bool, str]:
@@ -1542,9 +1545,21 @@ class PyTorchWhisperBackend(ASRBackend):
         # once during the stream preflight so the real failure is reported once.
         self._ensure_pipe()
 
+    @staticmethod
+    def _new_pipeline(**kwargs):
+        """The transformers ASR pipeline factory (one seam for tests)."""
+        from transformers import pipeline as hf_pipeline
+
+        return hf_pipeline("automatic-speech-recognition", **kwargs)
+
     def _ensure_pipe(self):
         if self._pipe is not None:
-            return
+            if self._pipe_model is None or self._pipe_model == self._model_name():
+                return
+            self._pipe = None  # a different model was selected since the build
+            free_vram = getattr(sys.modules.get("services.model_manager"), "free_vram", None)
+            if callable(free_vram):
+                free_vram()
         # Build a standalone transformers Whisper pipeline on demand. This runs
         # on PyTorch's own stack (cuDNN 9 ships with torch), so it works as a
         # fallback on machines where WhisperX / faster-whisper can't load
@@ -1553,7 +1568,6 @@ class PyTorchWhisperBackend(ASRBackend):
         # When the TTS model already has an ASR head, dub_core passes it via the
         # constructor and this path is skipped.
         import torch
-        from transformers import pipeline as hf_pipeline
         model_name = self._model_name()
         device = self._pick_device(model_name)
         asr_dtype = torch.float16 if str(device).startswith("cuda") else torch.float32
@@ -1562,8 +1576,8 @@ class PyTorchWhisperBackend(ASRBackend):
             model_name, device,
         )
         try:
-            self._pipe = hf_pipeline(
-                "automatic-speech-recognition",
+            self._pipe_model = model_name
+            self._pipe = self._new_pipeline(
                 model=_local_model_source(model_name),
                 dtype=asr_dtype,
                 # `device_map="cpu"` only controls weight placement; the
@@ -3890,6 +3904,31 @@ def faster_whisper_model_id() -> str:
     )
 
 
+def pytorch_whisper_model_id() -> str:
+    """The transformers Whisper repo the PyTorch backend loads: the catalogue
+    pick, with an ``OMNIVOICE_PYTORCH_ASR_MODEL`` pin authoritative."""
+    from core import prefs
+
+    return str(
+        prefs.resolve(
+            "asr_model_pytorch",
+            env="OMNIVOICE_PYTORCH_ASR_MODEL",
+            default=_PYTORCH_ASR_DEFAULT,
+        )
+    )
+
+
+def select_pytorch_whisper_model(repo_id: str) -> None:
+    """Persist and apply a transformers Whisper selection (e.g. the Uzbek
+    ``aisha-org/sado-asr-v1``); the loaded pipeline rebuilds on next use."""
+    from core import prefs
+
+    if prefs.is_env_shadowed("OMNIVOICE_PYTORCH_ASR_MODEL"):
+        raise ValueError("OMNIVOICE_PYTORCH_ASR_MODEL is set outside Sado")
+    prefs.set_("asr_model_pytorch", repo_id)
+    os.environ["OMNIVOICE_PYTORCH_ASR_MODEL"] = repo_id
+
+
 def select_faster_whisper_model(repo_id: str) -> None:
     """Persist and apply a CTranslate2 model selection for this process."""
     from core import prefs
@@ -3985,7 +4024,7 @@ def _offline_asr_repo(backend_id: str | None = None) -> str | None:
         except Exception:  # noqa: BLE001 — preflight must stay best-effort
             return None
     if bid == "pytorch-whisper":
-        return os.environ.get("OMNIVOICE_PYTORCH_ASR_MODEL", _PYTORCH_ASR_DEFAULT)
+        return pytorch_whisper_model_id()
     return None
 
 
@@ -4009,7 +4048,7 @@ def _capture_whisper_repo() -> str | None:
         # OPEN rather than coerce to the default repo and demand a download
         # of a model the user never picked.
         return _fw_repo(faster_whisper_model_id())
-    return os.environ.get("OMNIVOICE_PYTORCH_ASR_MODEL", _PYTORCH_ASR_DEFAULT)
+    return pytorch_whisper_model_id()
 
 
 def _recommended_asr_model(

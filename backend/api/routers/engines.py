@@ -935,7 +935,25 @@ def select_engine(req: SelectEngineRequest):
                 "Hugging Face repo ID like 'owner/name'.",
             )
         prefs.set_("mlx_audio_model_id", req.model_id)
-    if req.family == "asr" and req.model_id is not None:
+    if req.family == "asr" and req.model_id is not None and req.backend_id == "pytorch-whisper":
+        # A transformers Whisper checkpoint from the catalogue (OpenAI's own or
+        # a fine-tune such as the Uzbek aisha-org/sado-asr-v1).
+        from api.routers.setup.models import KNOWN_MODELS, is_cached
+
+        model = next((item for item in KNOWN_MODELS if item["repo_id"] == req.model_id), None)
+        if (
+            model is None
+            or str(model.get("role", "")).lower() != "asr"
+            or "pytorch-whisper" not in (model.get("engines") or [])
+        ):
+            raise HTTPException(400, "This model is not compatible with PyTorch Whisper")
+        if not is_cached(req.model_id):
+            raise HTTPException(409, "Install this ASR model before selecting it")
+        try:
+            asr_backend.select_pytorch_whisper_model(req.model_id)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
+    elif req.family == "asr" and req.model_id is not None:
         if req.backend_id not in {"faster-whisper", "faster-whisper-isolated"}:
             raise HTTPException(400, "This ASR engine does not accept a CTranslate2 model")
         from api.routers.setup.models import KNOWN_MODELS, is_cached

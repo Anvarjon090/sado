@@ -8,6 +8,15 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
+**Highlights**
+
+- Sado ASR v1 recognises Uzbek speech: install it from the Model Catalogue and press Use
+
+### Added
+
+- Sado ASR v1, an Uzbek Whisper large-v3 fine-tune (`aisha-org/sado-asr-v1`), in the Model Catalogue: request access, add your Hugging Face token, install and press Use; non-commercial use only (#8)
+- Any transformers Whisper model in the catalogue can be chosen with Use, not only the CTranslate2 ones (#8)
+
 ## [0.5.11] — 2026-11-23
 
 Speech comes back two to three times faster, the first take included, and Settings is rebuilt around six clear sections.
