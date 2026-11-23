@@ -8,15 +8,6 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
-**Highlights**
-
-- Sado ASR v1 recognises Uzbek speech: install it from the Model Catalogue and press Use
-
-### Added
-
-- Sado ASR v1, an Uzbek Whisper large-v3 fine-tune (`aisha-org/sado-asr-v1`), in the Model Catalogue: request access, add your Hugging Face token, install and press Use; non-commercial use only (#8)
-- Any transformers Whisper model in the catalogue can be chosen with Use, not only the CTranslate2 ones (#8)
-
 ## [0.5.11] — 2026-11-23
 
 Speech comes back two to three times faster, the first take included, and Settings is rebuilt around six clear sections.
@@ -29,7 +20,12 @@ Speech comes back two to three times faster, the first take included, and Settin
 - Settings is regrouped into six sections, each setting in one place, with readable values and working search
 - Sado no longer sends anything to the upstream project: analytics key, Docker images, update checks and links are Sado's own
 - Windows now detects the graphics card, so GPU status and fix-it options are right
-- Contributors sign CLA 2.0, which names the Sado maintainer
+- Sado ASR v1 recognises Uzbek speech: install it from the Model Catalogue and press Use
+
+### Added
+
+- Sado ASR v1, an Uzbek Whisper large-v3 fine-tune (`aisha-org/sado-asr-v1`), in the Model Catalogue: request access, add your Hugging Face token, install and press Use; non-commercial use only (#8)
+- Any transformers Whisper model in the catalogue can be chosen with Use, not only the CTranslate2 ones (#8)
 
 ### Changed
 
