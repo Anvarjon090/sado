@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "正在檢查更新…",
     "ready": "更新 {{version}} 已下載並驗證",
-    "download": "下載更新",
-    "download_hint": "在背景下載，您可以繼續目前的工作。",
+    "download": "下載安裝程式",
+    "download_hint": "在瀏覽器中開啟適用於此電腦的安裝程式。執行它即可更新，專案與聲音都會保留。",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/秒 · 剩餘 {{eta}}",
     "safety": "重新啟動前會驗證更新套件的完整性。",
     "available": "有可用更新 {{version}}",

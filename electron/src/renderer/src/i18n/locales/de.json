@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "Nach Updates suchen…",
     "ready": "Update {{version}} wurde heruntergeladen und geprüft",
-    "download": "Update herunterladen",
-    "download_hint": "Im Hintergrund herunterladen; du kannst weiterarbeiten.",
+    "download": "Installer herunterladen",
+    "download_hint": "Öffnet den Installer für diesen Computer im Browser. Führen Sie ihn zum Aktualisieren aus; Projekte und Stimmen bleiben erhalten.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · noch {{eta}}",
     "safety": "Die Integrität des Updatepakets wird vor dem Neustart geprüft.",
     "available": "Update {{version}} verfügbar",

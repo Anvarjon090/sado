@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "Söker efter uppdateringar…",
     "ready": "Uppdatering {{version}} har hämtats och verifierats",
-    "download": "Hämta uppdatering",
-    "download_hint": "Hämta i bakgrunden medan du fortsätter arbeta.",
+    "download": "Ladda ner installationsprogrammet",
+    "download_hint": "Öppnar installationsprogrammet för den här datorn i webbläsaren. Kör det för att uppdatera; dina projekt och röster finns kvar.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} kvar",
     "safety": "Uppdateringspaketets integritet verifieras före omstart.",
     "available": "Uppdatering {{version}} tillgänglig",

@@ -12,16 +12,20 @@ metadata and the backend fallback mirror it.
 
 Speech comes back two to three times faster, the first take included, and Settings is rebuilt around six clear sections.
 
+**Updating from 0.5.10 or earlier:** download the installer for your computer below (Mac Apple Silicon or Intel `.dmg`, Windows `.exe`, Linux `.AppImage`) and run it over the current app; your voices, projects and settings stay. Older versions cannot find this release by themselves, because releases now carry only these four installers.
+
 **Highlights**
 
 - Speech comes back two to three times faster: a 30-second take in about 7 s instead of 16 s on an RTX 2070 SUPER
 - Settings is regrouped into six sections, each setting in one place, with readable values and working search
-- Sado no longer sends anything to the upstream project: analytics key, Docker images, update feed and links are Sado's own
+- Sado no longer sends anything to the upstream project: analytics key, Docker images, update checks and links are Sado's own
 - Windows now detects the graphics card, so GPU status and fix-it options are right
 - Contributors sign CLA 2.0, which names the Sado maintainer
 
 ### Changed
 
+- Releases carry four installers and `SHA256SUMS.txt`, nothing else; Sado tells you when a new version exists and **Download installer** opens it in your browser instead of updating in place
+- Windows on ARM uses the x64 installer under emulation, and Linux releases ship the AppImage only (build a `.deb` from source)
 - Sado Pro's Max preset renders 32 sampling steps instead of 64; 64 measured no better and took twice as long, and a saved 64 is sent as 32
 - The invisible watermark runs on the graphics card when there is one (3 s → 0.15 s on a 30-second take) and falls back to the CPU on any GPU error
 - The speech and voice-design screens keep the model loaded while they are open and focused, and start reloading it as you type if it was released

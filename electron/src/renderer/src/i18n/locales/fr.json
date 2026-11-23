@@ -2746,8 +2746,8 @@
   "update": {
     "checking": "Recherche de mises à jour…",
     "ready": "La mise à jour {{version}} est téléchargée et vérifiée",
-    "download": "Télécharger la mise à jour",
-    "download_hint": "Téléchargez en arrière-plan et continuez votre travail.",
+    "download": "Télécharger le programme d'installation",
+    "download_hint": "Ouvre dans le navigateur le programme d'installation pour cet ordinateur. Lancez-le pour mettre à jour ; vos projets et voix sont conservés.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} restantes",
     "safety": "L’intégrité du paquet de mise à jour est vérifiée avant le redémarrage.",
     "available": "Mise à jour {{version}} disponible",

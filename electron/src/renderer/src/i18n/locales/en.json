@@ -2801,8 +2801,8 @@
   "update": {
     "checking": "Checking for updates…",
     "ready": "Update {{version}} is downloaded and verified",
-    "download": "Download update",
-    "download_hint": "Download in the background; your current work can continue.",
+    "download": "Download installer",
+    "download_hint": "Opens the installer for this computer in your browser. Run it to update; your projects and voices stay.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} left",
     "safety": "Package integrity is verified before restart.",
     "available": "Update {{version}} available",

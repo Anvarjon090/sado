@@ -23,13 +23,15 @@ override them or update yt-dlp.
 
 <a id="install-appimage"></a>
 
-Download a package from the
+Download the AppImage from the
 [Releases page](https://github.com/Anvarjon090/sado/releases/latest):
 
 | Package | File |
 |---|---|
 | AppImage (any distribution) | `Sado-Electron-<version>-linux-x64.AppImage` |
-| Debian / Ubuntu package | `Sado-Electron-<version>-linux-x64.deb` |
+
+Since 0.5.11 releases publish the AppImage only; build a `.deb` from source with
+`bun run dist` if you want a package-managed install.
 
 **AppImage:**
 
@@ -43,15 +45,15 @@ The [shell installer](script.md) (`curl -fsSL https://sado.sh/install | sh`)
 downloads the latest AppImage, verifies it against the release's
 `SHA256SUMS.txt`, and installs it as `~/.local/bin/Sado`.
 
-**.deb:**
+**.deb (built from source):**
 
 ```bash
-sudo apt install ./Sado-Electron-<version>-linux-x64.deb
+sudo apt install ./electron/release/Sado-Electron-<version>-linux-x64.deb
 ```
 
-The in-app updater's Linux feed carries the AppImage. Update a `.deb`
-installation by installing the newer `.deb`; remove it with your package
-manager.
+Updates are manual: when Sado offers a newer version, **Download installer**
+opens the new AppImage; replace the old file with it. Update a `.deb` by
+building and installing the newer one; remove it with your package manager.
 
 Compare any download with the release's `SHA256SUMS.txt` before installing.
 
@@ -134,10 +136,11 @@ a model.
 yay -S sado-bin   # or paru -S sado-bin
 ```
 
-`sado-bin` is a community-maintained AUR package that installs the
-release `.deb`; report packaging problems on its AUR page. Package-managed
-installs should set `SADO_DISABLE_UPDATER=1` so `pacman` handles
-updates instead of the in-app updater.
+`sado-bin` is a community-maintained AUR package that installed the
+release `.deb`; releases stopped publishing the `.deb` in 0.5.11, so it needs
+to repackage the AppImage — report packaging problems on its AUR page.
+Package-managed installs should set `SADO_DISABLE_UPDATER=1` so the app does
+not offer installers that `pacman` should provide.
 
 ## ChromeOS, iPad and other devices
 

@@ -2746,8 +2746,8 @@
   "update": {
     "checking": "Ricerca aggiornamenti…",
     "ready": "L’aggiornamento {{version}} è stato scaricato e verificato",
-    "download": "Scarica aggiornamento",
-    "download_hint": "Scarica in background mentre continui a lavorare.",
+    "download": "Scarica il programma di installazione",
+    "download_hint": "Apre nel browser il programma di installazione per questo computer. Eseguilo per aggiornare; progetti e voci restano.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} rimanenti",
     "safety": "L’integrità del pacchetto di aggiornamento viene verificata prima del riavvio.",
     "available": "Aggiornamento {{version}} disponibile",

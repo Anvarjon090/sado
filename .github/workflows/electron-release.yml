@@ -78,15 +78,6 @@ jobs:
             arch: x64
             target: x86_64-pc-windows-msvc
             flags: --win --x64
-          - runner: windows-11-arm
-            platform: win32
-            arch: arm64
-            target: aarch64-pc-windows-msvc
-            flags: --win --arm64
-            # Windows on ARM is new: a failed leg must not block the four
-            # established targets. check_electron_release_assets.py verifies the
-            # arm64 feed only when its manifest was published.
-            experimental: true
           - runner: macos-15
             platform: darwin
             arch: arm64
@@ -267,8 +258,8 @@ jobs:
 
           ### Electron installer trust
           These Electron installers are unsigned or ad-hoc signed and are not Apple-notarized.
-          Windows/macOS may show trust warnings. macOS automatic updates are unverified;
-          use manual installer updates. Tauri updater signatures remain independently verified.
+          Windows/macOS may show trust warnings. Updates are manual: Sado tells you when a
+          new version exists and opens its installer. Tauri updater signatures remain independently verified.
           EOF
       - name: Create or update draft
         run: |
@@ -277,7 +268,26 @@ jobs:
           fi
           test "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = true || { echo "Refusing to replace a published release"; exit 1; }
           gh release edit "$TAG" --notes-file release-assets/RELEASE_NOTES.md
-          find release-assets -maxdepth 1 -type f ! -name RELEASE_NOTES.md -print0 | xargs -0 gh release upload "$TAG" --clobber
+          # A release carries four installers and their checksums, nothing else
+          # (owner decision, 2026-11-23). The feeds, blockmaps, zips and .deb
+          # built above were validated and stay in the run's artifacts for
+          # review; the app looks for updates through the GitHub API and opens
+          # the installer. scripts/install.{sh,ps1} verify against SHA256SUMS.txt.
+          version="${TAG#v}"
+          installers=()
+          for suffix in mac-arm64.dmg mac-x64.dmg win-x64.exe linux-x64.AppImage; do
+            name="Sado-Electron-$version-$suffix"
+            test -f "release-assets/$name" || { echo "Missing installer: $name"; exit 1; }
+            installers+=("$name")
+          done
+          (cd release-assets && sha256sum --text "${installers[@]}" > SHA256SUMS.txt)
+          upload=(release-assets/SHA256SUMS.txt)
+          for name in "${installers[@]}"; do upload+=("release-assets/$name"); done
+          # Archived Tauri clients (upstream history only) still read these.
+          for feed in latest.json latest-user.json; do
+            if [ -f "release-assets/$feed" ]; then upload+=("release-assets/$feed"); fi
+          done
+          gh release upload "$TAG" "${upload[@]}" --clobber
       - name: Publish only when explicitly requested
         if: github.event_name == 'workflow_dispatch' && inputs.publish == true
         run: gh release edit "$TAG" --draft=false --latest

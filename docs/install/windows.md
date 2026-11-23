@@ -22,7 +22,7 @@ Download the installer matching your PC from the
 | PC | Installer |
 |---|---|
 | Intel / AMD (x64) | `Sado-Electron-<version>-win-x64.exe` |
-| Windows on ARM (Snapdragon X etc., experimental) | `Sado-Electron-<version>-win-arm64.exe` (releases without it: the x64 installer also works, under emulation) |
+| Windows on ARM (Snapdragon X etc.) | The x64 installer, under emulation (releases from 0.5.11 on publish no ARM64 build) |
 
 The setup wizard installs for the current user by default (no administrator
 rights needed) and lets you choose the installation folder. Compare the download with the

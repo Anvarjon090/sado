@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "正在检查更新…",
     "ready": "更新 {{version}} 已下载并验证",
-    "download": "下载更新",
-    "download_hint": "在后台下载，当前工作可以继续。",
+    "download": "下载安装程序",
+    "download_hint": "在浏览器中打开适用于此电脑的安装程序。运行它即可更新，项目和声音都会保留。",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/秒 · 剩余 {{eta}}",
     "safety": "重启前会验证更新包的完整性。",
     "available": "有可用更新 {{version}}",

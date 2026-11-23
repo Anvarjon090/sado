@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "Güncellemeler denetleniyor…",
     "ready": "{{version}} güncellemesi indirildi ve doğrulandı",
-    "download": "Güncellemeyi indir",
-    "download_hint": "Arka planda indirirken çalışmaya devam edebilirsiniz.",
+    "download": "Yükleyiciyi indir",
+    "download_hint": "Bu bilgisayarın yükleyicisini tarayıcıda açar. Güncellemek için çalıştırın; projeleriniz ve sesleriniz korunur.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/sn · {{eta}} kaldı",
     "safety": "Güncelleme paketinin bütünlüğü yeniden başlatmadan önce doğrulanır.",
     "available": "{{version}} güncellemesi mevcut",

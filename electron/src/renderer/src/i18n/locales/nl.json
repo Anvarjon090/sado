@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "Controleren op updates…",
     "ready": "Update {{version}} is gedownload en geverifieerd",
-    "download": "Update downloaden",
-    "download_hint": "Download op de achtergrond; je kunt gewoon doorwerken.",
+    "download": "Installatieprogramma downloaden",
+    "download_hint": "Opent het installatieprogramma voor deze computer in je browser. Voer het uit om bij te werken; je projecten en stemmen blijven bewaard.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} resterend",
     "safety": "De integriteit van het updatepakket wordt vóór het herstarten geverifieerd.",
     "available": "Update {{version}} beschikbaar",

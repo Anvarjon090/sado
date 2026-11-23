@@ -2748,8 +2748,8 @@
   "update": {
     "checking": "Sprawdzanie aktualizacji…",
     "ready": "Aktualizacja {{version}} została pobrana i zweryfikowana",
-    "download": "Pobierz aktualizację",
-    "download_hint": "Pobieraj w tle i kontynuuj pracę.",
+    "download": "Pobierz instalator",
+    "download_hint": "Otwiera w przeglądarce instalator dla tego komputera. Uruchom go, aby zaktualizować; projekty i głosy zostaną zachowane.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · pozostało {{eta}}",
     "safety": "Integralność pakietu aktualizacji jest sprawdzana przed ponownym uruchomieniem.",
     "available": "Dostępna aktualizacja {{version}}",

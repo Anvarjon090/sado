@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "Memeriksa pembaruan…",
     "ready": "Pembaruan {{version}} telah diunduh dan diverifikasi",
-    "download": "Unduh pembaruan",
-    "download_hint": "Unduh di latar belakang sambil melanjutkan pekerjaan.",
+    "download": "Unduh penginstal",
+    "download_hint": "Membuka penginstal untuk komputer ini di browser. Jalankan untuk memperbarui; proyek dan suara Anda tetap tersimpan.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/dtk · tersisa {{eta}}",
     "safety": "Integritas paket pembaruan diverifikasi sebelum mulai ulang.",
     "available": "Pembaruan {{version}} tersedia",

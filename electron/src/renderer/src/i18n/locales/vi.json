@@ -2744,8 +2744,8 @@
   "update": {
     "checking": "Đang kiểm tra bản cập nhật…",
     "ready": "Bản cập nhật {{version}} đã được tải xuống và xác minh",
-    "download": "Tải bản cập nhật",
-    "download_hint": "Tải trong nền và tiếp tục công việc.",
+    "download": "Tải trình cài đặt",
+    "download_hint": "Mở trình cài đặt cho máy tính này trong trình duyệt. Chạy nó để cập nhật; dự án và giọng nói của bạn vẫn được giữ.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/giây · còn {{eta}}",
     "safety": "Tính toàn vẹn của gói cập nhật được xác minh trước khi khởi động lại.",
     "available": "Đã có bản cập nhật {{version}}",

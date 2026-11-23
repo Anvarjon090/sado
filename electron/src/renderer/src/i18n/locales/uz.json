@@ -2801,8 +2801,8 @@
   "update": {
     "checking": "Yangilanishlar tekshirilmoqda…",
     "ready": "{{version}} yangilanishi yuklab olindi va tekshirildi",
-    "download": "Yangilanishni yuklab olish",
-    "download_hint": "Fonda yuklab olish; joriy ishingizni davom ettirishingiz mumkin.",
+    "download": "O'rnatuvchini yuklab olish",
+    "download_hint": "Bu kompyuter uchun o'rnatuvchi brauzerda ochiladi. Yangilash uchun uni ishga tushiring; loyiha va ovozlaringiz saqlanib qoladi.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} qoldi",
     "safety": "Qayta ishga tushirishdan oldin paket butunligi tekshiriladi.",
     "available": "{{version}} yangilanishi mavjud",

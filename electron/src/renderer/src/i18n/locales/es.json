@@ -2746,8 +2746,8 @@
   "update": {
     "checking": "Buscando actualizaciones…",
     "ready": "La actualización {{version}} se descargó y verificó",
-    "download": "Descargar actualización",
-    "download_hint": "Descarga en segundo plano; puedes seguir trabajando.",
+    "download": "Descargar instalador",
+    "download_hint": "Abre en el navegador el instalador para este equipo. Ejecútalo para actualizar; tus proyectos y voces se conservan.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · faltan {{eta}}",
     "safety": "La integridad del paquete de actualización se verifica antes de reiniciar.",
     "available": "Actualización {{version}} disponible",

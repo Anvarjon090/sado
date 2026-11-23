@@ -1,35 +1,26 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import updaterPackage, { type ProgressInfo, type UpdateInfo } from 'electron-updater';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { isTrustedRenderer } from './trusted-renderer';
 import type { UpdateReleaseInfo, UpdateState } from '../preload/index.d';
 import { sendToLiveWindow } from './window-safety';
 
-// electron-updater is CommonJS. Electron executes our main bundle as ESM, so
-// named runtime imports fail before the app can create a window.
-const { autoUpdater } = updaterPackage;
+// A Sado release carries four installers and nothing else (owner decision,
+// 2026-11-23): no electron-updater feeds, blockmaps or zips. So the app does not
+// update itself in place any more. It asks GitHub Releases whether a newer
+// version exists — the same sanctioned call the release history already makes
+// — and "Download" opens this computer's installer in the user's browser.
+const REPOSITORY = 'Anvarjon090/sado';
+const RELEASES_API = `https://api.github.com/repos/${REPOSITORY}/releases?per_page=30`;
+const LATEST_RELEASE_API = `https://api.github.com/repos/${REPOSITORY}/releases/latest`;
+const RELEASES_PAGE = `https://github.com/${REPOSITORY}/releases/latest`;
+/** Only pages and downloads of this repository may be opened from an update. */
+const TRUSTED_URL_PREFIX = `https://github.com/${REPOSITORY}/`;
 
-// Only tagged releases are published as an update feed. A Preview channel used
-// to exist, but no workflow ever published its feed, so it silently served
-// Stable; it was removed rather than left as a choice that does nothing.
-const STABLE_FEED = 'https://github.com/Anvarjon090/sado/releases/latest/download';
-const RELEASES_API = 'https://api.github.com/repos/Anvarjon090/sado/releases?per_page=30';
-
-function feedChannelName(
-  platform: NodeJS.Platform = process.platform,
-  arch: string = process.arch,
-): string {
-  return `electron-stable-${platform}-${arch}`;
-}
-
-export function feedManifestName(
-  platform: NodeJS.Platform = process.platform,
-  arch: string = process.arch,
-): string {
-  const suffix = platform === 'darwin' ? '-mac' : platform === 'linux' ? '-linux' : '';
-  return `${feedChannelName(platform, arch)}${suffix}.yml`;
-}
+const GITHUB_HEADERS = {
+  Accept: 'application/vnd.github+json',
+  'User-Agent': 'Sado',
+};
 
 export const UPDATE_CHANNELS = {
   getState: 'updates:getState',
@@ -41,14 +32,76 @@ export const UPDATE_CHANNELS = {
   state: 'updates:state',
 } as const;
 
+/** The release's installer for this computer, or null where none is built
+ * (Windows on ARM opens the release page and can run the x64 installer). */
+export function installerAssetName(
+  version: string,
+  platform: NodeJS.Platform = process.platform,
+  arch: string = process.arch,
+): string | null {
+  if (platform === 'darwin')
+    return `Sado-Electron-${version}-mac-${arch === 'arm64' ? 'arm64' : 'x64'}.dmg`;
+  if (platform === 'win32' && arch === 'x64') return `Sado-Electron-${version}-win-x64.exe`;
+  if (platform === 'linux' && arch === 'x64') return `Sado-Electron-${version}-linux-x64.AppImage`;
+  return null;
+}
+
+/** Numeric x.y.z comparison; a pre-release suffix never makes a version newer. */
+export function isNewerVersion(candidate: string, current: string): boolean {
+  const parts = (value: string) =>
+    value
+      .replace(/^v/, '')
+      .split(/[-+]/)[0]
+      .split('.')
+      .map((part) => Number.parseInt(part, 10) || 0);
+  const a = parts(candidate);
+  const b = parts(current);
+  for (let index = 0; index < Math.max(a.length, b.length); index++) {
+    const difference = (a[index] || 0) - (b[index] || 0);
+    if (difference !== 0) return difference > 0;
+  }
+  return false;
+}
+
+function trustedUrl(value: unknown): string | null {
+  return typeof value === 'string' && value.startsWith(TRUSTED_URL_PREFIX) ? value : null;
+}
+
+export interface LatestRelease {
+  version: string;
+  notes: string;
+  /** This computer's installer, or the release page when there is none. */
+  downloadUrl: string;
+}
+
+/** The newest published, non-pre-release release of Sado. */
+export async function fetchLatestRelease(fetcher: typeof fetch = fetch): Promise<LatestRelease> {
+  const response = await fetcher(LATEST_RELEASE_API, {
+    headers: GITHUB_HEADERS,
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error(`Release check failed (${response.status})`);
+  const item = (await response.json()) as Record<string, unknown> | null;
+  const tag = typeof item?.tag_name === 'string' ? item.tag_name.trim() : '';
+  if (!item || !tag) throw new Error('Release check returned no version');
+  const version = tag.replace(/^v/, '');
+  const wanted = installerAssetName(version);
+  const assets = Array.isArray(item.assets) ? (item.assets as Record<string, unknown>[]) : [];
+  const installer = wanted
+    ? assets.find((asset) => asset && asset.name === wanted)?.browser_download_url
+    : undefined;
+  return {
+    version,
+    notes: typeof item.body === 'string' ? item.body : '',
+    downloadUrl: trustedUrl(installer) || trustedUrl(item.html_url) || RELEASES_PAGE,
+  };
+}
+
 export async function listDesktopReleases(
   fetcher: typeof fetch = fetch,
 ): Promise<UpdateReleaseInfo[]> {
   const response = await fetcher(RELEASES_API, {
-    headers: {
-      Accept: 'application/vnd.github+json',
-      'User-Agent': 'Sado',
-    },
+    headers: GITHUB_HEADERS,
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error(`Releases request failed (${response.status})`);
@@ -72,26 +125,9 @@ export async function listDesktopReleases(
   });
 }
 
-function releaseNotes(info: UpdateInfo): string | null {
-  const notes = info.releaseNotes;
-  if (typeof notes === 'string') return notes;
-  if (!Array.isArray(notes)) return null;
-  return (
-    notes
-      .map((entry) => entry.note)
-      .filter(Boolean)
-      .join('\n\n') || null
-  );
-}
-
-function releaseSize(info: UpdateInfo): number | undefined {
-  const total = info.files?.reduce((sum, file) => sum + (file.size || 0), 0) || 0;
-  return total > 0 ? total : undefined;
-}
-
 /**
  * updates.json only ever stored the retired channel choice. Forget it so a
- * saved "preview" cannot linger; the updater always follows Stable now.
+ * saved "preview" cannot linger.
  */
 export function forgetSavedUpdateChannel(userData: string = app.getPath('userData')): void {
   try {
@@ -101,7 +137,7 @@ export function forgetSavedUpdateChannel(userData: string = app.getPath('userDat
   }
 }
 
-/** Packaged builds update in-app unless a package manager owns the install. */
+/** Packaged builds look for updates unless a package manager owns the install. */
 function updatesSupported(): boolean {
   return app.isPackaged && process.env.SADO_DISABLE_UPDATER !== '1';
 }
@@ -110,93 +146,19 @@ export class DesktopUpdater {
   private listeners = new Set<(state: UpdateState) => void>();
   private state: UpdateState;
   private checkInFlight: Promise<UpdateState> | null = null;
-  private downloadInFlight: Promise<UpdateState> | null = null;
+  private downloadUrl: string = RELEASES_PAGE;
 
-  constructor() {
-    const supported = updatesSupported();
+  constructor(
+    private readonly fetcher: typeof fetch = fetch,
+    private readonly openExternal: (url: string) => Promise<void> = (url) =>
+      shell.openExternal(url),
+  ) {
     this.state = {
-      status: supported ? 'idle' : 'unsupported',
+      status: updatesSupported() ? 'idle' : 'unsupported',
       currentVersion: app.getVersion(),
       progress: 0,
     };
     forgetSavedUpdateChannel();
-    if (!supported) return;
-
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = false;
-    autoUpdater.allowDowngrade = false;
-    autoUpdater.on('checking-for-update', () =>
-      this.patch({
-        status: 'checking',
-        progress: 0,
-        transferredBytes: undefined,
-        totalBytes: undefined,
-        bytesPerSecond: undefined,
-        etaSeconds: undefined,
-        error: undefined,
-      }),
-    );
-    autoUpdater.on('update-available', (info) =>
-      this.patch({
-        status: 'available',
-        availableVersion: info.version,
-        notes: releaseNotes(info),
-        transferredBytes: 0,
-        totalBytes: releaseSize(info),
-        bytesPerSecond: undefined,
-        etaSeconds: undefined,
-        lastCheckedAt: Date.now(),
-        error: undefined,
-      }),
-    );
-    autoUpdater.on('update-not-available', () =>
-      this.patch({
-        status: 'idle',
-        availableVersion: undefined,
-        notes: null,
-        progress: 0,
-        transferredBytes: undefined,
-        totalBytes: undefined,
-        bytesPerSecond: undefined,
-        etaSeconds: undefined,
-        lastCheckedAt: Date.now(),
-        error: undefined,
-      }),
-    );
-    autoUpdater.on('download-progress', (progress: ProgressInfo) => {
-      const totalBytes = Math.max(0, progress.total || 0);
-      const transferredBytes = Math.max(0, progress.transferred || 0);
-      const bytesPerSecond = Math.max(0, progress.bytesPerSecond || 0);
-      this.patch({
-        status: 'downloading',
-        progress: Math.max(0, Math.min(100, progress.percent)),
-        transferredBytes,
-        totalBytes: totalBytes || this.state.totalBytes,
-        bytesPerSecond: bytesPerSecond || undefined,
-        etaSeconds:
-          totalBytes > transferredBytes && bytesPerSecond > 0
-            ? Math.ceil((totalBytes - transferredBytes) / bytesPerSecond)
-            : 0,
-      });
-    });
-    autoUpdater.on('update-downloaded', (info) => {
-      const totalBytes = this.state.totalBytes || releaseSize(info);
-      this.patch({
-        status: 'downloaded',
-        availableVersion: info.version,
-        notes: releaseNotes(info),
-        progress: 100,
-        transferredBytes: totalBytes || this.state.transferredBytes || 0,
-        totalBytes,
-        bytesPerSecond: undefined,
-        etaSeconds: 0,
-        error: undefined,
-      });
-    });
-    autoUpdater.on('error', (error) =>
-      this.patch({ status: 'error', error: error.message || String(error) }),
-    );
-    this.configureFeed();
   }
 
   snapshot(): UpdateState {
@@ -209,13 +171,30 @@ export class DesktopUpdater {
   }
 
   async check(quiet = false): Promise<UpdateState> {
-    if (!updatesSupported() || ['downloading', 'downloaded'].includes(this.state.status))
-      return this.snapshot();
+    if (!updatesSupported()) return this.snapshot();
     if (this.checkInFlight) return this.checkInFlight;
     const operation = (async () => {
+      this.patch({ status: 'checking', progress: 0, error: undefined });
       try {
-        this.configureFeed();
-        await autoUpdater.checkForUpdates();
+        const latest = await fetchLatestRelease(this.fetcher);
+        if (isNewerVersion(latest.version, this.state.currentVersion)) {
+          this.downloadUrl = latest.downloadUrl;
+          this.patch({
+            status: 'available',
+            availableVersion: latest.version,
+            notes: latest.notes || null,
+            lastCheckedAt: Date.now(),
+            error: undefined,
+          });
+        } else {
+          this.patch({
+            status: 'idle',
+            availableVersion: undefined,
+            notes: null,
+            lastCheckedAt: Date.now(),
+            error: undefined,
+          });
+        }
       } catch (error) {
         if (quiet) this.patch({ status: 'idle', error: undefined });
         else
@@ -234,34 +213,19 @@ export class DesktopUpdater {
     }
   }
 
+  /** Opens the installer in the browser; the state stays "available" so the
+   * button can be used again if the download was cancelled. */
   async download(): Promise<UpdateState> {
     if (!updatesSupported() || this.state.status !== 'available') return this.snapshot();
-    if (this.downloadInFlight) return this.downloadInFlight;
-    const operation = (async () => {
-      this.patch({
-        status: 'downloading',
-        progress: 0,
-        transferredBytes: 0,
-        bytesPerSecond: undefined,
-        etaSeconds: undefined,
-        error: undefined,
-      });
-      try {
-        await autoUpdater.downloadUpdate();
-      } catch (error) {
-        this.patch({
-          status: 'error',
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-      return this.snapshot();
-    })();
-    this.downloadInFlight = operation;
     try {
-      return await operation;
-    } finally {
-      if (this.downloadInFlight === operation) this.downloadInFlight = null;
+      await this.openExternal(this.downloadUrl);
+    } catch (error) {
+      this.patch({
+        status: 'error',
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
+    return this.snapshot();
   }
 
   dismiss(): UpdateState {
@@ -276,26 +240,8 @@ export class DesktopUpdater {
     return this.snapshot();
   }
 
-  install(): void {
-    if (!updatesSupported() || this.state.status !== 'downloaded') return;
-    autoUpdater.quitAndInstall(false, true);
-  }
-
-  private configureFeed(): void {
-    if (!updatesSupported()) return;
-    autoUpdater.allowPrerelease = false;
-    const feedChannel = feedChannelName();
-    autoUpdater.channel = feedChannel;
-    // electron-updater's channel setter silently enables downgrades; keep the
-    // app monotonic.
-    autoUpdater.allowDowngrade = false;
-    // Explicit, so a build packaged with another feed URL still follows Stable.
-    autoUpdater.setFeedURL({
-      provider: 'generic',
-      url: STABLE_FEED,
-      channel: feedChannel,
-    });
-  }
+  /** Nothing is downloaded in-app any more, so there is nothing to install. */
+  install(): void {}
 
   private patch(value: Partial<UpdateState>): void {
     this.state = { ...this.state, ...value };
