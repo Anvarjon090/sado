@@ -164,9 +164,9 @@ describe('initAnalyticsFromConsent — silence is not consent', () => {
   it('starts ONLY when the user opted in and a destination exists', async () => {
     // No destination is committed (owner decision, 2026-11-21): without the
     // build-time key the same consent must not start anything.
-    expect(
-      await initAnalyticsFromConsent(async () => ({ available: true, opted_in: true })),
-    ).toBe(false);
+    expect(await initAnalyticsFromConsent(async () => ({ available: true, opted_in: true }))).toBe(
+      false,
+    );
 
     vi.resetModules();
     vi.stubEnv('VITE_POSTHOG_KEY', 'test-destination');
