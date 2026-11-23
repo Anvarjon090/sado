@@ -37,6 +37,7 @@ Engine availability depends on installed models, hardware, and configured provid
 - **Confucius4-TTS** — [Guide](engines/confucius4-tts.md)
 - pockettts
 - audiocpp — [Guide](engines/audio-cpp.md)
+- Navoiy-TTS (Uzbek) — [Guide](engines/navoiy.md)
 
 ## Transcription
 

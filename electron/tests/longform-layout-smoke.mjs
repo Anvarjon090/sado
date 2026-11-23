@@ -68,9 +68,9 @@ try {
       `Stop escapes the setup pane at ${width}px`,
     );
     await page.locator('[data-slot=secondary-sidebar-header] button').click();
-    const editor = page
-      .locator('[data-slot=secondary-sidebar]')
-      .locator('xpath=following-sibling::section');
+    // The setup pane portals to the window edge, so the editor is no longer
+    // its DOM sibling; find it by its own slot.
+    const editor = page.locator('[data-slot=longform-editor]');
     for (const atEnd of [false, true]) {
       await editor.evaluate((element, end) => {
         element.scrollTop = end ? element.scrollHeight : 0;

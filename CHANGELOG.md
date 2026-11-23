@@ -44,10 +44,24 @@ Speech comes back two to three times faster, the first take included, and Settin
 - The pronunciation entry form no longer squeezes its title on narrow windows
 - Uzbek labels: Saqlash, Loglar, Kalitlar va tokenlar, Masofaviy kompyuterlar, Tizim tekshiruvi
 
+### Fixed
+
+- The voice studio no longer crashes when an engine arrives without a display name; it shows the engine's id (#7)
+- The Dubbing setup pane no longer flickers between two widths; side panes measure the window they sit in (#7)
+- The composer controls wrap on narrow windows instead of pushing the page sideways (#7)
+- The language menu stays on screen on a phone-width window in right-to-left languages (#7)
+- SSML warnings reach the composer in the browser build (the header is now exposed) (#7)
+- The Navoiy-TTS engine is listed in the feature catalogue and guarded like every other sidecar (#7)
+
 ### Docs
 
 - LICENSE-NOTICE names Sado as a modified version of VoiceStudio and keeps the upstream copyright
 - Community and support links point to Sado's GitHub Issues instead of the upstream Discord, Ko-fi and PayPal
+- The README links the full feature and engine catalogue again
+
+### CI
+
+- The test job is green again: 22 failing tests fixed, so the Electron checks and browser smokes that had been skipped run on every change
 
 ## [0.5.10] — 2026-11-19
 

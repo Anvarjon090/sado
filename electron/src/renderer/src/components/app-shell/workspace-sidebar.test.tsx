@@ -22,7 +22,7 @@ vi.mock('@/lib/store/workspace', () => ({
 vi.mock('@/components/bridge', () => ({ isMac: () => false }));
 vi.mock('@/lib/brand', () => ({ brandIcon: 'icon.png', brandArtwork: 'art.png' }));
 vi.mock('@/hooks/use-pane-resize', () => ({
-  usePaneResize: () => ({ host: { current: null }, width: 280, separatorProps: {} }),
+  usePaneResize: () => ({ host: () => {}, width: 280, separatorProps: {} }),
 }));
 vi.mock('@/hooks/use-backend-status', () => ({ useBackendStatus: () => ({ stage: 'ready' }) }));
 vi.mock('@/features/clone/voices-sidebar', () => ({

@@ -479,7 +479,10 @@ export function ActionBar() {
       )}
       {error && <PipelineFailure className="mb-3" fallback={error} onDismiss={clearError} />}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1 rounded-lg bg-background/50 p-1 ring-1 ring-border/50">
+        {/* Wraps: since the engine switch joined this group it is wider than
+            a phone-width window, and an unwrapped group pushed the whole page
+            sideways (390 px, Arabic: 204 px of horizontal overflow). */}
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1 rounded-lg bg-background/50 p-1 ring-1 ring-border/50">
           <EnginePicker disabled={isGenerating} />
           <span aria-hidden="true" className="mx-1 h-4 w-px bg-border" />
           <EngineLanguagePicker />

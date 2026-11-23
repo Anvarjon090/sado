@@ -154,6 +154,9 @@ CORS_EXPOSED_HEADERS = (
     "X-OmniVoice-Dropped-Chunks",
     "X-OmniVoice-Dropped-Text",
     "X-Clean-Filename",
+    # SSML markup the engine could not honour (docs/ssml.md); the composer
+    # shows it, so a cross-origin client must be able to read it.
+    "X-SSML-Warnings",
 )
 
 

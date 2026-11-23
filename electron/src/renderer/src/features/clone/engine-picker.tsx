@@ -15,9 +15,13 @@ import {
 import { useEngines } from '@/hooks/use-engines';
 import { queryKeys } from '@/lib/query';
 
-/** "Navoiy-TTS (Uzbek, 10 emotions)" → "Navoiy-TTS": a chip has no room for the parenthetical. */
-export function engineShortName(displayName: string): string {
-  return displayName.replace(/\s*\(.*\)$/, '');
+/**
+ * "Navoiy-TTS (Uzbek, 10 emotions)" → "Navoiy-TTS": a chip has no room for the
+ * parenthetical. An entry without a display name (an older backend, a remote
+ * worker) shows its id instead of taking the whole voice studio down.
+ */
+export function engineShortName(displayName: string | null | undefined, id = ''): string {
+  return (displayName || id).replace(/\s*\(.*\)$/, '');
 }
 
 interface EngineOption extends SearchOption {
@@ -46,7 +50,7 @@ export function EnginePicker({
   const [pending, setPending] = useState<string | null>(null);
   const backends = data?.tts?.backends ?? [];
   const options: EngineOption[] = backends.map((backend) => {
-    const label = engineShortName(backend.display_name);
+    const label = engineShortName(backend.display_name, backend.id);
     return {
       value: backend.id,
       label,

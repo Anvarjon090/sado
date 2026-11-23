@@ -1,4 +1,4 @@
-﻿"""A published dub must contain every requested spoken segment, without early clipping."""
+"""A published dub must contain every requested spoken segment, without early clipping."""
 import asyncio
 import json
 from types import SimpleNamespace

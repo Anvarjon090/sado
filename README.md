@@ -89,6 +89,7 @@ scripts/          Yig'ish va yordamchi skriptlar
 ## Hujjatlar
 
 - [`docs/engines/navoiy.md`](docs/engines/navoiy.md) — o'zbek modeli
+- [`docs/feature-catalog.md`](docs/feature-catalog.md) — barcha imkoniyatlar va dvigatellar ro'yxati
 - [`docs/install/`](docs/install/) — platformalar bo'yicha o'rnatish
 - [`docs/design/README.md`](docs/design/README.md) — Sado dizayn tizimi
 - [`CHANGELOG.md`](CHANGELOG.md) — o'zgarishlar tarixi

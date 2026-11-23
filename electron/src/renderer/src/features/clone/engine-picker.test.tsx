@@ -52,6 +52,13 @@ it('drops the parenthetical from engine names', () => {
   expect(engineShortName('Sado Pro')).toBe('Sado Pro');
 });
 
+it('names an engine by its id when the backend sends no display name', () => {
+  // An older backend or a remote worker crashed the whole voice studio here
+  // (`undefined.replace`), caught by the playback smoke.
+  expect(engineShortName(undefined, 'omnivoice')).toBe('omnivoice');
+  expect(engineShortName(null, 'navoiy')).toBe('navoiy');
+});
+
 it('lists the engines and switches through /engines/select like Settings does', async () => {
   vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(320);
   vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(340);

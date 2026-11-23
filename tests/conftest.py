@@ -552,6 +552,31 @@ _CONFIG_PATH_CONSTANTS = (
 
 
 @pytest.fixture(scope="module", autouse=True)
+def _restore_backend_modules_after_a_purge():
+    """Hand the next test file the backend modules the collected tests hold.
+
+    Several suites purge ``core`` / ``api`` / ``services`` / ``main`` from
+    ``sys.modules`` and re-import them, and not all of them put the originals
+    back. Every later file then patched its collection-time alias while the
+    code under test imported a fresh twin: on main's CI that showed up as 404s
+    for dub subtitles, ``[] == [2.5]`` stretch calls, an unpatched
+    ``finalize_output`` and a telephony listener still "running" — eleven
+    failures that never reproduced file by file (2026-11-19).
+
+    Module scope for the same reason as the config-path restore below: a file
+    may arrange its own modules for its own tests. Only a file that actually
+    removed or replaced a module is restored (``tests/backend_module_state.py``),
+    so ordinary lazy imports stay loaded.
+    """
+    from backend_module_state import restore, snapshot
+
+    before = snapshot()
+    yield
+    if any(sys.modules.get(name) is not mod for name, mod in before.items()):
+        restore(before)
+
+
+@pytest.fixture(scope="module", autouse=True)
 def _restore_config_paths_after_reload():
     """Undo cross-MODULE leakage of core.config's path constants.
 

@@ -5,7 +5,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await page.addInitScript(() => {
     localStorage.setItem('sado.setup.complete.v1', '1');
-    localStorage.setItem('sado.language', 'en');
+    localStorage.setItem('sado.locale', 'en');
   });
   const base = process.env.SADO_UI_URL || 'http://localhost:3912';
   const profiles = await (await page.request.get(base + '/api/profiles')).json();

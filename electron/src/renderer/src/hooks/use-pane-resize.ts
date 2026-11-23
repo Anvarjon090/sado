@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { HTMLAttributes } from 'react';
 
 export function usePaneResize({
@@ -18,7 +18,14 @@ export function usePaneResize({
   reserve?: number;
   enabled?: boolean;
 }) {
-  const host = useRef<HTMLElement>(null);
+  // A callback ref, not a ref object: the pane can move to another DOM parent
+  // while this hook's component stays mounted — EdgePane renders it in place,
+  // then portals it to the window edge once the shell's slot exists. Measuring
+  // must follow the element, or it keeps observing the old parent: on Dubbing
+  // that was the work area beside the pane, whose width shrinks as the pane
+  // grows, and the pane flipped between 352 and 398 px forever.
+  const [hostElement, setHostElement] = useState<HTMLElement | null>(null);
+  const host = useCallback((element: HTMLElement | null) => setHostElement(element), []);
   const drag = useRef<{ x: number; width: number } | null>(null);
   const [limit, setLimit] = useState(initial);
   const [preferred, setPreferred] = useState(() => {
@@ -31,7 +38,7 @@ export function usePaneResize({
   });
   const width = Math.max(minimum, Math.min(preferred, limit));
   useLayoutEffect(() => {
-    let parent = host.current?.parentElement ?? null;
+    let parent = hostElement?.parentElement ?? null;
     while (
       parent &&
       (parent.clientWidth === 0 || window.getComputedStyle(parent).display === 'contents')
@@ -44,7 +51,7 @@ export function usePaneResize({
     const observer = new ResizeObserver(measure);
     observer.observe(parent);
     return () => observer.disconnect();
-  }, [enabled, maximum, minimum, reserve]);
+  }, [enabled, hostElement, maximum, minimum, reserve]);
   const resize = (value: number) => {
     const next = Math.max(minimum, Math.min(value, limit));
     setPreferred(next);
