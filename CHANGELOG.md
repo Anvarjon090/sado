@@ -14,9 +14,15 @@ metadata and the backend fallback mirror it.
 - Contributors sign CLA 2.0, which names the Sado maintainer
 - Settings is regrouped into six sections, each setting in one place, with readable values and working search
 - Windows now detects the graphics card, so GPU status and fix-it options are right
+- Speech comes back two to three times faster: a 30-second take in about 7 s instead of 16 s on an RTX 2070 SUPER
 
 ### Changed
 
+- Sado Pro's Max preset renders 32 sampling steps instead of 64; 64 measured no better and took twice as long, and a saved 64 is sent as 32
+- The invisible watermark runs on the graphics card when there is one (3 s → 0.15 s on a 30-second take) and falls back to the CPU on any GPU error
+- The speech and voice-design screens keep the model loaded while they are open and focused, and start reloading it as you type if it was released
+- The first take after launch is as fast as later ones: loading the model now also warms the take check, output chain and watermark
+- The startup watermark preload finds AudioSeal's checkpoint under the name AudioSeal 0.2 saves it with, instead of skipping every launch
 - Analytics no longer ship the upstream project's PostHog key; only builds with their own token can ask for consent
 - Docker images publish to `ghcr.io/anvarjon090/sado`; the upstream image paths are no longer referenced
 - Linux AppImage update information now follows Sado's own releases

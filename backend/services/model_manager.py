@@ -3335,6 +3335,36 @@ def _headless_worker() -> bool:
     return worker_mode_enabled()
 
 
+def note_tts_activity() -> None:
+    """Count as a use of the resident TTS model, so the idle sweep keeps it.
+
+    ``POST /tts/warm`` calls this while someone has the generate screen open
+    and focused: a reload after the 15-minute idle unload cost the owner
+    3-74 s of disk reads (the checkpoint sits on a spinning disk) on top of the
+    take itself.
+    """
+    global _last_used
+    _last_used = time.time()
+
+
+async def _warm_generate_path(loaded) -> None:
+    """Walk the rest of the first take's cold costs (services.tts_warmup)
+    on the GPU pool, so the first real /generate after a preload is as fast as
+    the tenth. Best-effort: never raises, bounded, and a no-op once warmed."""
+    if loaded is None:
+        return
+    try:
+        import functools
+
+        from services.tts_warmup import warm_generate_path
+
+        await run_on_gpu_pool_guarded(
+            functools.partial(warm_generate_path, loaded), what="TTS warmup", timeout=180.0,
+        )
+    except Exception:  # noqa: BLE001 — a warmup failure must not look like a load failure
+        logger.debug("Generate-path warmup skipped", exc_info=True)
+
+
 async def preload_model():
     """Background model warm-up — call from lifespan startup.
 
@@ -3406,6 +3436,7 @@ async def preload_model():
             if model is None:
                 model = await _load_model_with_timeout()
         logger.info("Preload complete — model ready.")
+        await _warm_generate_path(model)
     except ModelLoadInterruptedByShutdown:
         # Expected teardown (#1174): the backend was shut down while the
         # preload was still loading weights. Info, no traceback — a WARNING
@@ -3723,6 +3754,9 @@ def unload_shared_model() -> bool:
         return False
     model = None
     release_tts_side_caches()
+    warmup = sys.modules.get("services.tts_warmup")
+    if warmup is not None:
+        warmup.forget_model()  # the next load walks the generate path again
     free_vram()
     return True
 

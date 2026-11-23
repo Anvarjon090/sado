@@ -306,6 +306,7 @@ POST /tools/probe
 POST /tools/rate-fit
 POST /tools/video-context/{job_id}
 POST /transcribe
+POST /tts/warm
 POST /v1/audio/speech
 POST /v1/audio/transcriptions
 POST /v1/audio/translations

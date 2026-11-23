@@ -23,12 +23,20 @@ _PERFORMANCE_FAMILIES = (
 )
 
 # Advertise only implemented runtime controls, never speculative model switches.
+#: OmniVoice's sampling ceiling. Synthesis time is linear in steps, and 64
+#: steps measured no better than 32 (2026-11-23, two Uzbek clones × 10 bench
+#: texts, same seed: CER ~1.3 vs ~1.5 %, MFCC speaker similarity 0.98 both,
+#: tempo drift 10 vs 12 %, more unpunctuated breaks at 64) while taking twice as
+#: long — 11.6 s instead of 5.9 s for a 30 s take on an RTX 2070 SUPER. So Max
+#: is the model's own default; its extra is the model policy, not the steps.
+OMNIVOICE_MAX_STEPS = 32
+
 _PERFORMANCE_TARGETS = {
     "tts": {
         "fast": {"steps": 8, "postprocess": False},
         "balanced": {"steps": 16, "postprocess": True},
         "quality": {"steps": 32, "postprocess": True},
-        "max": {"steps": 64, "postprocess": True, "model_policy": "tts-first-installed"},
+        "max": {"steps": OMNIVOICE_MAX_STEPS, "postprocess": True, "model_policy": "tts-first-installed"},
     },
     "asr": {
         tier: {"beam_size": width, "best_of": width, "engine": "faster-whisper"}
