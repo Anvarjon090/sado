@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "在另一台機器上：設定 → 系統 → 遠端工作機 → 加入，然後掃描或貼上。",
     "usage": "使用情況",
     "usage_desc": "你使用 Sado 製作的內容，只在你的裝置上統計。",
-    "usage_privacy": "這些數字由此裝置上的歷史記錄計算，絕不會傳送到任何地方。Sado 不使用分析服務，此處的任何資料都不會離開你的電腦。",
+    "usage_privacy": "這些數字由此裝置上的歷史記錄計算，絕不會傳送到任何地方。",
     "usage_empty": "你尚未產生任何內容；建立內容後就會顯示在這裡。",
     "usage_takes": "已產生的片段",
     "usage_since": "自 {{date}} 起",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "已設定",
     "translation_providers": "翻譯提供者",
     "hf_token_sources": "HF 代幣來源",
-    "hf_token_input": "HuggingFace 代幣",
+    "hf_token_input": "Hugging Face 代幣",
     "hf_token_clear_confirm": "確定要清除 App 來源的 HuggingFace 代幣嗎？",
     "credentials": "金鑰憑證",
     "hf_token_test_now": "立即測試",
     "hf_source_env_label": "環境變數",
     "hf_token_not_checked": "未測試",
-    "translation_providers_desc": "為此會話設定的線上翻譯器的 API 金鑰。",
+    "translation_providers_desc": "線上翻譯服務（Google Cloud、Microsoft Azure、AWS 與 DeepL）的 API 金鑰與區域。重新啟動後仍會保留。",
     "hf_token_verified": "已驗證",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "未設定",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU：運算裝置已固定為 CPU",
     "gpu_report_engine_no_family_path": "CPU：沒有適用於你的 GPU 類型的路徑",
     "gpu_report_engine_no_gpu": "CPU：沒有可用的 GPU",
-    "gpu_report_engine_needs_accelerator": "需要這台電腦沒有的 GPU（{{needs}}）"
+    "gpu_report_engine_needs_accelerator": "需要這台電腦沒有的 GPU（{{needs}}）",
+    "models_dir_desc": "已下載的模型存放在此處。將資料夾移至其他磁碟即可釋放空間。"
   },
   "gallery": {
     "title": "Sado 畫廊",
@@ -2743,8 +2744,8 @@
   "update": {
     "checking": "正在檢查更新…",
     "ready": "更新 {{version}} 已下載並驗證",
-    "download": "下載更新",
-    "download_hint": "在背景下載，您可以繼續目前的工作。",
+    "download": "下載安裝程式",
+    "download_hint": "在瀏覽器中開啟適用於此電腦的安裝程式。執行它即可更新，專案與聲音都會保留。",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/秒 · 剩餘 {{eta}}",
     "safety": "重新啟動前會驗證更新套件的完整性。",
     "available": "有可用更新 {{version}}",
@@ -2885,7 +2886,8 @@
     "balanced": "均衡",
     "quality": "品質",
     "hint": "適用於 OmniVoice 取樣和 Faster-Whisper / NLLB 解碼。其他引擎保留目前設定。",
-    "auto": "自動"
+    "auto": "自動",
+    "per_engine": "依引擎設定"
   },
   "recording": {
     "input_device": "輸入裝置",
@@ -3500,5 +3502,15 @@
     "saving": "儲存中…",
     "saved": "已儲存編輯後的錄音",
     "failed": "無法編輯語調：{{message}}"
+  },
+  "settingsNav": {
+    "group_app": "應用程式",
+    "group_voices": "聲音與模型",
+    "group_device": "裝置",
+    "group_data": "隱私權與資料",
+    "group_connections": "連線",
+    "group_developer": "開發者與支援",
+    "device": "裝置與記憶體",
+    "diagnostics": "診斷與關於"
   }
 }

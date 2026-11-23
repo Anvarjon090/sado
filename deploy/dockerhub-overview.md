@@ -4,11 +4,10 @@
 cloning, and cinematic video dubbing — fully local, with no cloud API keys or accounts.
 **646 languages.**
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/palashdeb/omnivoice-studio?logo=docker&color=2496ED)](https://hub.docker.com/r/palashdeb/omnivoice-studio)
-[![Image Size](https://img.shields.io/docker/image-size/palashdeb/omnivoice-studio/latest?logo=docker&label=image%20size)](https://hub.docker.com/r/palashdeb/omnivoice-studio/tags)
+[![Docker Pulls](https://img.shields.io/docker/pulls/anvarjon090/sado?logo=docker&color=2496ED)](https://hub.docker.com/r/anvarjon090/sado)
+[![Image Size](https://img.shields.io/docker/image-size/anvarjon090/sado/latest?logo=docker&label=image%20size)](https://hub.docker.com/r/anvarjon090/sado/tags)
 [![GitHub Stars](https://img.shields.io/github/stars/Anvarjon090/sado?logo=github&color=f59e0b)](https://github.com/Anvarjon090/sado)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](https://github.com/Anvarjon090/sado/blob/main/LICENSE)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/bzQavDfVV9)
 
 [![Anvarjon090/sado on Trendshift](https://trendshift.io/api/badge/trendshift/repositories/28176/daily?language=Python)](https://trendshift.io/repositories/28176?utm_source=trendshift-badge&utm_medium=badge&utm_campaign=badge-trendshift-28176)
 
@@ -60,7 +59,7 @@ docker run -d --name omnivoice \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  palashdeb/omnivoice-studio:stable
+  anvarjon090/sado:stable
 ```
 
 Open <http://localhost:3900>. The first run downloads a few GB of model weights —
@@ -78,7 +77,7 @@ docker run -d --name omnivoice --gpus all \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  palashdeb/omnivoice-studio:stable
+  anvarjon090/sado:stable
 ```
 
 GPU mode needs the
@@ -99,7 +98,7 @@ docker run -d --name omnivoice \
   -p 127.0.0.1:3900:3900 \
   -e OMNIVOICE_API_KEY="$OMNIVOICE_API_KEY" \
   -v omnivoice-data:/app/omnivoice_data \
-  palashdeb/omnivoice-studio:stable-rocm
+  anvarjon090/sado:stable-rocm
 ```
 
 Podman users: same two `--device` flags (Quadlet: `AddDevice=/dev/kfd` +
@@ -130,8 +129,7 @@ Release tags are published only when the GitHub Release is published.
 Preview builds always come from `main` and never version-sort below `:stable`,
 so upgrades flow naturally. The same images and tags
 are mirrored on GHCR at
-[`ghcr.io/debpalash/sado`](https://github.com/Anvarjon090/sado/pkgs/container/sado).
-The former `ghcr.io/debpalash/omnivoice-studio` path remains a compatible alias.
+[`ghcr.io/anvarjon090/sado`](https://github.com/Anvarjon090/sado/pkgs/container/sado).
 
 ---
 
@@ -197,6 +195,6 @@ adds there are root-owned).
 - **Source & full install docs:** <https://github.com/Anvarjon090/sado>
 - **Docker guide:** <https://github.com/Anvarjon090/sado/blob/main/docs/install/docker.md>
 - **Troubleshooting:** <https://github.com/Anvarjon090/sado/blob/main/docs/install/troubleshooting.md>
-- **Community / support:** [Discord](https://discord.gg/bzQavDfVV9)
+- **Community / support:** [GitHub Issues](https://github.com/Anvarjon090/sado/issues)
 
 Sado is in active beta and licensed under AGPL-3.0.

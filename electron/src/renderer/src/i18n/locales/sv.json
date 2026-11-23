@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "På den andra maskinen: Inställningar → System → Fjärrarbetare → Anslut, skanna eller klistra sedan in.",
     "usage": "Användning",
     "usage_desc": "Det du har skapat med Sado, räknat på din egen enhet.",
-    "usage_privacy": "Dessa siffror beräknas från historiken på den här enheten och skickas aldrig någonstans. Sado använder ingen analystjänst — inget här lämnar din dator.",
+    "usage_privacy": "Dessa siffror beräknas från historiken på den här enheten och skickas aldrig någonstans.",
     "usage_empty": "Du har inte genererat något ännu. Skapa något så visas det här.",
     "usage_takes": "Genererade tagningar",
     "usage_since": "sedan {{date}}",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "Angiven",
     "translation_providers": "Översättningsleverantörer",
     "hf_token_sources": "HF-tokenkällor",
-    "hf_token_input": "HuggingFace-token",
+    "hf_token_input": "Hugging Face-token",
     "hf_token_clear_confirm": "Rensa HuggingFace-token från App-källan?",
     "credentials": "Autentisering",
     "hf_token_test_now": "Testa nu",
     "hf_source_env_label": "Miljövariabel",
     "hf_token_not_checked": "Inte testad",
-    "translation_providers_desc": "API-nycklar för onlineöversättare, inställda för denna session.",
+    "translation_providers_desc": "API-nycklar och regioner för onlineöversättarna: Google Cloud, Microsoft Azure, AWS och DeepL. Sparas även efter omstart.",
     "hf_token_verified": "Verifierad",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Inte angiven",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: beräkningsenheten är låst till CPU",
     "gpu_report_engine_no_family_path": "CPU: ingen väg för din GPU-typ",
     "gpu_report_engine_no_gpu": "CPU: ingen GPU tillgänglig",
-    "gpu_report_engine_needs_accelerator": "Kräver en GPU ({{needs}}) som den här datorn inte har"
+    "gpu_report_engine_needs_accelerator": "Kräver en GPU ({{needs}}) som den här datorn inte har",
+    "models_dir_desc": "Här sparas nedladdade modeller. Flytta mappen till en annan enhet för att frigöra utrymme."
   },
   "gallery": {
     "title": "Sado Galleri",
@@ -2743,8 +2744,8 @@
   "update": {
     "checking": "Söker efter uppdateringar…",
     "ready": "Uppdatering {{version}} har hämtats och verifierats",
-    "download": "Hämta uppdatering",
-    "download_hint": "Hämta i bakgrunden medan du fortsätter arbeta.",
+    "download": "Ladda ner installationsprogrammet",
+    "download_hint": "Öppnar installationsprogrammet för den här datorn i webbläsaren. Kör det för att uppdatera; dina projekt och röster finns kvar.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} kvar",
     "safety": "Uppdateringspaketets integritet verifieras före omstart.",
     "available": "Uppdatering {{version}} tillgänglig",
@@ -2885,7 +2886,8 @@
     "balanced": "Balanserad",
     "quality": "Kvalitet",
     "hint": "Gäller OmniVoice sampling och Faster-Whisper / NLLB avkodning. Andra motorer behåller sina nuvarande inställningar.",
-    "auto": "Auto"
+    "auto": "Auto",
+    "per_engine": "Inställningar per motor"
   },
   "recording": {
     "input_device": "Inmatningsenhet",
@@ -3500,5 +3502,15 @@
     "saving": "Sparar…",
     "saved": "Redigerad inspelning sparad",
     "failed": "Det gick inte att redigera intonationen: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "App",
+    "group_voices": "Röster och modeller",
+    "group_device": "Enhet",
+    "group_data": "Integritet och data",
+    "group_connections": "Anslutningar",
+    "group_developer": "Utvecklare och support",
+    "device": "Enhet och minne",
+    "diagnostics": "Diagnostik och om"
   }
 }

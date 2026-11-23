@@ -43,17 +43,9 @@ Placements marked "as that page ships" (the in-app Sponsors page and the project
 
 > **[→ Open a sponsorship inquiry](https://github.com/Anvarjon090/sado/issues/new?template=sponsor.yml)**
 
-**2. Or start recurring support directly:**
+Sado does not take one-off donations; sponsorship is arranged through the inquiry form.
 
-- **Ko-fi (recurring or one-time):** [ko-fi.com/debpalash](https://ko-fi.com/debpalash)
-- **PayPal (one-time):** [paypal.me/palashCoder](https://paypal.me/palashCoder)
-
-If you sponsor via Ko-fi/PayPal and want a logo slot, still open an inquiry (or drop a note there) so we know who to credit and where to link.
-
-**3. Prefer to talk first?** Reach out directly:
-
-- Email: <!-- OWNER: add your sponsor contact email here if you want one public -->
-- Or ask in the `#dev` / `#announcements` channels on [Discord](https://discord.gg/bzQavDfVV9).
+**2. Prefer to talk first?** Open a regular [GitHub issue](https://github.com/Anvarjon090/sado/issues) and say you'd like to discuss sponsorship.
 
 ---
 
@@ -115,5 +107,5 @@ Sado stays local-first and fully functional with zero dollars spent. Sponsoring 
 
 <div align="center">
 <sub>Thank you for keeping local-first voice AI alive and free. ❤️</sub><br/>
-<sub>Questions? <a href="https://github.com/Anvarjon090/sado/issues/new?template=sponsor.yml">Open an inquiry</a> · <a href="https://discord.gg/bzQavDfVV9">Discord</a></sub>
+<sub>Questions? <a href="https://github.com/Anvarjon090/sado/issues/new?template=sponsor.yml">Open an inquiry</a></sub>
 </div>

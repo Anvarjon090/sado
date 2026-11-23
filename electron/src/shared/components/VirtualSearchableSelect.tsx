@@ -217,6 +217,10 @@ export function VirtualSearchableSelect({
           sideOffset={6}
           align="start"
           collisionPadding={12}
+          // Flipping start/end cannot help a menu nearly as wide as the window:
+          // on a 390 px phone in Arabic it opened 37 px past the left edge.
+          // Shift keeps the requested alignment and nudges the menu inside.
+          collisionAvoidance={{ side: 'flip', align: 'shift' }}
           className="z-[1000] isolate outline-none"
         >
           <Popover.Popup

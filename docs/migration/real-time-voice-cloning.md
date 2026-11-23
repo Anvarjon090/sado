@@ -76,9 +76,8 @@ Honesty where it's due:
   8 GB RAM minimum (a GPU is optional — CPU works, just slower).
 * **License.** RTVC is MIT. Sado is AGPL-3.0 — free for
   any use including commercial, but if you modify it and serve the
-  modified version over a network, you must share your changes. A
-  commercial license is available for closed-source embedding — see
-  the [README's License section](../../README.md#license).
+  modified version over a network, you must share your changes — see
+  [LICENSE-NOTICE.md](../../LICENSE-NOTICE.md).
 
 One more honesty note: despite the name, RTVC's "real-time" was about
 vocoding speed. Sado generation speed depends on the engine and
@@ -168,8 +167,7 @@ Engines** — the choice applies everywhere synthesis happens.
 
 ## Getting help
 
-Setup questions get answered in
-[Discord](https://discord.gg/bzQavDfVV9) (usually within hours), bugs
+Setup questions and bugs
 go to
 [GitHub Issues](https://github.com/Anvarjon090/sado/issues)
 — see [SUPPORT.md](../../.github/SUPPORT.md) for what to include. Welcome

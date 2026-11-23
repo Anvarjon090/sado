@@ -1,17 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowRight,
-  ExternalLink,
-  MessageCircle,
-  Bug,
-  Lightbulb,
-  Heart,
-  ShieldAlert,
-  Mail,
-  Globe,
-  Megaphone,
-} from 'lucide-react';
+import { ArrowRight, ExternalLink, Bug, Lightbulb, Heart, ShieldAlert, Globe } from 'lucide-react';
 import { Button } from '../ui';
 import { Card } from '@/components/ui/card';
 import { buttonVariants } from '@/components/ui/button.tsx';
@@ -19,18 +8,9 @@ import { cn } from '@/lib/utils';
 import { openExternal } from '../api/external';
 import ReportBugButton from '../components/ReportBugButton';
 
-// One home for every outward channel. The repo/Discord/security URLs match the
-// values the rest of the app uses (bug reporter, footer, SECURITY.md) so a link
-// change here can never leave one surface pointing somewhere stale (#contact).
-const REPO_URL = 'https://github.com/Anvarjon090/sado';
-const ISSUES_URL = `${REPO_URL}/issues`;
-const DISCORD_URL = 'https://discord.gg/bzQavDfVV9';
-// GitHub Security Advisories = the private "report a vulnerability" flow that
-// SECURITY.md points at (never a public issue for security bugs).
-const SECURITY_URL = `${REPO_URL}/security/advisories/new`;
-const EMAIL = 'hi@sado.sh';
-const WEBSITE_URL = 'https://palash.dev';
-const X_URL = 'https://x.com/idebpalash';
+// One home for every outward channel, shared with the bug reporter and
+// SECURITY.md so a link change can never leave one surface stale (#contact).
+import { REPO_URL, ISSUES_URL, SECURITY_URL } from '../utils/contactLinks';
 
 // Compact action cards for every outward channel. `kind` picks CTA behaviour:
 //   bug      → reuse ReportBugButton (prefilled GitHub issue + scrubbed diag)
@@ -57,28 +37,6 @@ const SECTIONS = [
     titleDefault: 'Request a feature or ask',
     ctaKey: 'contact.feature_cta',
     ctaDefault: 'Open GitHub Issues',
-  },
-  {
-    id: 'community',
-    icon: MessageCircle,
-    hue: '#5865F2',
-    kind: 'external',
-    url: DISCORD_URL,
-    titleKey: 'contact.community_title',
-    titleDefault: 'Get help & community',
-    ctaKey: 'contact.community_cta',
-    ctaDefault: 'Join the Discord',
-  },
-  {
-    id: 'follow',
-    icon: Megaphone,
-    hue: '#1d9bf0',
-    kind: 'external',
-    url: X_URL,
-    titleKey: 'contact.follow_title',
-    titleDefault: 'Follow along on X',
-    ctaKey: 'contact.follow_cta',
-    ctaDefault: 'Follow on X',
   },
   {
     id: 'support',
@@ -195,19 +153,10 @@ export function ContactSections({ onSupport }) {
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         <ExternalCta
-          href={`mailto:${EMAIL}`}
-          label={t('contact.email', { defaultValue: 'Email' })}
-          ariaLabel={t('contact.email_desc', {
-            defaultValue: 'Email — licensing, partnerships, or anything private',
-          })}
-          leading={<Mail size={13} />}
-          trailing={null}
-        />
-        <ExternalCta
-          href={WEBSITE_URL}
+          href={REPO_URL}
           label={t('contact.website', { defaultValue: 'Website' })}
           ariaLabel={t('contact.website_desc', {
-            defaultValue: 'Website — more about the project and the maker',
+            defaultValue: 'Website — more about the project',
           })}
           leading={<Globe size={13} />}
         />

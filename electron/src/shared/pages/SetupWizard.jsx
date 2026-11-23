@@ -236,9 +236,9 @@ export default function SetupWizard({ onReady }) {
 
   // Whether to insert the analytics consent step. Resolved once at mount
   // (the user is on step 0 when this lands, so indices never shift underfoot):
-  // only when the build CAN send and the user was never asked. Since #1193
-  // every build has a destination (in-repo default token), so source builds
-  // get this same ask; skipping the wizard still means analytics stays off.
+  // only when the build CAN send (a baked or env token — Sado commits no
+  // default) and the user was never asked; skipping the wizard still means
+  // analytics stays off.
   const [askConsent, setAskConsent] = useState(false);
   useEffect(() => {
     let cancelled = false;

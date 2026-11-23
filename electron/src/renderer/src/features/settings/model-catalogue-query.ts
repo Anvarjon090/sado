@@ -8,6 +8,8 @@ export interface CatalogueModel {
   label: string;
   role: string;
   families?: string[];
+  /** Engine ids that can load this checkpoint (models.yaml `engines`). */
+  engines?: string[];
   size_gb: number;
   installed: boolean;
   supported: boolean;

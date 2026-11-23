@@ -166,11 +166,9 @@ it('gives the API and container cards runnable snippets for the right endpoints 
     .blocks('')!
     .map((block) => block.text)
     .join('\n');
-  expect(docker).toContain('palashdeb/omnivoice-studio:stable');
+  expect(docker).toContain('ghcr.io/anvarjon090/sado:stable');
   const ghcr = INTEGRATION_SETUPS['github-container-registry'].blocks('')!;
-  expect(ghcr.map((block) => block.text).join('\n')).toContain(
-    'ghcr.io/debpalash/sado:stable',
-  );
+  expect(ghcr.map((block) => block.text).join('\n')).toContain('ghcr.io/anvarjon090/sado:stable');
   const mcp = INTEGRATION_SETUPS['model-context-protocol'].blocks('http://127.0.0.1:3912')!;
   expect(mcp[0].text).toContain('URL: http://127.0.0.1:3912/mcp/\n');
   const local = JSON.parse(mcp[1].text).mcpServers.sado;
@@ -202,8 +200,7 @@ it('keeps remote scheme, path prefix and credential placeholders without exporti
     'api_key=os.environ.get("OMNIVOICE_API_KEY", "not-needed")',
   );
   // Each MCP client references the key through its own env interpolation.
-  const header = (slug: string) =>
-    JSON.parse(mcpSetup(slug, remote)!.text).mcpServers.sado.headers;
+  const header = (slug: string) => JSON.parse(mcpSetup(slug, remote)!.text).mcpServers.sado.headers;
   expect(header('claude-code')).toEqual({
     'X-OmniVoice-Client-Id': 'claude-code',
     Authorization: 'Bearer ${OMNIVOICE_API_KEY}',

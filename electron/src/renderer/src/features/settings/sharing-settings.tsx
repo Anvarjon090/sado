@@ -363,7 +363,12 @@ export function SharingSettings() {
                 setPortError('');
               }}
             />
-            <Button size="sm" disabled={portBusy || state?.enabled} onClick={() => void savePort()}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={portBusy || state?.enabled}
+              onClick={() => void savePort()}
+            >
               {portBusy ? t('common.saving') : t('common.save')}
             </Button>
           </SettingsRow>

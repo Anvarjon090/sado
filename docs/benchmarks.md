@@ -39,7 +39,7 @@ Column meanings: **Engine** — the TTS engine the harness resolved (printed
 at stage start). **Device** — one string naming what ran the model, e.g.
 `RTX 3060 12 GB`, `Apple M2 Pro`, `Ryzen 7 5800X (CPU)`. **RTF (warm)** —
 the short-line warm RTF from the harness. **Peak VRAM** — the harness's
-CUDA peak, blank on MPS/CPU. **App version** — from `Settings → About`.
+CUDA peak, blank on MPS/CPU. **App version** — from `Settings → Diagnostics & About`.
 **Source** — a link to the PR that added the row.
 
 ## Contributing a row

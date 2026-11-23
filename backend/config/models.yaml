@@ -99,6 +99,16 @@ models:
     curated_on: [rocm]
     note: "CTranslate2 has no ROCm backend, so on AMD GPUs this PyTorch build is the accelerated route."
 
+  - repo_id: "aisha-org/sado-asr-v1"
+    label: "Sado ASR v1 (Uzbek — Whisper large-v3 fine-tune)"
+    role: ASR
+    engines: [pytorch-whisper]
+    size_gb: 6.2
+    gated: true
+    requires_hf_token: true
+    access_url: "https://huggingface.co/aisha-org/sado-asr-v1"
+    note: "Uzbek speech recognition fine-tuned from Whisper large-v3 by AI TECH LLC (voicelab.uz). Non-commercial research and personal use only: request access on Hugging Face, add your token in Settings, then install. Runs on CUDA, Apple Silicon (MPS) and CPU."
+
   - repo_id: "mlx-community/whisper-tiny-mlx"
     label: "Whisper tiny (MLX ASR — fast fallback)"
     role: ASR

@@ -333,9 +333,9 @@ def main() -> int:
     stdin = sys.stdin.buffer
     # Frames go down a private fd and fd 1 is pointed at stderr (#1428):
     # CosyVoice's libraries print freely to stdout and would corrupt framing.
-    frame_fd = os.dup(1)
+    _frame_fd = os.dup(1)
     os.dup2(2, 1)
-    stdout = os.fdopen(frame_fd, "wb")
+    stdout = os.fdopen(_frame_fd, "wb")
 
     _send(stdout, {"op": "ready", "engine": "navoiy", "sample_rate": SAMPLE_RATE})
 

@@ -35,7 +35,19 @@ macOS, Windows, and Linux.
 
 ## Model selection
 
-`OMNIVOICE_PYTORCH_ASR_MODEL` — default `openai/whisper-large-v3-turbo`. Any
+Install a transformers Whisper model in the **Model Catalogue** (ASR tab) and
+press **Use**: Sado switches ASR to this engine and loads that model, and a
+pipeline already in memory is rebuilt for it. Catalogue choices:
+
+- `openai/whisper-large-v3` — OpenAI's large-v3.
+- `aisha-org/sado-asr-v1` — **Sado ASR v1**, an Uzbek fine-tune of Whisper
+  large-v3 by AI TECH LLC (voicelab.uz), about 6.2 GB. It is gated and
+  licensed for **non-commercial research and personal use only**: request
+  access on its [Hugging Face page](https://huggingface.co/aisha-org/sado-asr-v1),
+  add your token in **Settings → Hugging Face token**, then install it.
+
+`OMNIVOICE_PYTORCH_ASR_MODEL` pins a model instead (it wins over the
+catalogue pick); the default is `openai/whisper-large-v3-turbo`. Any
 transformers-format Whisper repo works. Weights download on first load — see
 [downloading-models](../downloading-models.md).
 

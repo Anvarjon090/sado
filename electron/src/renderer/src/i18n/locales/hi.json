@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "दूसरी मशीन पर: सेटिंग्स → सिस्टम → रिमोट वर्कर → जुड़ें, फिर स्कैन या पेस्ट करें।",
     "usage": "उपयोग",
     "usage_desc": "Sado से आपने जो बनाया है — उसकी गिनती आपके अपने डिवाइस पर होती है।",
-    "usage_privacy": "ये संख्याएँ इसी डिवाइस पर आपके इतिहास से गिनी जाती हैं और कहीं नहीं भेजी जातीं। Sado में कोई एनालिटिक्स सेवा नहीं है — यहाँ से कुछ भी आपके कंप्यूटर से बाहर नहीं जाता।",
+    "usage_privacy": "ये संख्याएँ इसी डिवाइस पर आपके इतिहास से गिनी जाती हैं और कहीं नहीं भेजी जातीं।",
     "usage_empty": "आपने अभी कुछ जनरेट नहीं किया है — कुछ बनाएँ और वह यहाँ दिखाई देगा।",
     "usage_takes": "जनरेट किए गए टेक",
     "usage_since": "{{date}} से",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "सेट है",
     "translation_providers": "अनुवाद प्रदाता",
     "hf_token_sources": "HF टोकन स्रोत",
-    "hf_token_input": "HuggingFace टोकन",
+    "hf_token_input": "Hugging Face टोकन",
     "hf_token_clear_confirm": "ऐप-स्रोत HuggingFace टोकन साफ़ करें?",
     "credentials": "क्रेडेंशियल",
     "hf_token_test_now": "अभी परीक्षण करें",
     "hf_source_env_label": "परिवेश चर",
     "hf_token_not_checked": "परीक्षण नहीं हुआ",
-    "translation_providers_desc": "इस सत्र के लिए ऑनलाइन अनुवादकों के लिए एपीआई कुंजियाँ निर्धारित की गई हैं।",
+    "translation_providers_desc": "ऑनलाइन अनुवादकों के लिए API कुंजियाँ और क्षेत्र: Google Cloud, Microsoft Azure, AWS और DeepL. रीस्टार्ट के बाद भी सहेजे रहते हैं।",
     "hf_token_verified": "सत्यापित",
     "ffmpeg": "एफएफएमपीईजी",
     "hf_token_not_set": "सेट नहीं है",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: कंप्यूट डिवाइस CPU पर पिन है",
     "gpu_report_engine_no_family_path": "CPU: आपके GPU प्रकार के लिए रास्ता नहीं",
     "gpu_report_engine_no_gpu": "CPU: कोई GPU उपलब्ध नहीं",
-    "gpu_report_engine_needs_accelerator": "ऐसे GPU ({{needs}}) की ज़रूरत है जो इस मशीन में नहीं है"
+    "gpu_report_engine_needs_accelerator": "ऐसे GPU ({{needs}}) की ज़रूरत है जो इस मशीन में नहीं है",
+    "models_dir_desc": "डाउनलोड किए गए मॉडल यहाँ रखे जाते हैं। जगह खाली करने के लिए फ़ोल्डर को दूसरी ड्राइव पर ले जाएँ।"
   },
   "gallery": {
     "title": "Sado गैलरी",
@@ -2743,8 +2744,8 @@
   "update": {
     "checking": "अपडेट की जाँच हो रही है…",
     "ready": "अपडेट {{version}} डाउनलोड और सत्यापित हो गया",
-    "download": "अपडेट डाउनलोड करें",
-    "download_hint": "बैकग्राउंड में डाउनलोड करें और अपना काम जारी रखें।",
+    "download": "इंस्टॉलर डाउनलोड करें",
+    "download_hint": "इस कंप्यूटर का इंस्टॉलर ब्राउज़र में खुलता है। अपडेट करने के लिए उसे चलाएँ; आपके प्रोजेक्ट और आवाज़ें बनी रहती हैं।",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/से · {{eta}} शेष",
     "safety": "रीस्टार्ट से पहले अपडेट पैकेज की अखंडता सत्यापित की जाती है।",
     "available": "अपडेट {{version}} उपलब्ध है",
@@ -2885,7 +2886,8 @@
     "balanced": "संतुलित",
     "quality": "गुणवत्ता",
     "hint": "OmniVoice सैंपलिंग और Faster-Whisper / NLLB डिकोडिंग पर लागू होता है। अन्य इंजन अपनी मौजूदा सेटिंग रखते हैं।",
-    "auto": "ऑटो"
+    "auto": "ऑटो",
+    "per_engine": "हर इंजन की सेटिंग"
   },
   "recording": {
     "input_device": "इनपुट डिवाइस",
@@ -3500,5 +3502,15 @@
     "saving": "सहेजा जा रहा है…",
     "saved": "संपादित टेक सहेजा गया",
     "failed": "स्वर-लय संपादित नहीं हो सकी: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "ऐप",
+    "group_voices": "आवाज़ें और मॉडल",
+    "group_device": "डिवाइस",
+    "group_data": "गोपनीयता और डेटा",
+    "group_connections": "कनेक्शन",
+    "group_developer": "डेवलपर और सहायता",
+    "device": "डिवाइस और मेमोरी",
+    "diagnostics": "निदान और जानकारी"
   }
 }

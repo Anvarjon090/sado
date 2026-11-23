@@ -109,8 +109,8 @@ def test_installed_never_fires_without_consent_but_is_not_swallowed(sent, monkey
 
 
 def test_installed_never_fires_without_any_token(sent, monkeypatch):
-    # No destination at all: env absent AND the in-repo default (#1193) blanked.
-    monkeypatch.setattr(analytics, "_PUBLIC_PROJECT_TOKEN", "")
+    # No destination at all: env absent (the in-repo default is empty).
+    monkeypatch.delenv("POSTHOG_PROJECT_TOKEN", raising=False)
     analytics.set_opted_in(True)  # consent but no destination
     analytics.record_startup_lifecycle(None)
     assert sent == []
@@ -339,20 +339,7 @@ def test_uninstall_ping_info_written_when_enabled_and_removed_when_not(
     assert not info.exists()
 
 
-def test_uninstall_ping_info_written_for_a_source_build_with_the_default_token(
-    sent, monkeypatch, tmp_path
-):
-    """#1193: a consented source build has a destination (the in-repo default),
-    so the uninstall ping must work there too."""
-    analytics.set_opted_in(True)  # no env token → in-repo default
-    info = tmp_path / analytics.UNINSTALL_PING_INFO_BASENAME
-    assert info.exists()
-    payload = json.loads(info.read_text())
-    assert payload["token"] == analytics._PUBLIC_PROJECT_TOKEN
-    assert payload["host"] == "https://us.i.posthog.com"
-
-
 def test_uninstall_ping_info_never_written_without_any_token(sent, monkeypatch, tmp_path):
-    monkeypatch.setattr(analytics, "_PUBLIC_PROJECT_TOKEN", "")  # destination-less build
+    monkeypatch.delenv("POSTHOG_PROJECT_TOKEN", raising=False)  # empty in-repo default
     analytics.set_opted_in(True)
     assert not (tmp_path / analytics.UNINSTALL_PING_INFO_BASENAME).exists()

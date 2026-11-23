@@ -17,7 +17,7 @@ crash journal is written, as well as before reports are displayed or exported.
 
 Before digging through the entries below, let the app diagnose itself:
 
-- **In the app:** **Settings → About → "Run self-check"** verifies your
+- **In the app:** **Settings → Diagnostics & About → "Run self-check"** verifies your
   compute device (CUDA/MPS/CPU), ffmpeg, HuggingFace token, disk space,
   data-directory permissions, RAM, installed TTS engines, and hub
   reachability — each with a hint when something's off.
@@ -32,7 +32,7 @@ Before digging through the entries below, let the app diagnose itself:
   `--deep` catches "installed but broken" engines. On a fresh install it may
   cold-load the model (minutes, plus a large download).
 
-- **Filing an issue?** **Settings → About → "Save diagnostic bundle"**
+- **Filing an issue?** **Settings → Diagnostics & About → "Save diagnostic bundle"**
   produces a zip (self-check report, recent classified errors, scrubbed log
   tails) you can drag straight onto the GitHub issue. Home paths and
   anything token-shaped are redacted before they leave your machine.
@@ -99,7 +99,7 @@ receive a stable `docs_topic` and a safe fallback message, never private excepti
 
 | Topic | Recovery |
 | --- | --- |
-| `GPU_ARCH_UNSUPPORTED` | The installed PyTorch build cannot run kernels on this GPU. Select CPU in Settings → Performance & Device, or use a PyTorch build compatible with the GPU. |
+| `GPU_ARCH_UNSUPPORTED` | The installed PyTorch build cannot run kernels on this GPU. Select CPU in Settings → Device & memory, or use a PyTorch build compatible with the GPU. |
 | `HOST_MEMORY_EXHAUSTED` | The machine ran out of system memory, so the engine could not finish. Close other memory-heavy apps, unload unused models with **Flush models**, render a shorter passage, or select a lighter TTS engine. On Windows, enlarging the page file also helps. A CPU-only machine has no GPU memory to free — this is RAM, not VRAM. |
 | `WINDOWS_APP_CONTROL_BLOCKED` | Windows application control blocked a required file. Ask the administrator to allow the trusted Sado runtime, then restart the app. |
 | `AUDIO_IO_FAILED` | Check the audio format, free disk space, and file permissions; review the folder in Settings → Storage. |
@@ -352,7 +352,7 @@ it and nothing is logged.
 capture CUDA graphs below sm_80, so this should no longer happen. If you still
 see a crash in the generate path on any GPU, turn compilation off entirely:
 
-- **In the app:** Settings → Performance → **"Disable torch.compile"**.
+- **In the app:** Settings → Speed / quality → **\"Disable torch.compile"**.
 - **From the CLI / from source:** `TORCH_COMPILE_DISABLE=1` before launching.
   This is honoured on every platform and by every engine, in-process or
   sidecar.
@@ -666,12 +666,12 @@ GPU-only engines still require supported hardware.
 ## 12b. My AMD Radeon GPU is not used (CPU is busy, GPU is idle)
 
 **Symptom:** generation or transcription is slow, Task Manager shows the CPU
-busy and the Radeon idle, and **Settings → About → Run self-check** says the
+busy and the Radeon idle, and **Settings → Diagnostics & About → Run self-check** says the
 compute device is `cpu`.
 
 **Cause:** the default install has the NVIDIA CUDA build of PyTorch (or the
 CPU-only build when no NVIDIA driver is present), and neither can drive AMD GPUs. This is not a driver problem on your side. Open
-**Settings → Performance → GPU acceleration**: it names your card, the installed
+**Settings → Device & memory → GPU acceleration**: it names your card, the installed
 PyTorch build and, for every engine, whether it uses the GPU.
 
 **Fix, by platform:**
@@ -820,7 +820,7 @@ same as it always has (a quick way to lower the watchdog everywhere with one
 var); it only stops doing so once you also set an explicit
 `OMNIVOICE_CPU_GENERATE_TIMEOUT_S`, which then takes precedence for CPU jobs.
 
-Both budgets are also editable from **Settings → Performance & Device →
+Both budgets are also editable from **Settings → Speed / quality →
 Compute-time budget** — no env var or config file needed. A value saved there
 persists across restarts but only takes effect on the *next* backend restart
 (the running process already read the old value at startup), which the panel

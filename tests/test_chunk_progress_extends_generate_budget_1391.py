@@ -211,9 +211,14 @@ async def test_a_stale_ident_cannot_vouch_for_the_next_job(mm, pool, release):
 
 
 def test_every_multi_part_render_loop_reports_progress():
-    """The guard can only listen if the render speaks. Each loop that produces
-    one part at a time — native chunks, adapter chunks, pause spans — must
-    report, or that path silently keeps the old failure."""
+    """The guard can only listen if the render speaks. Each place that
+    synthesizes one part of a multi-part take inside one pool job — the native
+    and adapter chunk renderers that ``_render_text`` drives, and the pause-span
+    loop — must report, or that path silently keeps the old failure.
+
+    The streaming renderers are excluded: each streamed chunk is its own pool
+    job with its own budget, so it cannot overrun a shared one.
+    """
     import ast
 
     src = open(
@@ -222,6 +227,7 @@ def test_every_multi_part_render_loop_reports_progress():
         encoding="utf-8",
     ).read()
     tree = ast.parse(src)
+    parent = {child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
 
     def _calls_progress(node) -> bool:
         return any(
@@ -231,33 +237,38 @@ def test_every_multi_part_render_loop_reports_progress():
             for n in ast.walk(node)
         )
 
-    def _renders_inline(node) -> bool:
-        """A loop that SYNTHESIZES each part itself, inside one pool job.
+    def _enclosing_function(node):
+        while node in parent:
+            node = parent[node]
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                return node
+        return None
 
-        Excludes the silence-padding loop (no synthesis) and the streaming
-        loop, which dispatches every chunk as its own pool job with its own
-        budget and so cannot overrun a shared one.
-        """
-        for n in ast.walk(node):
-            if not isinstance(n, ast.Call):
-                continue
-            f = n.func
-            if isinstance(f, ast.Name) and f.id in {"_gen", "gen_span"}:
-                return True
-            if (isinstance(f, ast.Name) and f.id == "trace_call"
-                    and len(n.args) > 1):
-                f = n.args[1]  # instrumentation still calls the same generator
-            if isinstance(f, ast.Attribute) and f.attr == "generate":
-                return True
-        return False
-
-    loops = [n for n in ast.walk(tree) if isinstance(n, ast.For) and _renders_inline(n)]
-    assert len(loops) == 3, f"expected the three inline render loops, found {len(loops)}"
-    for loop in loops:
-        assert _calls_progress(loop), (
-            f"the render loop at line {loop.lineno} appends parts without "
+    synth_calls = [
+        n for n in ast.walk(tree)
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "trace_call"
+        and n.args and isinstance(n.args[0], ast.Constant) and n.args[0].value == "synthesis"
+    ]
+    renderers = {id(f): f for f in map(_enclosing_function, synth_calls)
+                 if f is not None and not f.name.startswith("_render_stream")}.values()
+    assert sorted(f.name for f in renderers) == ["_render_chunk", "_render_chunk"], (
+        "expected the native and adapter chunk renderers; a new synthesis site "
+        "inside a shared pool job must report progress too"
+    )
+    for fn in renderers:
+        assert _calls_progress(fn), (
+            f"the renderer at line {fn.lineno} synthesizes a part without "
             f"reporting progress — that path still dies mid-render (#1391)"
         )
+
+    pauses = next(n for n in ast.walk(tree)
+                  if isinstance(n, ast.FunctionDef) and n.name == "_render_with_pauses")
+    span_loops = [n for n in ast.walk(pauses) if isinstance(n, ast.For) and any(
+        isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == "gen_span"
+        for c in ast.walk(n))]
+    assert span_loops and all(_calls_progress(loop) for loop in span_loops), (
+        "the pause-span loop renders spans without reporting progress (#1391)"
+    )
 
 
 def test_the_progress_report_cannot_break_a_render():

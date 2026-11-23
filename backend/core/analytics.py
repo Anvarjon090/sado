@@ -4,8 +4,8 @@ Sado is local-first, so analytics here is held to a higher bar than the
 usual SDK drop-in. Three rules, each enforced in code below and pinned by tests:
 
 1. **Off unless the user says yes.** Two independent gates must BOTH be true:
-   a configured destination token (the in-repo publishable default, overridden
-   by ``POSTHOG_PROJECT_TOKEN`` when set — see ``_PUBLIC_PROJECT_TOKEN``) *and*
+   a configured destination token (``POSTHOG_PROJECT_TOKEN``, baked into
+   release builds from the repo secret — the in-repo default is empty) *and*
    the user's explicit ``analytics_enabled`` preference, which defaults to
    **False**. A default install transmits nothing, so the product's promise
    holds out of the box. ``OMNIVOICE_ANALYTICS_DISABLED=1`` is a hard kill
@@ -44,17 +44,15 @@ _client_key: Optional[str] = None  # the (token, host) the live client was built
 _KILL_SWITCH = "OMNIVOICE_ANALYTICS_DISABLED"
 _OFF_VALUES = {"1", "true", "yes", "on"}
 
-#: In-repo default analytics destination (owner-sanctioned reversal, #1193):
-#: source builds get the SAME consent-gated analytics as installers. This is a
-#: PostHog *publishable* client key — write-only event ingestion, no data
-#: access; PostHog's own FAQ says these are designed to ship in client code —
-#: NOT a secret. It only names a destination: not one event leaves the machine
-#: without the user's explicit opt-in (see `enabled()`).
-#: A `POSTHOG_PROJECT_TOKEN` env var (release builds bake one in via the
-#: desktop shell; developers can point at their own project) always wins.
-#: Committed-token guard: tests/test_no_committed_analytics_token.py allows a
-#: `phc_` literal in exactly this file and electron/src/shared/utils/analytics.ts.
-_PUBLIC_PROJECT_TOKEN = "phc_kJK9nFqtwFmB4CYWS4bMDTY7z9P4KCRyiRT7CzJTXm9f"  # gitleaks:allow — publishable write-only key (#1193)
+#: In-repo default analytics destination: EMPTY (Sado owner decision,
+#: 2026-11-21). The upstream project's PostHog key used to live here, which sent
+#: consenting Sado users' events to someone else's project. A destination now
+#: comes only from `POSTHOG_PROJECT_TOKEN` — release builds bake it in from the
+#: repo secret via the desktop shell; developers can point at their own project.
+#: With no token, `token_configured()` is False and the consent ask never shows.
+#: Guard: tests/test_no_committed_analytics_token.py keeps `phc_` literals out of
+#: the repo and pins both in-repo defaults empty.
+_PUBLIC_PROJECT_TOKEN = ""
 _DEFAULT_HOST = "https://us.i.posthog.com"
 
 #: The ONLY property keys that may leave this machine. Anything else is dropped.
@@ -147,9 +145,9 @@ def user_prompted() -> bool:
 
 
 def _resolved_token() -> str:
-    """The destination token: env (baked builds / developer override) wins,
-    the committed publishable default (#1193) is the fallback. Empty only when
-    both are blank — a destination-less build can never run analytics."""
+    """The destination token: env (baked release builds / developer override).
+    The in-repo default is empty, so a build without one has no destination
+    and can never run analytics."""
     return (os.environ.get("POSTHOG_PROJECT_TOKEN", "") or "").strip() or _PUBLIC_PROJECT_TOKEN
 
 
@@ -158,10 +156,9 @@ def _resolved_host() -> str:
 
 
 def token_configured() -> bool:
-    """Whether this build has an analytics destination at all. Since #1193 the
-    in-repo default means source builds have one too — so they get the same
-    first-run consent ask as installers. False only when both the env var and
-    the committed default are blank; consent stays the real gate regardless."""
+    """Whether this build has an analytics destination at all — only when a
+    token was baked in or set in the env. Without one the first-run consent ask
+    is skipped; with one, consent stays the real gate."""
     return bool(_resolved_token())
 
 

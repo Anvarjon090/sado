@@ -38,7 +38,7 @@ administration.
 
 **1. On this machine (the one you work on):**
 
-Settings → System → Remote workers → turn on **Use remote workers**.
+Settings → Sharing & Remote Access → Remote workers → turn on **Use remote workers**.
 
 The panel shows the address workers should connect to, and a **Generate token**
 button.
@@ -69,7 +69,7 @@ here, so it cannot be shown again. If you lose it, generate another.
 
 **3. On the worker machine:**
 
-Settings → System → Remote workers → **Lend this machine's GPU** → paste the
+Settings → Sharing & Remote Access → Remote workers → **Lend this machine's GPU** → paste the
 join code → **Join**. Nothing has to be restarted, and no environment variables
 are involved.
 
@@ -134,7 +134,7 @@ disconnects whoever had it.
 If more than one person needs the same GPU box, turn it around: let the box
 **accept connections** instead.
 
-**On the GPU machine:** Settings → System → Remote workers → **Accept
+**On the GPU machine:** Settings → Sharing & Remote Access → Remote workers → **Accept
 connections**. It listens on `127.0.0.1:7444` to begin with, which only that
 machine can reach — set **Reachable from** to your network address to let other
 machines in.
@@ -148,7 +148,7 @@ ovnode://ovnode_xxxxxxxx@192.168.0.110:7444?fingerprint=<64-hex-digits>
 
 Copy it once — it is not shown again. Give a separate one to each person.
 
-**On each person's machine:** Settings → System → Remote workers → **Connect to
+**On each person's machine:** Settings → Sharing & Remote Access → Remote workers → **Connect to
 a GPU machine**, paste the string. That is the whole flow: no shell access to
 the GPU box, no restart, and everyone stays connected at the same time. If two
 people send work at once, the second job waits for a free slot rather than
@@ -315,7 +315,7 @@ worker and never implicit.
 
 ## Turning it off
 
-Settings → System → Remote workers → toggle off, or the **Compute** control in
+Settings → Sharing & Remote Access → Remote workers → toggle off, or the **Compute** control in
 the status bar at the bottom of the window. The listening socket closes and the
 background loops stop. Your enrolled workers and their settings are kept, so
 turning it back on does not mean setting everything up again.

@@ -24,9 +24,14 @@ _CLA_WORKFLOW = _WORKFLOWS / "cla.yml"
 _PRIVILEGED_TRIGGERS = {"pull_request_target", "issue_comment", "workflow_run"}
 # SHA-256 of each published agreement with LF line endings. Never update a hash:
 # publish a new version file instead, so existing signatures keep their text.
+# The 1.0 hashes pin the text as this repository has carried it since v0.5.7
+# (commit 5dd44143 edited 1.0 in place; the earlier upstream text is not in this
+# history). 1.0 is retired: the check now asks for 2.0.
 _PUBLISHED_AGREEMENTS = {
-    ".github/CLA-1.0.md": "b21cab097b9ea9b7f9d938724910276bd1253083800f42d5e176c9d335086b84",
-    ".github/CCLA-1.0.md": "4207f055243a9c4c87f89dcb1de49e61b46ffb1605ae020e848709c8705c9d5c",
+    ".github/CLA-1.0.md": "b8862f946756a429d61de6366f2a6c1289f3d9eab62df2e8286b42ce594c0228",
+    ".github/CCLA-1.0.md": "349dec76cc8a352aec92a3814cfb722c8bd15be63b3b1d9e11a01680e0e9d7a0",
+    ".github/CLA-2.0.md": "4b5994d1998eec0117bb42d036bc72047e1426e33c6060838ff1ad894b9eb901",
+    ".github/CCLA-2.0.md": "6667958e24b3b88e75410c45fe6b415b15e964939d20e6a99ae2856d5ea0fadf",
 }
 
 _spec = importlib.util.spec_from_file_location("cla_check", _REPO / ".github" / "scripts" / "cla_check.py")

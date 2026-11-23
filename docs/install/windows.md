@@ -22,7 +22,7 @@ Download the installer matching your PC from the
 | PC | Installer |
 |---|---|
 | Intel / AMD (x64) | `Sado-Electron-<version>-win-x64.exe` |
-| Windows on ARM (Snapdragon X etc., experimental) | `Sado-Electron-<version>-win-arm64.exe` (releases without it: the x64 installer also works, under emulation) |
+| Windows on ARM (Snapdragon X etc.) | The x64 installer, under emulation (releases from 0.5.11 on publish no ARM64 build) |
 
 The setup wizard installs for the current user by default (no administrator
 rights needed) and lets you choose the installation folder. Compare the download with the
@@ -111,10 +111,10 @@ still works on CPU, just slower. What you can do today:
   parity is claimed. DirectML is not an option either: `torch-directml` needs
   PyTorch 2.4.
 
-**Settings → Performance → GPU acceleration** shows exactly what applies to your
+**Settings → Device & memory → GPU acceleration** shows exactly what applies to your
 machine: the GPUs Windows reports, which PyTorch build is installed, and a
 verdict for every engine (uses the GPU, runs on the CPU and why, or CPU by
-design). **Settings → About → Run self-check** names the card instead of just
+design). **Settings → Diagnostics & About → Run self-check** names the card instead of just
 saying "no GPU acceleration detected".
 
 ## Building from source
@@ -186,7 +186,7 @@ synthesise call. On machines with <16 GB VRAM, that compile step can OOM
 `OutOfMemoryError: CUDA out of memory` or `RuntimeError: Triton compilation
 failed`.
 
-**The one-click fix:** open **Settings → Performance** in the app and toggle
+**The one-click fix:** open **Settings → Speed / quality** in the app and toggle
 **"Disable torch.compile"** on. That sets the `TORCH_COMPILE_DISABLE=1` env var
 on every engine subprocess Sado spawns and forces the in-process engine
 to eager mode as well. You'll lose a few percent of peak throughput in exchange

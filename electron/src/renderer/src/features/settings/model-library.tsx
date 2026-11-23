@@ -48,6 +48,18 @@ import {
   engineSelectionFeedback,
   type EngineSelectionResult,
 } from '@/lib/engine-selection-feedback';
+import { cn } from '@/lib/utils';
+
+// Informational chips (recommended, installed, required, in memory) are neutral:
+// muted text on a hairline. Indigo is kept for the selected model alone (DESIGN.md,
+// One Signal Rule).
+const NEUTRAL_CHIP = 'rounded-full border border-border px-2 py-1 text-xs text-muted-foreground';
+const NEUTRAL_CHIP_SM =
+  'rounded-full border border-border px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground';
+// Delete stays quiet at rest and turns red only when the pointer or focus is on it;
+// the confirm dialog still guards the action.
+const DELETE_ICON_BUTTON =
+  'text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:border-destructive/40 focus-visible:text-destructive focus-visible:ring-destructive/20 dark:hover:bg-destructive/20';
 
 interface RecommendedModel {
   repo_id: string;
@@ -495,8 +507,8 @@ export function SystemRecommendations() {
                     <span
                       className={
                         selected
-                          ? 'rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary'
-                          : 'rounded-full bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground'
+                          ? 'rounded-full bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary'
+                          : NEUTRAL_CHIP_SM
                       }
                     >
                       {t(
@@ -509,7 +521,7 @@ export function SystemRecommendations() {
                     </span>
                   )}
                   {model.required && (
-                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-primary">
+                    <span className={cn(NEUTRAL_CHIP_SM, 'uppercase tracking-wide')}>
                       {t('models.req_tag')}
                     </span>
                   )}
@@ -757,14 +769,24 @@ export function ModelLibrary({
       setPending(null);
     }
   };
-  const selectableAsrModel = (repoId: string) =>
-    repoId.startsWith('Systran/faster-') || repoId === 'deepdml/faster-whisper-large-v3-turbo-ct2';
+  // transformers Whisper checkpoints (OpenAI's own, the Uzbek Sado ASR) load
+  // through the PyTorch engine; everything else selectable is CTranslate2.
+  const pytorchAsrModel = (model: CatalogueModel) =>
+    model.engines?.includes('pytorch-whisper') === true;
+  const selectableAsrModel = (model: CatalogueModel) =>
+    pytorchAsrModel(model) ||
+    model.repo_id.startsWith('Systran/faster-') ||
+    model.repo_id === 'deepdml/faster-whisper-large-v3-turbo-ct2';
   const selectAsrModel = async (model: CatalogueModel) => {
     setPending(model.repo_id);
     setFailed(false);
     try {
       const current = engineQuery.data?.asr?.active;
-      const backendId = current === 'faster-whisper-isolated' ? current : 'faster-whisper';
+      const backendId = pytorchAsrModel(model)
+        ? 'pytorch-whisper'
+        : current === 'faster-whisper-isolated'
+          ? current
+          : 'faster-whisper';
       const result = await apiJson<EngineSelectionResult>('/engines/select', {
         method: 'POST',
         body: JSON.stringify({
@@ -873,7 +895,7 @@ export function ModelLibrary({
       : null;
     const resident = residentFor(model);
     const isAsrModel = model.role.toLowerCase() === 'asr' && !model.dictation_id;
-    const selectableAsr = isAsrModel && selectableAsrModel(model.repo_id);
+    const selectableAsr = isAsrModel && selectableAsrModel(model);
     const checkingAsrSelection = selectableAsr && !engineQuery.data;
     const activeAsrModel = isAsrModel && engineQuery.data?.asr?.active_model === model.repo_id;
     const engineFamily = model.role.toLowerCase();
@@ -926,10 +948,7 @@ export function ModelLibrary({
           </span>
         )}
         {!setup && model.curated && (
-          <span
-            className="rounded-full bg-primary/10 px-2 py-1 text-xs text-primary"
-            title={t('firstrun.chip_recommended_title')}
-          >
+          <span className={NEUTRAL_CHIP} title={t('firstrun.chip_recommended_title')}>
             {t('firstrun.chip_recommended')}
           </span>
         )}
@@ -1115,7 +1134,7 @@ export function ModelLibrary({
             </span>
             {!setup && resident && (
               <span
-                className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs text-primary"
+                className={cn(NEUTRAL_CHIP, 'flex items-center gap-1')}
                 title={[
                   t('modelMaintenance.inMemoryDescription'),
                   resident.device,
@@ -1184,7 +1203,8 @@ export function ModelLibrary({
                 </Button>
                 <Button
                   size="icon-sm"
-                  variant="destructive"
+                  variant="ghost"
+                  className={DELETE_ICON_BUTTON}
                   disabled={Boolean(pending)}
                   title={t('modelMaintenance.delete')}
                   aria-label={t('modelMaintenance.delete')}
@@ -1216,7 +1236,8 @@ export function ModelLibrary({
             {!setup && (
               <Button
                 size="icon-sm"
-                variant="destructive"
+                variant="ghost"
+                className={DELETE_ICON_BUTTON}
                 disabled={Boolean(pending)}
                 title={t('modelMaintenance.delete')}
                 aria-label={t('modelMaintenance.delete')}
@@ -1248,7 +1269,7 @@ export function ModelLibrary({
         contentVariant="cards"
       >
         {!setup && (
-          <div className="glass-panel col-span-full flex items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-3 shadow-xs/5">
+          <div className="col-span-full flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3">
             <SearchIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
             <Input
               type="search"
@@ -1274,7 +1295,7 @@ export function ModelLibrary({
             {primary?.map(renderModel)}
             {optional.length > 0 && (
               <details className="group/models col-span-full">
-                <summary className="glass-panel cursor-pointer rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-sm text-muted-foreground shadow-xs/5 focus-visible:outline-ring">
+                <summary className="cursor-pointer rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground focus-visible:outline-ring">
                   {t('firstrun.lib_show_all', { count: optional.length })}
                 </summary>
                 <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-3">
@@ -1284,7 +1305,7 @@ export function ModelLibrary({
             )}
             {incompatible.length > 0 && (
               <details className="group/models col-span-full">
-                <summary className="glass-panel cursor-pointer rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-sm text-muted-foreground shadow-xs/5 focus-visible:outline-ring">
+                <summary className="cursor-pointer rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground focus-visible:outline-ring">
                   {t('modelSettings.unavailable')} ({incompatible.length})
                 </summary>
                 <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-3">

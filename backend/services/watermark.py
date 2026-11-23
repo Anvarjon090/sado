@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import logging
 
 from core.render_trace import timed as _render_timed
@@ -53,6 +54,39 @@ _last_used = 0.0
 # this fixed order (nothing else nests them, so no cycle is possible).
 _generator_lock = threading.Lock()
 _detector_lock = threading.Lock()
+
+# Where the generator runs. AudioSeal is a small conv net: on a CPU it costs
+# about 0.1 s per second of audio — 0.6 s on a 6 s take, 3.1 s on a 30 s one,
+# measured 2026-11-23 on an i7-9700K, a fifth of a whole /generate — and a few
+# milliseconds on a CUDA GPU that already holds the TTS model. Set when
+# _get_generator builds the model; an injected test generator stays on "cpu".
+_generator_device = "cpu"
+# A CUDA embed failed once (driver, OOM, an op the build lacks): stay on the CPU
+# for the rest of the process rather than retrying the GPU on every take.
+_cuda_embed_failed = False
+
+
+def _watermark_device() -> str:
+    """``cuda`` when a CUDA (or ROCm) GPU is usable, else ``cpu``.
+
+    ``OMNIVOICE_WATERMARK_DEVICE=cpu`` keeps the old CPU path. Only the speed
+    differs between the two: the same model embeds the same message. A device
+    the user pinned (``OMNIVOICE_DEVICE`` / Settings → Device & memory) is
+    honoured through the same host probe the TTS loader uses.
+    """
+    if _cuda_embed_failed or os.environ.get("OMNIVOICE_WATERMARK_DEVICE", "").strip().lower() == "cpu":
+        return "cpu"
+    try:
+        from core.device_caps import detect_host_caps
+
+        if detect_host_caps().family not in ("cuda", "rocm"):
+            return "cpu"
+    except Exception:  # noqa: BLE001 — no probe: fall back to asking torch
+        pass
+    try:
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except Exception:  # noqa: BLE001 — a broken CUDA probe means CPU, never a crash
+        return "cpu"
 
 # True when the generator exists ONLY because the startup prefetch built it
 # and no embed/detect has used it since. The idle reaper grants one extra
@@ -188,14 +222,25 @@ def _get_generator(mark_prefetched: bool = False):
     window between two lock scopes where the claim could land on an
     already-used model.
     """
-    global _generator, _last_used, _prefetched_unused
+    global _generator, _generator_device, _last_used, _prefetched_unused
     with _generator_lock:
         _last_used = time.monotonic()
         if _generator is None:
             from audioseal import AudioSeal
-            _generator = AudioSeal.load_generator("audioseal_wm_16bits")
-            _generator.eval()
-            logger.info("AudioSeal generator loaded (16-bit message mode)")
+            generator = AudioSeal.load_generator("audioseal_wm_16bits")
+            generator.eval()
+            device = _watermark_device()
+            if device != "cpu":
+                try:
+                    generator.to(device)
+                except Exception:  # noqa: BLE001 — the CPU always works
+                    logger.warning("AudioSeal could not move to %s; marking on the CPU", device,
+                                   exc_info=True)
+                    device = "cpu"
+                    with contextlib.suppress(Exception):
+                        generator.to("cpu")  # undo a half-finished move
+            _generator, _generator_device = generator, device
+            logger.info("AudioSeal generator loaded (16-bit message mode, %s)", device)
             _prefetched_unused = mark_prefetched
         elif not mark_prefetched:
             _prefetched_unused = False
@@ -226,7 +271,26 @@ def _generator_checkpoint_cached() -> bool:
         "XDG_CACHE_HOME"
     )
     root = Path(cache_root).expanduser() if cache_root else Path.home() / ".cache"
-    return (root / "audioseal" / "generator_base.pth").is_file()
+    folder = root / "audioseal"
+    return any((folder / name).is_file() for name in _GENERATOR_CHECKPOINT_NAMES)
+
+
+#: AudioSeal 0.2 stores the generator under one of two names: the plain file
+#: name when huggingface_hub fetched it, or torch.hub's ``sha1(url path)[:24]``
+#: when its https fallback did. Checking only the first made the startup
+#: prefetch skip on every install that has the second (the owner's, 2026-11-23),
+#: so the first take paid the AudioSeal load inline.
+_GENERATOR_CHECKPOINT_URL_PATH = "/facebook/audioseal/resolve/main/generator_base.pth"
+_GENERATOR_CHECKPOINT_NAMES = (
+    "generator_base.pth",
+    hashlib.sha1(_GENERATOR_CHECKPOINT_URL_PATH.encode(), usedforsecurity=False).hexdigest()[:24],
+)
+
+
+def can_mark_offline() -> bool:
+    """True when marking would embed now without fetching anything: the
+    generator is loaded, or its checkpoint is already on disk."""
+    return will_mark() and (_generator is not None or _generator_checkpoint_cached())
 
 
 def prefetch_generator(*, allow_download: bool = False) -> None:
@@ -290,8 +354,14 @@ def release_idle_models(idle_seconds: float, *, now: Optional[float] = None) -> 
             return False
         # Under the locks so a release racing the prefetch or a first embed
         # can't wipe a model the lazy path just built.
+        on_gpu = _generator is not None and _generator_device != "cpu"
         _generator = None
         _detector = None
+    if on_gpu:
+        try:
+            torch.cuda.empty_cache()
+        except Exception:  # noqa: BLE001 — the reaper must survive a CUDA hiccup
+            pass
     logger.info("Idle timeout reached. Released the AudioSeal watermark models.")
     return True
 
@@ -453,6 +523,39 @@ def _embed_chunk(generator, audio, sample_rate, message):
     return audio + delta[..., :audio.shape[-1]]
 
 
+def _embed_on(generator, device, audio, sample_rate, msg):
+    """Mark ``audio`` chunk by chunk on ``device``; the result comes back on
+    the input's device and dtype."""
+    work = audio if device == "cpu" else audio.to(device)
+    message = msg if device == "cpu" else msg.to(device)
+    # AudioSeal 0.2 ignores sample_rate: normalize each bounded chunk
+    # explicitly, then add only the resampled watermark to the source.
+    with _eager_audioseal():
+        marked = torch.cat(
+            [
+                _embed_chunk(generator, seg, sample_rate, message)
+                for seg in _iter_chunks(work, sample_rate)
+            ],
+            dim=-1,
+        )
+    return marked.to(device=audio.device, dtype=audio.dtype)
+
+
+def _generator_to_cpu():
+    """Move the generator to the CPU for good after a GPU embed failed."""
+    global _generator, _generator_device, _cuda_embed_failed
+    with _generator_lock:
+        _cuda_embed_failed = True
+        if _generator is not None and _generator_device != "cpu":
+            _generator.to("cpu")
+            _generator_device = "cpu"
+            try:
+                torch.cuda.empty_cache()
+            except Exception:  # noqa: BLE001
+                pass
+        return _generator
+
+
 @torch.no_grad()
 def embed_watermark(
     waveform: torch.Tensor,
@@ -494,16 +597,14 @@ def embed_watermark(
         else:
             audio = waveform
 
-        # AudioSeal 0.2 ignores sample_rate: normalize each bounded chunk
-        # explicitly, then add only the resampled watermark to the source.
-        with _eager_audioseal():
-            watermarked = torch.cat(
-                [
-                    _embed_chunk(generator, seg, sample_rate, msg)
-                    for seg in _iter_chunks(audio, sample_rate)
-                ],
-                dim=-1,
-            )
+        try:
+            watermarked = _embed_on(generator, _generator_device, audio, sample_rate, msg)
+        except Exception:
+            if _generator_device == "cpu":
+                raise
+            logger.warning("Watermark embed failed on %s; marking on the CPU from now on",
+                           _generator_device, exc_info=True)
+            watermarked = _embed_on(_generator_to_cpu(), "cpu", audio, sample_rate, msg)
 
         # Restore original shape
         if len(original_shape) == 2:

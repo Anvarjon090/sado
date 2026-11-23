@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "Di mesin yang lain: Pengaturan → Sistem → Pekerja jarak jauh → Gabung, lalu pindai atau tempelkan.",
     "usage": "Penggunaan",
     "usage_desc": "Yang telah Anda buat dengan Sado — dihitung di perangkat Anda sendiri.",
-    "usage_privacy": "Angka ini dihitung dari riwayat di perangkat ini dan tidak pernah dikirim ke mana pun. Sado tidak memiliki layanan analitik — tidak ada data di sini yang meninggalkan komputer Anda.",
+    "usage_privacy": "Angka ini dihitung dari riwayat di perangkat ini dan tidak pernah dikirim ke mana pun.",
     "usage_empty": "Anda belum membuat apa pun — buat sesuatu dan hasilnya akan muncul di sini.",
     "usage_takes": "Take yang dibuat",
     "usage_since": "sejak {{date}}",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "Diatur",
     "translation_providers": "Penyedia terjemahan",
     "hf_token_sources": "Sumber token HF",
-    "hf_token_input": "Token HuggingFace",
+    "hf_token_input": "Token Hugging Face",
     "hf_token_clear_confirm": "Hapus token HuggingFace dari sumber Aplikasi?",
     "credentials": "Kredensial",
     "hf_token_test_now": "Uji sekarang",
     "hf_source_env_label": "Variabel lingkungan",
     "hf_token_not_checked": "Belum diuji",
-    "translation_providers_desc": "Kunci API untuk penerjemah online, disetel untuk sesi ini.",
+    "translation_providers_desc": "Kunci API dan wilayah untuk penerjemah online: Google Cloud, Microsoft Azure, AWS, dan DeepL. Tetap tersimpan setelah dimulai ulang.",
     "hf_token_verified": "Terverifikasi",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Belum diatur",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: perangkat komputasi dikunci ke CPU",
     "gpu_report_engine_no_family_path": "CPU: tidak ada jalur untuk jenis GPU Anda",
     "gpu_report_engine_no_gpu": "CPU: tidak ada GPU",
-    "gpu_report_engine_needs_accelerator": "Memerlukan GPU ({{needs}}) yang tidak dimiliki komputer ini"
+    "gpu_report_engine_needs_accelerator": "Memerlukan GPU ({{needs}}) yang tidak dimiliki komputer ini",
+    "models_dir_desc": "Model yang diunduh disimpan di sini. Pindahkan folder ke drive lain untuk mengosongkan ruang."
   },
   "gallery": {
     "title": "Sado Galeri",
@@ -2743,8 +2744,8 @@
   "update": {
     "checking": "Memeriksa pembaruan…",
     "ready": "Pembaruan {{version}} telah diunduh dan diverifikasi",
-    "download": "Unduh pembaruan",
-    "download_hint": "Unduh di latar belakang sambil melanjutkan pekerjaan.",
+    "download": "Unduh penginstal",
+    "download_hint": "Membuka penginstal untuk komputer ini di browser. Jalankan untuk memperbarui; proyek dan suara Anda tetap tersimpan.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/dtk · tersisa {{eta}}",
     "safety": "Integritas paket pembaruan diverifikasi sebelum mulai ulang.",
     "available": "Pembaruan {{version}} tersedia",
@@ -2885,7 +2886,8 @@
     "balanced": "Seimbang",
     "quality": "Kualitas",
     "hint": "Berlaku untuk sampling OmniVoice dan decoding Faster-Whisper / NLLB. Mesin lain mempertahankan pengaturannya.",
-    "auto": "Otomatis"
+    "auto": "Otomatis",
+    "per_engine": "Pengaturan per mesin"
   },
   "recording": {
     "input_device": "Perangkat masukan",
@@ -3500,5 +3502,15 @@
     "saving": "Menyimpan…",
     "saved": "Rekaman yang diedit tersimpan",
     "failed": "Gagal mengedit intonasi: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "Aplikasi",
+    "group_voices": "Suara & model",
+    "group_device": "Perangkat",
+    "group_data": "Privasi & data",
+    "group_connections": "Koneksi",
+    "group_developer": "Pengembang & dukungan",
+    "device": "Perangkat & memori",
+    "diagnostics": "Diagnostik & Tentang"
   }
 }

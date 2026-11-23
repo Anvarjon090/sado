@@ -37,7 +37,7 @@ from dataclasses import dataclass, field
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from agent_identities import AGENT_EMAILS
 
-CLA_VERSION = "1.0"
+CLA_VERSION = "2.0"
 SIGN_PHRASE = f"I have read the Sado CLA {CLA_VERSION} and I hereby sign it."
 DOCUMENT_PATH = f".github/CLA-{CLA_VERSION}.md"
 SIGNATURE_BRANCH = "cla-signatures"
@@ -55,7 +55,7 @@ MAX_COMMITS = 250
 MAX_AUTHORS = 20  # authors (author plus co-authors) read per commit
 
 # GitHub account IDs exempt from signing. IDs cannot be claimed by anyone else.
-MAINTAINER_IDS = {4178343}  # debpalash
+MAINTAINER_IDS = {199935261}  # Anvarjon090
 BOT_IDS = {
     49699333,  # dependabot[bot]
     41898282,  # github-actions[bot]
@@ -235,8 +235,8 @@ def render_comment(evaluation: Evaluation, doc_url: str) -> str:
     intro = (
         "Thank you for contributing to Sado. Before this pull request can merge, everyone who "
         f"contributed to it must sign the [Contributor License Agreement {CLA_VERSION}]({doc_url}) once. "
-        "You keep your copyright; the agreement lets Yupcha Softwares Private Limited, the company that "
-        "maintains Sado, ship your work in both the AGPL-3.0 app and commercial builds."
+        "You keep your copyright; the agreement lets the Sado maintainer (@Anvarjon090) ship your work "
+        "in both the AGPL-3.0 app and commercial builds."
     )
     lines = [COMMENT_MARKER, intro]
     if evaluation.unsigned:

@@ -1963,6 +1963,48 @@ def generate_budget(engine: Optional[str] = None):
     return generate_budget_s(engine)
 
 
+#: The one in-flight background load a warm ping started (a reference keeps the
+#: task alive; a second ping while it runs reuses it instead of queueing more).
+_warm_state: dict = {"task": None}
+
+
+@router.post("/tts/warm")
+async def warm_tts():
+    """Have the TTS model ready for the take someone is about to ask for.
+
+    The renderer calls this while the speech or voice-design screen is open and
+    focused, and again as the user types. The model then survives the idle
+    unload while it is plainly wanted, and a model that did unload starts
+    loading before the click instead of after it — the reload alone cost the
+    owner 3-74 s of disk reads. Leave the screen and the normal idle sweep
+    applies again, which is what frees the GPU for a game or another app.
+
+    Only the native Sado engine is warmed here, and only through
+    ``preload_model``, which carries every guard a background load needs: local
+    checkpoint only (never a download), skipped on crash-isolated MPS hosts and
+    headless worker nodes. A render routed to another machine warms nothing.
+    """
+    from services import model_manager
+    from services.tts_backend import OmniVoiceBackend, active_backend_id, get_backend_class
+
+    engine_id = active_backend_id()
+    try:
+        native = get_backend_class(engine_id) is OmniVoiceBackend
+    except ValueError:
+        native = False
+    if not native:
+        return {"engine": engine_id, "state": "unsupported"}
+    if getattr(_routing_decision(), "remote", False):
+        return {"engine": engine_id, "state": "remote"}
+    if model_manager.model is not None:
+        model_manager.note_tts_activity()
+        return {"engine": engine_id, "state": "ready"}
+    task = _warm_state["task"]
+    if task is None or task.done():
+        _warm_state["task"] = asyncio.create_task(model_manager.preload_model())
+    return {"engine": engine_id, "state": "loading"}
+
+
 @router.post("/generate")
 async def generate_speech(
     text: str = Form(...),

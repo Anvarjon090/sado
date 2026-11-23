@@ -162,7 +162,15 @@ describe('initAnalyticsFromConsent — silence is not consent', () => {
   });
 
   it('starts ONLY when the user opted in and a destination exists', async () => {
-    vi.mock('posthog-js/dist/module.slim.no-external', () => ({
+    // No destination is committed (owner decision, 2026-11-21): without the
+    // build-time key the same consent must not start anything.
+    expect(await initAnalyticsFromConsent(async () => ({ available: true, opted_in: true }))).toBe(
+      false,
+    );
+
+    vi.resetModules();
+    vi.stubEnv('VITE_POSTHOG_KEY', 'test-destination');
+    vi.doMock('posthog-js/dist/module.slim.no-external', () => ({
       default: {
         init: vi.fn(),
         opt_in_capturing: vi.fn(),
@@ -172,11 +180,18 @@ describe('initAnalyticsFromConsent — silence is not consent', () => {
         capture: vi.fn(),
       },
     }));
-    const started = await initAnalyticsFromConsent(async () => ({
-      available: true,
-      opted_in: true,
-    }));
-    expect(started).toBe(true);
+    try {
+      const fresh = await import('../utils/analytics');
+      const started = await fresh.initAnalyticsFromConsent(async () => ({
+        available: true,
+        opted_in: true,
+      }));
+      expect(started).toBe(true);
+      fresh.disableAnalytics();
+    } finally {
+      vi.doUnmock('posthog-js/dist/module.slim.no-external');
+      vi.unstubAllEnvs();
+    }
   });
 });
 

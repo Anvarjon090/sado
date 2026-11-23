@@ -8,6 +8,74 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
+**Highlights**
+
+- Sado ASR v1 recognises Uzbek speech: install it from the Model Catalogue and press Use
+
+### Added
+
+- Sado ASR v1, an Uzbek Whisper large-v3 fine-tune (`aisha-org/sado-asr-v1`), in the Model Catalogue: request access, add your Hugging Face token, install and press Use; non-commercial use only (#8)
+- Any transformers Whisper model in the catalogue can be chosen with Use, not only the CTranslate2 ones (#8)
+
+## [0.5.11] — 2026-11-23
+
+Speech comes back two to three times faster, the first take included, and Settings is rebuilt around six clear sections.
+
+**Updating from 0.5.10 or earlier:** download the installer for your computer below (Mac Apple Silicon or Intel `.dmg`, Windows `.exe`, Linux `.AppImage`) and run it over the current app; your voices, projects and settings stay. Older versions cannot find this release by themselves, because releases now carry only these four installers.
+
+**Highlights**
+
+- Speech comes back two to three times faster: a 30-second take in about 7 s instead of 16 s on an RTX 2070 SUPER
+- Settings is regrouped into six sections, each setting in one place, with readable values and working search
+- Sado no longer sends anything to the upstream project: analytics key, Docker images, update checks and links are Sado's own
+- Windows now detects the graphics card, so GPU status and fix-it options are right
+- Contributors sign CLA 2.0, which names the Sado maintainer
+
+### Changed
+
+- Releases carry four installers and `SHA256SUMS.txt`, nothing else; Sado tells you when a new version exists and **Download installer** opens it in your browser instead of updating in place
+- Windows on ARM uses the x64 installer under emulation, and Linux releases ship the AppImage only (build a `.deb` from source)
+- Sado Pro's Max preset renders 32 sampling steps instead of 64; 64 measured no better and took twice as long, and a saved 64 is sent as 32
+- The invisible watermark runs on the graphics card when there is one (3 s → 0.15 s on a 30-second take) and falls back to the CPU on any GPU error
+- The speech and voice-design screens keep the model loaded while they are open and focused, and start reloading it as you type if it was released
+- The first take after launch is as fast as later ones: loading the model now also warms the take check, output chain and watermark
+- The startup watermark preload finds AudioSeal's checkpoint under the name AudioSeal 0.2 saves it with, instead of skipping every launch
+- Analytics no longer ship the upstream project's PostHog key; only builds with their own token can ask for consent
+- Docker images publish to `ghcr.io/anvarjon090/sado`; the upstream image paths are no longer referenced
+- Linux AppImage update information now follows Sado's own releases
+- Contributors sign CLA 2.0, which names the Sado maintainer; CLA 1.0 signatures do not carry over
+- Settings: six groups (App, Voices & models, Device, Privacy & data, Connections, Developer & support); Remote workers joins Sharing, Permissions joins Privacy, the HF mirror joins Network, and old links still open the right page
+- Settings: Speed / quality has its own page with per-engine presets folded away; Device & memory keeps the hardware; the system check moved to Diagnostics & About
+- Settings: page titles no longer repeat, values sit beside their labels, cards are opaque in both themes, and one primary button per page
+- Settings search finds what is inside each page (ffmpeg, GPU, proxy, token…); Back returns to the page you came from
+- Usage merges a language counted as both "uz" and "Uzbek" and names generation modes
+- Changelog notes in Updates render bold and code instead of raw markdown
+- Windows finds the graphics card again: the GPU check read the wrong registry key and always came back empty
+- GPU acceleration no longer says "No GPU detected" while it is using the GPU
+- The Sado API page stops waiting after 15 seconds and offers Retry
+- Log lines such as "failures: 0" are no longer coloured as errors
+- The pronunciation entry form no longer squeezes its title on narrow windows
+- Uzbek labels: Saqlash, Loglar, Kalitlar va tokenlar, Masofaviy kompyuterlar, Tizim tekshiruvi
+
+### Fixed
+
+- The voice studio no longer crashes when an engine arrives without a display name; it shows the engine's id (#7)
+- The Dubbing setup pane no longer flickers between two widths; side panes measure the window they sit in (#7)
+- The composer controls wrap on narrow windows instead of pushing the page sideways (#7)
+- The language menu stays on screen on a phone-width window in right-to-left languages (#7)
+- SSML warnings reach the composer in the browser build (the header is now exposed) (#7)
+- The Navoiy-TTS engine is listed in the feature catalogue and guarded like every other sidecar (#7)
+
+### Docs
+
+- LICENSE-NOTICE names Sado as a modified version of VoiceStudio and keeps the upstream copyright
+- Community and support links point to Sado's GitHub Issues instead of the upstream Discord, Ko-fi and PayPal
+- The README links the full feature and engine catalogue again
+
+### CI
+
+- The test job is green again: 22 failing tests fixed, so the Electron checks and browser smokes that had been skipped run on every change
+
 ## [0.5.10] — 2026-11-19
 
 Designed voices now speak Uzbek without an English accent, and a finished take can be shaped word by word.

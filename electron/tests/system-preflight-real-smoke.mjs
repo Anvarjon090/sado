@@ -7,7 +7,7 @@ try {
   page.on('request', (req) => {
     if (req.url().endsWith('/setup/preflight')) probes++;
   });
-  await page.goto('http://localhost:3912/#/settings/performance');
+  await page.goto('http://localhost:3912/#/settings/diagnostics');
   const button = page.getByRole('button', { name: 'System check', exact: true });
   await button.waitFor();
   assert.equal(probes, 0);

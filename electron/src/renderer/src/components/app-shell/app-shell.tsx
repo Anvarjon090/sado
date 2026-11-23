@@ -1,11 +1,12 @@
 import { WorkspaceSidebar } from './workspace-sidebar';
 import { CommandPalette } from '@/components/command-palette';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { BackendGate } from '../backend-gate';
 import { RepairAgentDock } from './repair-agent-dock';
 import { AppTitlebar, TitlebarSlotProvider } from './app-titlebar';
 import { EdgePaneSlotProvider } from './edge-pane-slot';
+import { rememberWorkspaceRoute } from '@/lib/settings-route';
 
 export function AppShell() {
   const [titlebarSlot, setTitlebarSlot] = useState<HTMLDivElement | null>(null);
@@ -18,6 +19,7 @@ export function AppShell() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  useEffect(() => rememberWorkspaceRoute(pathname), [pathname]);
   const shellOnly = pathname.startsWith('/settings');
   const SettingsWorkspace = pathname === '/settings/openapi' ? 'div' : 'main';
   return (

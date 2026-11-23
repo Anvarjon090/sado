@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "Op de andere machine: Instellingen → Systeem → Externe workers → Koppelen, en scan of plak daar.",
     "usage": "Gebruik",
     "usage_desc": "Wat je met Sado hebt gemaakt, geteld op je eigen apparaat.",
-    "usage_privacy": "Deze cijfers worden berekend uit je geschiedenis op dit apparaat en worden nooit verzonden. Sado gebruikt geen analysedienst — niets hiervan verlaat je computer.",
+    "usage_privacy": "Deze cijfers worden berekend uit je geschiedenis op dit apparaat en worden nooit verzonden.",
     "usage_empty": "Je hebt nog niets gegenereerd. Maak iets en het verschijnt hier.",
     "usage_takes": "Gegenereerde takes",
     "usage_since": "sinds {{date}}",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "Ingesteld",
     "translation_providers": "Vertaalaanbieders",
     "hf_token_sources": "HF-tokenbronnen",
-    "hf_token_input": "HuggingFace-token",
+    "hf_token_input": "Hugging Face-token",
     "hf_token_clear_confirm": "De HuggingFace-token uit de app-bron wissen?",
     "credentials": "Inloggegevens",
     "hf_token_test_now": "Nu testen",
     "hf_source_env_label": "Omgevingsvariabele",
     "hf_token_not_checked": "Niet getest",
-    "translation_providers_desc": "API-sleutels voor online vertalers, ingesteld voor deze sessie.",
+    "translation_providers_desc": "API-sleutels en regio's voor de online vertalers: Google Cloud, Microsoft Azure, AWS en DeepL. Blijven bewaard na een herstart.",
     "hf_token_verified": "Geverifieerd",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Niet ingesteld",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: rekenapparaat vastgezet op CPU",
     "gpu_report_engine_no_family_path": "CPU: geen pad voor uw GPU-type",
     "gpu_report_engine_no_gpu": "CPU: geen GPU beschikbaar",
-    "gpu_report_engine_needs_accelerator": "Heeft een GPU ({{needs}}) nodig die deze computer niet heeft"
+    "gpu_report_engine_needs_accelerator": "Heeft een GPU ({{needs}}) nodig die deze computer niet heeft",
+    "models_dir_desc": "Hier worden gedownloade modellen bewaard. Verplaats de map naar een andere schijf om ruimte vrij te maken."
   },
   "gallery": {
     "title": "Sado Galerij",
@@ -2743,8 +2744,8 @@
   "update": {
     "checking": "Controleren op updates…",
     "ready": "Update {{version}} is gedownload en geverifieerd",
-    "download": "Update downloaden",
-    "download_hint": "Download op de achtergrond; je kunt gewoon doorwerken.",
+    "download": "Installatieprogramma downloaden",
+    "download_hint": "Opent het installatieprogramma voor deze computer in je browser. Voer het uit om bij te werken; je projecten en stemmen blijven bewaard.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · {{eta}} resterend",
     "safety": "De integriteit van het updatepakket wordt vóór het herstarten geverifieerd.",
     "available": "Update {{version}} beschikbaar",
@@ -2885,7 +2886,8 @@
     "balanced": "Gebalanceerd",
     "quality": "Kwaliteit",
     "hint": "Geldt voor OmniVoice-sampling en Faster-Whisper / NLLB-decodering. Andere engines behouden hun instellingen.",
-    "auto": "Auto"
+    "auto": "Auto",
+    "per_engine": "Instellingen per engine"
   },
   "recording": {
     "input_device": "Invoerapparaat",
@@ -3500,5 +3502,15 @@
     "saving": "Opslaan…",
     "saved": "Bewerkte opname opgeslagen",
     "failed": "Intonatie bewerken mislukt: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "App",
+    "group_voices": "Stemmen en modellen",
+    "group_device": "Apparaat",
+    "group_data": "Privacy en gegevens",
+    "group_connections": "Verbindingen",
+    "group_developer": "Ontwikkelaars en ondersteuning",
+    "device": "Apparaat en geheugen",
+    "diagnostics": "Diagnose en info"
   }
 }

@@ -144,7 +144,7 @@ export function MirrorSettings() {
                   action.reset();
                 }}
               />
-              <Button size="sm" type="submit" disabled={action.busy}>
+              <Button variant="outline" size="sm" type="submit" disabled={action.busy}>
                 {t('common.save')}
               </Button>
             </form>

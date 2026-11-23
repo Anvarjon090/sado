@@ -27,11 +27,13 @@ _PCI_VENDORS: dict[str, GPUVendor] = {
     "8086": "intel",
 }
 
-# Display adapter class GUID — every installed graphics driver is a numbered
-# subkey under it.
+# Display adapter device-setup class GUID (GUID_DEVCLASS_DISPLAY) — every
+# installed graphics driver is a numbered subkey under it. A wrong GUID fails
+# silently (the reader swallows OSError), which left every Windows host with an
+# empty GPU list; tests/test_gpu_report_amd_windows.py pins the real key.
 _WIN_DISPLAY_CLASS = (
     r"SYSTEM\CurrentControlSet\Control\Class"
-    r"\{4d36e968-e325-11cd-8000-0000f3ed53be}"
+    r"\{4d36e968-e325-11ce-bfc1-08002be10318}"
 )
 _LINUX_DRM = "/sys/class/drm"
 _GB = 1024 ** 3

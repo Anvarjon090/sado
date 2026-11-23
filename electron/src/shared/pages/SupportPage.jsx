@@ -346,14 +346,6 @@ function SupportView() {
               >
                 {t('support.star_github')}
               </Button>
-              <Button
-                variant="subtle"
-                size="sm"
-                leading={<MessageCircle size={13} />}
-                onClick={() => openExternal('https://discord.gg/bzQavDfVV9')}
-              >
-                {t('support.join_discord')}
-              </Button>
             </div>
           </section>
         </div>
@@ -366,7 +358,7 @@ function SupportView() {
 const LICENSE_EMAIL = 'hi@sado.sh';
 const LICENSE_MAILTO =
   'mailto:hi@sado.sh?subject=Sado Commercial License Inquiry' +
-  '&body=Hi Palash,%0A%0AI%27d like to talk about a commercial license for Sado.%0A%0AOrganization:%0ATeam size:%0AUse case:%0A';
+  '&body=Hello,%0A%0AI%27d like to talk about a commercial license for Sado.%0A%0AOrganization:%0ATeam size:%0AUse case:%0A';
 
 function LicenseView() {
   const { t } = useTranslation();

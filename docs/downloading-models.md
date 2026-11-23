@@ -55,7 +55,7 @@ free Hugging Face token (first-run setup, or Settings → Credentials) makes thi
 faster still — authenticated downloads get higher rate limits and fewer stalls.
 To force the old single-stream path, set `OMNIVOICE_SEGMENTED_DOWNLOAD=0`.
 
-State is reported at **Settings → About** / `GET /system/info`:
+State is reported at **Settings → Diagnostics & About** / `GET /system/info`:
 
 - `fast_download.xet_installed` — `hf_xet` present (true)
 - `fast_download.xet_active` — whether Xet actually drives downloads (false by

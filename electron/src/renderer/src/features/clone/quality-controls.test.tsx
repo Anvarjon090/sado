@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { QualityControls } from './quality-controls';
+import { effectiveSamplingSteps } from '@/lib/audio/quality';
 import { cloneSettingsStore, DEFAULT_CLONE_SETTINGS } from '@/lib/store/clone-settings';
 
 const engine = vi.hoisted(() => ({
@@ -112,10 +113,11 @@ it('changes export precision with the keyboard, updates size and keeps sampling 
   expect(cloneSettingsStore.state.steps).toBe(32);
   await act(async () => {
     fireEvent.keyDown(screen.getByRole('slider', { name: 'cloneQuality.effort' }), {
-      key: 'ArrowRight',
+      key: 'ArrowLeft',
     });
   });
-  expect(cloneSettingsStore.state.steps).toBe(33);
+  // 32 is OmniVoice's ceiling, so the default can only step down.
+  expect(cloneSettingsStore.state.steps).toBe(31);
   expect(cloneSettingsStore.state.wavBits).toBe(16);
   // Off is the natural preset (loudness match only); on is broadcast compression.
   fireEvent.click(screen.getByRole('switch', { name: 'cloneQuality.mastering' }));
@@ -141,17 +143,23 @@ it.each(['omnivoice-subprocess', 'voxcpm2', 'dots-tts', 'supertonic3'])(
     engine.id = id;
     render(<QualityControls />);
     open();
+    const max = { 'omnivoice-subprocess': 32, voxcpm2: 64, 'dots-tts': 64, supertonic3: 12 }[id];
     const steps = await screen.findByRole('slider', { name: 'cloneQuality.effort' });
-    expect(steps).toHaveAttribute('max', id === 'supertonic3' ? '12' : '64');
+    expect(steps).toHaveAttribute('max', String(max));
     await act(async () => {
       fireEvent.keyDown(steps, { key: 'Home' });
     });
     await act(async () => {
       fireEvent.keyDown(steps, { key: 'End' });
     });
-    expect(cloneSettingsStore.state.steps).toBe(id === 'supertonic3' ? 12 : 64);
+    expect(cloneSettingsStore.state.steps).toBe(max);
   },
 );
+
+it('sends a saved 64 as OmniVoice’s 32-step ceiling', () => {
+  expect(effectiveSamplingSteps(64, 'omnivoice')).toBe(32);
+  expect(effectiveSamplingSteps(64, 'voxcpm2')).toBe(64);
+});
 
 it('estimates from output metadata and leaves unknown model formats unspecified', () => {
   engine.id = 'voxcpm2';

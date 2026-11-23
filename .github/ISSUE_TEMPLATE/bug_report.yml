@@ -8,7 +8,7 @@ body:
       value: |
         Thanks for helping improve Sado! 🎙️
 
-        **Fastest path to a fix:** **Settings → About → "Save diagnostic bundle"** makes a
+        **Fastest path to a fix:** **Settings → Diagnostics & About → "Save diagnostic bundle"** makes a
         zip (self-check + recent errors + scrubbed log tails) — drag it onto this issue and
         most of the environment questions below are answered automatically.
         Headless: `python backend/main.py --diagnose` (add `--deep` to test-load the engine).
@@ -73,7 +73,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Settings → About (e.g. v0.3.5), or the Docker tag / git SHA.
+      description: Settings → Diagnostics & About (e.g. v0.3.5), or the Docker tag / git SHA.
       placeholder: "v0.3.5"
     validations:
       required: true

@@ -6,7 +6,6 @@ Thanks for your interest in improving Sado! This guide covers everything you nee
 
 | | |
 |---|---|
-| 💬 **Chat** | [Discord](https://discord.gg/bzQavDfVV9) |
 | 🐛 **Bugs** | [GitHub Issues](https://github.com/Anvarjon090/sado/issues) |
 | 🏷️ **Good First Issues** | [Filtered list](https://github.com/Anvarjon090/sado/labels/good%20first%20issue) |
 | 📋 **Roadmap** | [docs/ROADMAP.md](../docs/ROADMAP.md) |
@@ -392,13 +391,12 @@ hard rules from the first prompt.
 
 ## Contribution licensing
 
-Sado is **AGPL-3.0-only**, and the maintainer also offers a
-**commercial license** (see [LICENSE-NOTICE.md](../LICENSE-NOTICE.md)). Before
+Sado is **AGPL-3.0-only** (see [LICENSE-NOTICE.md](../LICENSE-NOTICE.md)). Before
 a pull request can merge, the person who opened it and every commit author and
-co-author sign the [Contributor License Agreement](CLA-1.0.md) once. You keep
-your copyright. The agreement lets Yupcha Softwares Private Limited, the
-company that maintains Sado, ship your work in both the AGPL-3.0 app and
-commercial builds. In return, the company commits that while your contribution
+co-author sign the [Contributor License Agreement](CLA-2.0.md) once. You keep
+your copyright. The agreement lets the Sado maintainer (@Anvarjon090) ship your
+work in both the AGPL-3.0 app and commercial builds. In return, the maintainer
+commits that while your contribution
 is in the public Sado repository, it stays available there under
 AGPL-3.0 or another OSI-approved licence (CLA section 4). AI agents can't be co-authors (see
 [Contributing with AI agents](#contributing-with-ai-agents)); the person
@@ -408,7 +406,7 @@ The **CLA** check comments on your pull request when someone still needs to
 sign. To sign, post this as a new comment, on its own line:
 
 ```text
-I have read the Sado CLA 1.0 and I hereby sign it.
+I have read the Sado CLA 2.0 and I hereby sign it.
 ```
 
 The signature covers your earlier and future contributions, and the check
@@ -419,7 +417,7 @@ account, either add that commit email to your account (Settings → Emails), or
 rewrite the commits with an email that is on it (`git commit --amend
 --reset-author`, or an interactive rebase) and push again. Comment `recheck` to
 run the check without pushing. Contributing as part of your job? Your employer
-signs the [Corporate CLA](CCLA-1.0.md) first, and you still sign the CLA
+signs the [Corporate CLA](CCLA-2.0.md) first, and you still sign the CLA
 yourself. Adding a `Signed-off-by:` line (DCO) is appreciated but does not
 replace the CLA.
 
@@ -427,8 +425,8 @@ replace the CLA.
 
 ## Need Help?
 
-- **Stuck on setup?** Ask in [Discord #help](https://discord.gg/bzQavDfVV9)
+- **Stuck on setup?** Open a [GitHub issue](https://github.com/Anvarjon090/sado/issues) with the diagnostic bundle
 - **Not sure where to start?** Check [good first issues](https://github.com/Anvarjon090/sado/labels/good%20first%20issue)
-- **Want to discuss a big change?** Open a [discussion](https://github.com/Anvarjon090/sado/discussions) or Discord thread before coding
+- **Want to discuss a big change?** Open a [discussion](https://github.com/Anvarjon090/sado/discussions) or an issue before coding
 
 Thank you for contributing! 🎙️

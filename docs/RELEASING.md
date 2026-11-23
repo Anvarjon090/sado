@@ -16,9 +16,10 @@ Electron publication uses these GitHub Actions secrets:
 - The repository `GITHUB_TOKEN` for draft creation and asset uploads.
 - `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` for the Docker Hub mirror.
 - `POSTHOG_PROJECT_TOKEN` (secret) and `POSTHOG_HOST` (repository variable),
-  baked into packaged builds as the analytics token and host. They override the
-  in-repo publishable token; analytics still sends nothing without a yes at the
-  first-run consent prompt.
+  baked into packaged builds as the analytics token and host. The repository
+  commits no token: without the secret, packaged builds have no analytics
+  destination and never show the consent prompt. With it, analytics still sends
+  nothing without a yes at the first-run consent prompt.
 
 The archived `TAURI_SIGNING_PRIVATE_KEY*` secrets are retained only so the final
 Tauri release can be audited. The Tauri release workflow has been removed; every
@@ -67,7 +68,7 @@ version only after validation.
 5. Run `uv run pytest tests/test_app_version.py tests/test_changelog_style.py -q`.
 6. Audit contributor agreements: `git fetch origin cla-signatures`, then
    `GH_TOKEN=... python scripts/cla_audit.py`. Follow up with each unsigned
-   contributor it lists, asking them to sign `.github/CLA-1.0.md` (or their
+   contributor it lists, asking them to sign `.github/CLA-2.0.md` (or their
    employer the Corporate CLA). This step applies once the CLA workflow and
    `scripts/cla_audit.py` are on `main`. The audit aborts if Git cannot read
    any file’s history; restore access to missing objects and rerun before
@@ -81,15 +82,22 @@ git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-The tag starts `.github/workflows/electron-release.yml`. It builds the same five
-targets (a failed experimental Windows ARM64 leg does not block the others, and
-its feed is checked only when it was published), validates packaged startup and updater metadata, creates or
-updates a draft, and uploads:
+The tag starts `.github/workflows/electron-release.yml`. It builds four
+targets — Linux x64, Windows x64, macOS arm64 and macOS x64 (Windows ARM64 is
+built only by the rehearsal) — validates packaged startup and the full build
+output, creates or updates a draft, and uploads only (owner decision,
+2026-11-23):
 
-- Electron installers and platform-specific `electron-stable-*.yml` feeds
-- `SHA256SUMS.txt`
+- the four installers: `…-mac-arm64.dmg`, `…-mac-x64.dmg`, `…-win-x64.exe`,
+  `…-linux-x64.AppImage`
+- `SHA256SUMS.txt` for exactly those four (the install scripts verify against it)
 - authored CHANGELOG release notes
-- immutable copies of the final Tauri updater feeds for old clients
+- immutable copies of the final Tauri updater feeds, only where a Tauri history exists
+
+Feeds, blockmaps, zips and the `.deb` are still built and checked, and stay in
+the run's artifacts for 14 days; they are not published. The app has no in-app
+updater: it reads the latest release from the GitHub API and opens the
+installer ([desktop updates](update-channels.md)).
 
 Tag pushes never publish, and they do not build Docker images. Inspect the
 draft and downloaded installers first.
@@ -114,7 +122,7 @@ After publication, verify each maintained channel:
 
 | Channel | Workflow | Verification |
 |---|---|---|
-| GitHub Release | `electron-release.yml` | Linux x64, Windows x64 (+ ARM64 when its leg passed), macOS arm64 and x64 installers, updater feeds, checksums, CHANGELOG notes, retained v0.5.3 Tauri feeds |
+| GitHub Release | `electron-release.yml` | Exactly five files: macOS arm64 and x64 `.dmg`, Windows x64 `.exe`, Linux x64 `.AppImage`, `SHA256SUMS.txt`; CHANGELOG notes (plus retained v0.5.3 Tauri feeds where a Tauri history exists) |
 | GHCR CUDA | `docker.yml` (release published) | `:X.Y.Z`, `:X.Y`, `:stable` manifests |
 | GHCR ROCm | `docker.yml` (release published) | `:X.Y.Z-rocm`, `:X.Y-rocm`, `:stable-rocm` manifests |
 | Docker Hub | `docker.yml` (release published) | Matching CUDA/ROCm tags |
@@ -133,13 +141,10 @@ libraries. AppImages use the static runtime, which needs no host libfuse2; test
 the downloaded image on a clean host because build-runner libraries can hide
 relocation errors.
 
-Linux release AppImages include `gh-releases-zsync` update information and a
-versioned `.AppImage.zsync` asset for AppImageUpdate/AppImageLauncher. Release
-images follow the latest stable GitHub release. The build uses `readelf` and
-`zsyncmake` (Ubuntu package `zsync`) to embed this information before
-regenerating electron-updater's blockmap and checksums; the existing in-app
-updater still uses its separate channel manifest. Verify both update paths
-against the final downloaded artifact, not the pre-publish build.
+The build still embeds `gh-releases-zsync` update information in the AppImage
+(using `readelf` and `zsyncmake`, Ubuntu package `zsync`) and writes a
+`.AppImage.zsync`, but since 0.5.11 the release does not publish the `.zsync`,
+so AppImageUpdate finds no delta; users download the new AppImage.
 
 Electron update manifests use platform and architecture channels. Confirm every
 manifest names an uploaded installer, reports the tagged version, and matches the

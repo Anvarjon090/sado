@@ -123,7 +123,7 @@ if (platform === 'win32') {
   }).trim();
   assert.equal(
     updateInfo,
-    'gh-releases-zsync|debpalash|Sado|latest|Sado-Electron-*-linux-x64.AppImage.zsync',
+    'gh-releases-zsync|Anvarjon090|sado|latest|Sado-Electron-*-linux-x64.AppImage.zsync',
     'External AppImage updaters follow the stable Linux release feed',
   );
   const control = `${artifactPath}.zsync`;

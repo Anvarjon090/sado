@@ -202,7 +202,7 @@ export function PronunciationSettings() {
         title={t('pronunciation.title')}
         description={t('pronunciation.help')}
       >
-        <Badge variant="secondary">{rows.length}</Badge>
+        {rows.length > 0 && <Badge variant="secondary">{rows.length}</Badge>}
       </SettingsRow>
       {(error || entries.isError) && (
         <div className="p-4">
@@ -259,6 +259,7 @@ export function PronunciationSettings() {
       ))}
       <SettingsRow
         id="pronunciation-add"
+        layout="stacked"
         title={t('pronunciation.add')}
         description={t('pronunciation.lang_label')}
       >
@@ -267,7 +268,7 @@ export function PronunciationSettings() {
           disabled={busy}
           placeholder={t('pronunciation.term_placeholder')}
           aria-label={t('pronunciation.term')}
-          className="min-w-36 flex-1 @2xl:max-w-52"
+          className="min-w-36 flex-1"
           onChange={(event) => setTerm(event.target.value)}
         />
         <Input
@@ -275,7 +276,7 @@ export function PronunciationSettings() {
           disabled={busy}
           placeholder={t('pronunciation.replacement_placeholder')}
           aria-label={t('pronunciation.replacement')}
-          className="min-w-36 flex-1 @2xl:max-w-52"
+          className="min-w-36 flex-1"
           onChange={(event) => setReplacement(event.target.value)}
         />
         <Select
@@ -302,7 +303,7 @@ export function PronunciationSettings() {
           disabled={busy}
           placeholder={t('pronunciation.lang_placeholder')}
           aria-label={t('pronunciation.lang_label')}
-          className="w-40"
+          className="min-w-48 flex-1 @2xl:max-w-64"
           onChange={(event) => setLanguage(event.target.value)}
           onKeyDown={(event) => {
             if (isImeComposing(event)) return;

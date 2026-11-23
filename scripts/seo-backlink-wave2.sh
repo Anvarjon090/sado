@@ -10,7 +10,7 @@ SITE_URL="https://github.com/Anvarjon090/sado"
 SITE_NAME="Sado"
 SITE_DESC="Open-source ElevenLabs alternative — cinematic audio dubbing, voice cloning and TTS in 646 languages"
 RSS_URL="https://github.com/Anvarjon090/sado/releases.atom"
-GITHUB_USER="debpalash"
+GITHUB_USER="Anvarjon090"
 REPO_NAME="Sado"
 
 GREEN='\033[0;32m'
@@ -285,7 +285,7 @@ EXTRA_PAGES=(
   "https://github.com/Anvarjon090/sado/tree/main/backend"
   "https://github.com/Anvarjon090/sado/tree/main/frontend"
   "https://github.com/Anvarjon090/sado/tree/main/docs"
-  "https://github.com/debpalash"
+  "https://github.com/Anvarjon090"
 )
 for page in "${EXTRA_PAGES[@]}"; do
   submit "Archive: $(echo $page | sed 's|.*/||')" "https://web.archive.org/save/${page}"

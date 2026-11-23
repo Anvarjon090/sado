@@ -28,6 +28,7 @@ import {
 import { useDescription } from './use-description';
 import { useProfiles } from '@/hooks/use-profiles';
 import { useEngines } from '@/hooks/use-engines';
+import { useKeepTtsWarm } from '@/hooks/use-keep-tts-warm';
 import { AudioPreviewButton } from '@/components/audio-preview-button';
 import { apiJson, describeError, profileAudioUrl } from '@/lib/api/client';
 import { useEffect, useRef, useState } from 'react';
@@ -65,6 +66,7 @@ import { buildDesignInstruct, mergeDescribedAttrs } from '@shared/utils/voiceIns
 import { pickDesignSeed } from '@shared/utils/seed';
 export function DesignPage() {
   const { t } = useTranslation();
+  useKeepTtsWarm();
   const selectedTake = useSelectedTake();
   const [draft, setDraft] = useState(readDraft);
   const [name, setName] = useState('');

@@ -551,6 +551,63 @@ _CONFIG_PATH_CONSTANTS = (
 )
 
 
+@pytest.fixture(autouse=True)
+def _model_loads_armed(request):
+    """Every test starts with model loads armed, as backend/tests does (#1269).
+
+    A test that runs the app lifespan ends it with ``begin_shutdown()``: correct
+    for a real process, poison for the next test, whose first load then raises
+    ``ModelLoadInterruptedByShutdown``. A fresh module re-imported after a purge
+    used to hide that; once the collected modules are restored (below), the flag
+    survives — test_model_cache_repair and test_model_manager_preload failed on
+    CI exactly so. Cheap when nothing is set: it only looks at an already
+    imported module and the test module's own aliases.
+    """
+    import types
+
+    def _rearm():
+        mods = {}
+        live = sys.modules.get("services.model_manager")
+        if live is not None:
+            mods[id(live)] = live
+        for val in vars(getattr(request, "module", None) or types.SimpleNamespace()).values():
+            if isinstance(val, types.ModuleType) and getattr(val, "__name__", "") == "services.model_manager":
+                mods[id(val)] = val
+        for mod in mods.values():
+            if mod.is_shutting_down():
+                mod.reset_shutdown_flag()
+                mod._reset_gpu_pool()
+
+    _rearm()
+    yield
+    _rearm()
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_backend_modules_after_a_purge():
+    """Hand the next test file the backend modules the collected tests hold.
+
+    Several suites purge ``core`` / ``api`` / ``services`` / ``main`` from
+    ``sys.modules`` and re-import them, and not all of them put the originals
+    back. Every later file then patched its collection-time alias while the
+    code under test imported a fresh twin: on main's CI that showed up as 404s
+    for dub subtitles, ``[] == [2.5]`` stretch calls, an unpatched
+    ``finalize_output`` and a telephony listener still "running" — eleven
+    failures that never reproduced file by file (2026-11-19).
+
+    Module scope for the same reason as the config-path restore below: a file
+    may arrange its own modules for its own tests. Only a file that actually
+    removed or replaced a module is restored (``tests/backend_module_state.py``),
+    so ordinary lazy imports stay loaded.
+    """
+    from backend_module_state import restore, snapshot
+
+    before = snapshot()
+    yield
+    if any(sys.modules.get(name) is not mod for name, mod in before.items()):
+        restore(before)
+
+
 @pytest.fixture(scope="module", autouse=True)
 def _restore_config_paths_after_reload():
     """Undo cross-MODULE leakage of core.config's path constants.

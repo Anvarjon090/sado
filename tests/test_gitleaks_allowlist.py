@@ -5,13 +5,11 @@ import tomllib
 
 
 ROOT = Path(__file__).resolve().parents[1]
-_POSTHOG_TOKEN = re.search(
-    r"phc_[A-Za-z0-9]{20,}",
-    (ROOT / "backend/core/analytics.py").read_text(encoding="utf-8"),
-)
-assert _POSTHOG_TOKEN is not None
+# Upstream's publishable PostHog key: removed from the tree (2026-11-21) but
+# still in git history, which gitleaks scans in full.
+_HISTORICAL_POSTHOG_TOKEN = "phc_kJK9nFqtwFmB4CYWS4bMDTY7z9P4KCRyiRT7CzJTXm9f"  # gitleaks:allow
 EXPECTED_EXACT_REGEXES = {
-    f"^{_POSTHOG_TOKEN.group(0)}$",
+    f"^{_HISTORICAL_POSTHOG_TOKEN}$",
     "^528e871c2a26c4f0f7773b9754e2e1acae20899d$",
     "^hf_abcdefghijklmnopqrstuvwxyz01234567890abcd$",
     "^hf_abcdefghijklmnopqrstuvwxyz0123456789ABCDEF$",

@@ -8,6 +8,16 @@ type Params = Record<string, string | number | null | undefined>;
 
 export interface GpuReport {
   platform: string;
+  /** PyTorch's compute family (`cuda`, `mps`, `cpu`, ...) from the device probe. */
+  family?: string;
+  /** The device PyTorch drives, e.g. `NVIDIA GeForce RTX 2070 SUPER`; empty on CPU. */
+  device_name?: string;
+  vram_gb?: number;
+  /**
+   * OS-level inventory (registry / sysfs, no torch). Advisory only: always empty
+   * on macOS, and empty whenever the read fails, so an empty list is NOT proof
+   * that the machine has no GPU.
+   */
   gpus: Array<{ vendor: string; name: string; vram_gb: number }>;
   torch: { kind: string; version: string | null };
   /** Host verdict code, e.g. `amd_cuda_build`; rendered via `settings.gpu_report_state_*`. */
@@ -64,6 +74,24 @@ const ENGINE_CODES = new Set([
   'not_installed',
 ]);
 
+/**
+ * The hardware line beside the summary. The OS inventory is preferred; when it
+ * is empty, the GPU torch or the host verdict names is used instead. "No GPU
+ * detected" is shown only when the backend itself concluded `no_gpu`, so the
+ * row can never contradict a verdict that found one (null = omit the line).
+ */
+function hardwareLabel(report: GpuReport, noGpu: string): string | null {
+  const listed = (report.gpus ?? []).map((gpu) =>
+    gpu.vram_gb ? `${gpu.name} (${gpu.vram_gb} GB)` : gpu.name,
+  );
+  if (listed.length) return listed.join(', ');
+  const named = [report.device_name, report.params?.device, report.params?.gpu].find(
+    (value): value is string => typeof value === 'string' && value.trim() !== '',
+  );
+  if (named) return named.trim();
+  return report.state === 'no_gpu' ? noGpu : null;
+}
+
 export function GpuAcceleration() {
   const { t } = useTranslation();
   const query = useQuery({
@@ -83,6 +111,7 @@ export function GpuAcceleration() {
     (engine) => ENGINE_CODES.has(engine.code) && engine.code !== 'not_installed',
   );
   const onGpu = engines.filter((engine) => engine.code.startsWith('gpu')).length;
+  const hardware = hardwareLabel(report, t('settings.gpu_report_no_gpu_found'));
   return (
     <SettingsSection icon={ZapIcon} title={t('settings.gpu_report_title')}>
       <SettingsRow
@@ -93,13 +122,7 @@ export function GpuAcceleration() {
           torch: report.torch?.version ?? report.torch?.kind ?? '',
         })}
       >
-        <span className="text-sm text-muted-foreground">
-          {report.gpus.length
-            ? report.gpus
-                .map((gpu) => (gpu.vram_gb ? `${gpu.name} (${gpu.vram_gb} GB)` : gpu.name))
-                .join(', ')
-            : t('settings.gpu_report_no_gpu_found')}
-        </span>
+        {hardware && <span className="text-sm text-muted-foreground">{hardware}</span>}
       </SettingsRow>
       {report.options.some((option) => OPTIONS.has(option)) && (
         <div className="px-4 py-3">

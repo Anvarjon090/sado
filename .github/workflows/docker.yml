@@ -27,10 +27,10 @@
 #   :0.3-rocm       — major.minor floating tag, ROCm build
 #   :sha-xxxx-rocm  — specific commit SHA, ROCm build
 #
-# Images land at: ghcr.io/debpalash/sado, the legacy GHCR alias
-# ghcr.io/debpalash/omnivoice-studio, and docker.io/palashdeb/omnivoice-studio
-# (Docker Hub push gated on the DOCKERHUB_USERNAME/DOCKERHUB_TOKEN secrets;
-# if unset the build still pushes to GHCR.)
+# Images land at: ghcr.io/anvarjon090/sado, plus docker.io/anvarjon090/sado
+# when the DOCKERHUB_USERNAME/DOCKERHUB_TOKEN secrets are set (if unset the
+# build still pushes to GHCR). The upstream coordinates (ghcr.io/debpalash/*,
+# palashdeb/*) belong to another account and are not published from this repo.
 #
 # On main pushes the Docker Hub repository overview is also synced from
 # deploy/dockerhub-overview.md (source of truth for the hub.docker.com page).
@@ -68,12 +68,10 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  # Keep registry coordinates explicit. Sado is the canonical GHCR
-  # path; the old path remains a compatibility alias during the migration.
-  IMAGE_NAME: debpalash/sado
-  # Compatibility alias: keep existing deployments on the same tag stream.
-  LEGACY_IMAGE_NAME: debpalash/omnivoice-studio
-  DOCKERHUB_IMAGE: palashdeb/omnivoice-studio
+  # Keep registry coordinates explicit (GHCR paths must be lowercase).
+  IMAGE_NAME: anvarjon090/sado
+  # Docker Hub namespace; change it if your Docker Hub account name differs.
+  DOCKERHUB_IMAGE: anvarjon090/sado
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -166,7 +164,6 @@ jobs:
           # tags in that case.
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY }}/${{ env.LEGACY_IMAGE_NAME }}
             ${{ steps.dockerhub.outputs.enabled == 'true' && env.DOCKERHUB_IMAGE || '' }}
           flavor: |
             latest=false
@@ -205,7 +202,7 @@ jobs:
           MINOR="${VERSION%.*}"
           TAGS=("$VERSION" "$MINOR")
           if [[ "$PROMOTE_STABLE" == "true" ]]; then TAGS=(stable "${TAGS[@]}"); fi
-          for IMAGE in "$IMAGE_NAME" "$LEGACY_IMAGE_NAME"; do
+          for IMAGE in "$IMAGE_NAME"; do
             for TAG in "${TAGS[@]}"; do
               docker buildx imagetools create \
                 --tag "${REGISTRY}/${IMAGE}:${TAG}" \
@@ -321,7 +318,6 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ env.REGISTRY }}/${{ env.LEGACY_IMAGE_NAME }}
             ${{ steps.dockerhub.outputs.enabled == 'true' && env.DOCKERHUB_IMAGE || '' }}
           # latest=false is load-bearing: metadata-action's default (`auto`)
           # would add a bare un-suffixed `:latest` on release builds,
@@ -365,7 +361,7 @@ jobs:
           MINOR="${VERSION%.*}"
           TAGS=("${VERSION}-rocm" "${MINOR}-rocm")
           if [[ "$PROMOTE_STABLE" == "true" ]]; then TAGS=(stable-rocm "${TAGS[@]}"); fi
-          for IMAGE in "$IMAGE_NAME" "$LEGACY_IMAGE_NAME"; do
+          for IMAGE in "$IMAGE_NAME"; do
             for TAG in "${TAGS[@]}"; do
               docker buildx imagetools create \
                 --tag "${REGISTRY}/${IMAGE}:${TAG}" \

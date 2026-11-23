@@ -918,10 +918,7 @@ def _capture_recognizer_label(ab) -> str:
     ok, _reason = ab.FasterWhisperBackend.is_available()
     if ok:
         return "faster-whisper:" + ab.faster_whisper_model_id()
-    model = os.environ.get(
-        "OMNIVOICE_PYTORCH_ASR_MODEL", "openai/whisper-large-v3-turbo",
-    )
-    return "pytorch-whisper:" + model
+    return "pytorch-whisper:" + ab.pytorch_whisper_model_id()
 
 
 def _fallback_recognizer_labels(ab, selected: list) -> Optional[list]:

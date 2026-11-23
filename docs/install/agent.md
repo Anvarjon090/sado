@@ -23,7 +23,7 @@ points here. Complete the setup, not just a plan.
    existing Sado install, backend or downloaded models.
 3. **Install.**
    - Default: the latest stable release asset named `Sado-Electron-*` for this
-     OS and architecture (macOS `.dmg`, Windows `.exe`, Linux `.AppImage` or `.deb`),
+     OS and architecture (macOS `.dmg`, Windows `.exe`, Linux `.AppImage`),
      or the [install script](script.md).
    - From source: follow [`electron/README.md`](../../electron/README.md) —
      `bun install`, `bun run setup:api`, `bun run dev` from the repository root. Let

@@ -75,7 +75,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   await page.addInitScript(() => {
     localStorage.setItem('sado.setup.complete.v1', '1');
-    localStorage.setItem('sado.language', 'en');
+    localStorage.setItem('sado.locale', 'en');
   });
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));

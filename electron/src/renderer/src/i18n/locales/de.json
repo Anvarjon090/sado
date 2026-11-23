@@ -1153,7 +1153,7 @@
     "workers_token_qr_hint": "Auf dem anderen Rechner: Einstellungen → System → Remote-Worker → Beitreten, dann scannen oder einfügen.",
     "usage": "Nutzung",
     "usage_desc": "Was du mit Sado erstellt hast — auf deinem Gerät gezählt.",
-    "usage_privacy": "Diese Zahlen werden aus deinem Verlauf auf diesem Gerät berechnet und niemals versendet. Sado nutzt keinen Analysedienst — nichts hiervon verlässt deinen Computer.",
+    "usage_privacy": "Diese Zahlen werden aus deinem Verlauf auf diesem Gerät berechnet und niemals versendet.",
     "usage_empty": "Du hast noch nichts erstellt — erstelle etwas, dann erscheint es hier.",
     "usage_takes": "Erstellte Takes",
     "usage_since": "seit {{date}}",
@@ -1282,13 +1282,13 @@
     "hf_token_set": "Gesetzt",
     "translation_providers": "Übersetzungsanbieter",
     "hf_token_sources": "HF-Token-Quellen",
-    "hf_token_input": "HuggingFace-Token",
+    "hf_token_input": "Hugging Face-Token",
     "hf_token_clear_confirm": "Das HuggingFace-Token aus der App-Quelle löschen?",
     "credentials": "Anmeldedaten",
     "hf_token_test_now": "Jetzt testen",
     "hf_source_env_label": "Umgebungsvariable",
     "hf_token_not_checked": "Nicht getestet",
-    "translation_providers_desc": "API-Schlüssel für Online-Übersetzer, festgelegt für diese Sitzung.",
+    "translation_providers_desc": "API-Schlüssel und Regionen für die Online-Übersetzer: Google Cloud, Microsoft Azure, AWS und DeepL. Bleiben nach einem Neustart erhalten.",
     "hf_token_verified": "Verifiziert",
     "ffmpeg": "FFmpeg",
     "hf_token_not_set": "Nicht gesetzt",
@@ -1526,7 +1526,8 @@
     "gpu_report_engine_pinned_cpu": "CPU: Rechengerät auf CPU festgelegt",
     "gpu_report_engine_no_family_path": "CPU: kein Pfad für Ihren GPU-Typ",
     "gpu_report_engine_no_gpu": "CPU: keine GPU verfügbar",
-    "gpu_report_engine_needs_accelerator": "Benötigt eine GPU ({{needs}}), die dieser Rechner nicht hat"
+    "gpu_report_engine_needs_accelerator": "Benötigt eine GPU ({{needs}}), die dieser Rechner nicht hat",
+    "models_dir_desc": "Hier liegen heruntergeladene Modelle. Verschiebe den Ordner auf ein anderes Laufwerk, um Platz zu schaffen."
   },
   "gallery": {
     "title": "Sado Galerie",
@@ -2743,8 +2744,8 @@
   "update": {
     "checking": "Nach Updates suchen…",
     "ready": "Update {{version}} wurde heruntergeladen und geprüft",
-    "download": "Update herunterladen",
-    "download_hint": "Im Hintergrund herunterladen; du kannst weiterarbeiten.",
+    "download": "Installer herunterladen",
+    "download_hint": "Öffnet den Installer für diesen Computer im Browser. Führen Sie ihn zum Aktualisieren aus; Projekte und Stimmen bleiben erhalten.",
     "download_detail": "{{downloaded}} / {{total}} · {{speed}}/s · noch {{eta}}",
     "safety": "Die Integrität des Updatepakets wird vor dem Neustart geprüft.",
     "available": "Update {{version}} verfügbar",
@@ -2885,7 +2886,8 @@
     "balanced": "Ausgewogen",
     "quality": "Qualität",
     "hint": "Gilt für OmniVoice-Sampling und Faster-Whisper / NLLB-Dekodierung. Andere Engines behalten ihre aktuellen Einstellungen.",
-    "auto": "Auto"
+    "auto": "Auto",
+    "per_engine": "Einstellungen pro Engine"
   },
   "recording": {
     "input_device": "Eingabegerät",
@@ -3500,5 +3502,15 @@
     "saving": "Wird gespeichert…",
     "saved": "Bearbeitete Aufnahme gespeichert",
     "failed": "Intonation konnte nicht bearbeitet werden: {{message}}"
+  },
+  "settingsNav": {
+    "group_app": "App",
+    "group_voices": "Stimmen & Modelle",
+    "group_device": "Gerät",
+    "group_data": "Datenschutz & Daten",
+    "group_connections": "Verbindungen",
+    "group_developer": "Entwicklung & Support",
+    "device": "Gerät & Speicher",
+    "diagnostics": "Diagnose & Info"
   }
 }

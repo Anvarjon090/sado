@@ -23,13 +23,15 @@ override them or update yt-dlp.
 
 <a id="install-appimage"></a>
 
-Download a package from the
+Download the AppImage from the
 [Releases page](https://github.com/Anvarjon090/sado/releases/latest):
 
 | Package | File |
 |---|---|
 | AppImage (any distribution) | `Sado-Electron-<version>-linux-x64.AppImage` |
-| Debian / Ubuntu package | `Sado-Electron-<version>-linux-x64.deb` |
+
+Since 0.5.11 releases publish the AppImage only; build a `.deb` from source with
+`bun run dist` if you want a package-managed install.
 
 **AppImage:**
 
@@ -43,15 +45,15 @@ The [shell installer](script.md) (`curl -fsSL https://sado.sh/install | sh`)
 downloads the latest AppImage, verifies it against the release's
 `SHA256SUMS.txt`, and installs it as `~/.local/bin/Sado`.
 
-**.deb:**
+**.deb (built from source):**
 
 ```bash
-sudo apt install ./Sado-Electron-<version>-linux-x64.deb
+sudo apt install ./electron/release/Sado-Electron-<version>-linux-x64.deb
 ```
 
-The in-app updater's Linux feed carries the AppImage. Update a `.deb`
-installation by installing the newer `.deb`; remove it with your package
-manager.
+Updates are manual: when Sado offers a newer version, **Download installer**
+opens the new AppImage; replace the old file with it. Update a `.deb` by
+building and installing the newer one; remove it with your package manager.
 
 Compare any download with the release's `SHA256SUMS.txt` before installing.
 
@@ -134,10 +136,11 @@ a model.
 yay -S sado-bin   # or paru -S sado-bin
 ```
 
-`sado-bin` is a community-maintained AUR package that installs the
-release `.deb`; report packaging problems on its AUR page. Package-managed
-installs should set `SADO_DISABLE_UPDATER=1` so `pacman` handles
-updates instead of the in-app updater.
+`sado-bin` is a community-maintained AUR package that installed the
+release `.deb`; releases stopped publishing the `.deb` in 0.5.11, so it needs
+to repackage the AppImage — report packaging problems on its AUR page.
+Package-managed installs should set `SADO_DISABLE_UPDATER=1` so the app does
+not offer installers that `pacman` should provide.
 
 ## ChromeOS, iPad and other devices
 
@@ -262,7 +265,7 @@ an AMD-only machine `torch.cuda.is_available()` is `False` and Sado runs
 on CPU until you opt into the ROCm variant.
 
 > **Running in Docker or Podman instead?** There's a prebuilt ROCm image —
-> `ghcr.io/debpalash/sado:stable-rocm` — with GPU acceleration out of the
+> `ghcr.io/anvarjon090/sado:stable-rocm` — with GPU acceleration out of the
 > box; see [docker.md](docker.md#pull-and-run-amd-gpu--rocm). The rest of this
 > section is about source/desktop installs. (Sado has no ROCm path on
 Windows; see [windows.md](windows.md#gpu-support) for what a Radeon card can
@@ -277,7 +280,7 @@ Ways to opt in, in order of preference:
 Runtime setup then reinstalls `torch`/`torchaudio` from the ROCm wheel index
 (`https://download.pytorch.org/whl/rocm6.4` by default) right after the
 dependency sync, matched to the app's pinned `torch==2.8.0` (the rocm6.2 index
-only ever published up to torch 2.5.1). **Settings → Performance → GPU
+only ever published up to torch 2.5.1). **Settings → Device & memory → GPU
 acceleration** reports which PyTorch build is installed. The option is ignored
 on macOS and Windows.
 
@@ -314,7 +317,7 @@ Once a ROCm build of PyTorch is in the venv, detection is automatic —
 `get_best_device()` returns the GPU (ROCm-built PyTorch reports through
 `torch.cuda.is_available()`), and Sado auto-sets
 `HSA_OVERRIDE_GFX_VERSION` for consumer cards whose GFX ID isn't in the
-official ROCm support matrix. Relaunch and **Settings → Performance → GPU acceleration** should
+official ROCm support matrix. Relaunch and **Settings → Device & memory → GPU acceleration** should
 report the GPU device instead of `cpu`. Verify the wheel sees your card:
 
 ```bash

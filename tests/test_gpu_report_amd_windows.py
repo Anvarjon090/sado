@@ -52,6 +52,14 @@ def _cpu_caps(*notes: str, **kw) -> HostCaps:
 # ── inventory readers ─────────────────────────────────────────────────────
 
 
+# GUID_DEVCLASS_DISPLAY, as documented by Microsoft. The fake registry knows only
+# this key, like a real one: any other class path raises, so a mistyped GUID in
+# the reader shows up as "no GPUs" here instead of only on users' machines.
+_DISPLAY_CLASS_KEY = (
+    r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+)
+
+
 class _FakeWinreg:
     """Just enough of ``winreg`` for the display-adapter class key."""
 
@@ -72,6 +80,8 @@ class _FakeWinreg:
 
     def OpenKey(self, parent, name):
         if parent is self.HKEY_LOCAL_MACHINE:
+            if name.lower() != _DISPLAY_CLASS_KEY.lower():
+                raise FileNotFoundError(name)
             return self._Ctx(("class", None))
         return self._Ctx(("adapter", self._subkeys[name]))
 

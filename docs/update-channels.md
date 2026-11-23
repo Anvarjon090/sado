@@ -2,8 +2,15 @@
 
 Sado's desktop app offers **stable releases only**. It checks for an
 update about 10 seconds after launch and every six hours while it stays open;
-**Settings → Updates** also has a manual check. The app never downloads an
-update until you ask, and an available update is only offered, never forced.
+**Settings → Updates** also has a manual check. An available update is only
+offered, never forced.
+
+Updates are **manual installs**. Since 0.5.11 a release carries four
+installers and their checksums, nothing else — macOS Apple Silicon and Intel
+`.dmg`, Windows x64 `.exe`, Linux x64 `.AppImage`, and `SHA256SUMS.txt`. When a
+newer version exists, **Download installer** opens this computer's installer in
+your browser; run it over the current app. Windows on ARM opens the release
+page and runs the x64 installer under emulation.
 
 | Build | Where it comes from | Who it's for |
 |-------|--------------------|--------------|
@@ -17,21 +24,18 @@ before they are released:
   [Windows](install/windows.md#building-from-source) ·
   [Linux](install/linux.md#building-from-source)), or build and install a
   package from `main` with the [install script's `--main` mode](install/script.md#building-main).
-- **Docker** — `ghcr.io/debpalash/sado:latest` follows `main`; see
+- **Docker** — `ghcr.io/anvarjon090/sado:latest` follows `main`; see
   [image tags](install/docker.md#image-tags).
 
-Downloads show transferred size, total size, speed, percentage and ETA, and
-can continue while synthesis, transcription or dubbing work runs. Sado
-only enables **Restart to update** after the package has downloaded and passed
-the updater's checksum verification, and blocks that restart until active work
-has finished and current drafts are flushed.
-
-There are **no accounts or updater telemetry**. A check fetches one small
-platform/architecture-specific manifest from
-`github.com/Anvarjon090/sado/releases/latest/download/`; it carries the
-package's SHA-512 checksum, and the app rejects a package that fails it. On
-Linux the in-app updater uses the AppImage; update a `.deb` installation by
-installing the newer `.deb`. Source checkouts do not self-update.
+There are **no accounts or updater telemetry**. A check is one request to the
+GitHub Releases API (`api.github.com/repos/Anvarjon090/sado/releases/latest`)
+for the newest version number, its notes and its installer links; nothing about
+your machine or projects is sent. The installer opens only from
+`github.com/Anvarjon090/sado/`. Compare a download with the release's
+`SHA256SUMS.txt`, as the [install scripts](install/script.md) do. Installs from
+releases before 0.5.11 still look for the retired update feed and will not see
+newer versions; download 0.5.11 once by hand. Source checkouts do not
+self-update.
 
 The archived Tauri app keeps its frozen, signed `latest.json` feeds at
 immutable URLs; they never offer Electron installers. Move to Electron with the

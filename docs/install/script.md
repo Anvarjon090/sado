@@ -1,9 +1,9 @@
 # Shell installer (Electron)
 
 The shell installer supports macOS (Apple Silicon and Intel) and Linux x64.
-On Windows, download the `Sado-Electron-…-win-x64.exe` installer (or
-`…-win-arm64.exe` on a Snapdragon/ARM PC) from
-[Releases](https://github.com/Anvarjon090/sado/releases).
+On Windows, download the `Sado-Electron-…-win-x64.exe` installer from
+[Releases](https://github.com/Anvarjon090/sado/releases); a Snapdragon/ARM PC
+runs it under emulation (releases from 0.5.11 on publish no ARM64 build).
 
 Or use PowerShell (the endpoint detects PowerShell's user agent):
 

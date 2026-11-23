@@ -178,5 +178,5 @@ def test_runtime_defaults_use_resolved_auto_without_probing(monkeypatch):
     monkeypatch.setattr(prefs, "get", lambda key, default=None: {
         "global": "auto", "resolved": {"tts": "max", "asr": "fast"},
     })
-    assert profiles.tts_defaults() == {"num_step": 64, "postprocess_output": True}
+    assert profiles.tts_defaults() == {"num_step": 32, "postprocess_output": True}
     assert profiles.asr_decode_defaults() == {"beam_size": 1, "best_of": 1}

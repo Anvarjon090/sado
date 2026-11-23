@@ -2,6 +2,9 @@ import { expect, it, vi } from 'vitest';
 
 it('cannot opt back in when SDK loading completes after consent was withdrawn', async () => {
   vi.resetModules();
+  // The repository commits no analytics destination (owner decision,
+  // 2026-11-21); this race needs one, so the build-time key is stubbed.
+  vi.stubEnv('VITE_POSTHOG_KEY', 'test-destination');
   const sdk = {
     init: vi.fn(),
     opt_in_capturing: vi.fn(),
@@ -28,4 +31,5 @@ it('cannot opt back in when SDK loading completes after consent was withdrawn', 
   expect(sdk.opt_in_capturing).toHaveBeenCalledOnce();
   vi.doUnmock('posthog-js/dist/module.slim.no-external');
   vi.doUnmock('posthog-js/dist/extension-bundles');
+  vi.unstubAllEnvs();
 });

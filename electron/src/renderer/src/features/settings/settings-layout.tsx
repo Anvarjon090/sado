@@ -1,33 +1,52 @@
 import { Beam } from '@/components/motion-fx';
 // Adapted from T3 Code's settingsLayout and WorkspacePageContainer (MIT).
 // See electron/T3CODE-LICENSE.txt.
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+/* A heading that repeats the heading above it says nothing new. The page title
+   lives in the window title bar; a section titled the same as the page, or a
+   row titled the same as its section, keeps its heading for assistive
+   technology only. */
+const PageTitleContext = createContext<string | null>(null);
+const SectionTitleContext = createContext<string | null>(null);
+
+const sameTitle = (a: ReactNode, b: string | null) =>
+  typeof a === 'string' &&
+  b !== null &&
+  a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase();
 
 export function SettingsContent({
   children,
   fullBleed = false,
+  title = null,
 }: {
   children: ReactNode;
   fullBleed?: boolean;
+  /** The page title shown in the title bar; matching section headings hide. */
+  title?: string | null;
 }) {
   return (
-    <div
-      className={cn(
-        '@container min-h-0 min-w-0 flex-1',
-        fullBleed ? 'overflow-hidden' : 'overflow-y-auto [scrollbar-gutter:stable]',
-      )}
-    >
+    <PageTitleContext.Provider value={title}>
       <div
         className={cn(
-          'flex w-full min-w-0 flex-col',
-          fullBleed ? 'h-full min-h-0' : 'gap-6 px-4 pt-6 pb-12 @xl:px-6',
+          '@container min-h-0 min-w-0 flex-1',
+          fullBleed ? 'overflow-hidden' : 'overflow-y-auto [scrollbar-gutter:stable]',
         )}
       >
-        {children}
+        <div
+          className={cn(
+            'flex w-full min-w-0 flex-col',
+            // One readable column (DESIGN.md content-max): values stay close
+            // to the labels they belong to on wide windows.
+            fullBleed ? 'h-full min-h-0' : 'mx-auto max-w-[60rem] gap-8 px-4 pt-6 pb-12 @xl:px-6',
+          )}
+        >
+          {children}
+        </div>
       </div>
-    </div>
+    </PageTitleContext.Provider>
   );
 }
 
@@ -36,28 +55,40 @@ export function SettingsSection({
   children,
   icon: Icon,
   contentVariant = 'rows',
+  id,
 }: {
   title: string;
   children: ReactNode;
   icon?: LucideIcon;
   contentVariant?: 'rows' | 'cards';
+  id?: string;
 }) {
+  const pageTitle = useContext(PageTitleContext);
+  const repeatsPage = sameTitle(title, pageTitle);
   return (
-    <section className="min-w-0 space-y-2.5">
-      <h2 className="flex min-h-7 items-center gap-2 px-1 text-sm font-normal tracking-[-0.005em] text-foreground/80">
-        {Icon && <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />}
-        {title}
-      </h2>
-      <div
-        className={cn(
-          contentVariant === 'rows'
-            ? 'glass-panel rounded-xl border border-border/60 bg-card/40 shadow-xs/5 [&>*+*]:border-t [&>*+*]:border-border/50'
-            : 'grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-3',
-        )}
-      >
-        {children}
-      </div>
-    </section>
+    <SectionTitleContext.Provider value={title}>
+      <section id={id} className="min-w-0 scroll-mt-6 space-y-3">
+        <h2
+          className={
+            repeatsPage
+              ? 'sr-only'
+              : 'flex min-h-7 items-center gap-2 px-1 text-[15px] font-semibold tracking-[-0.01em] text-foreground'
+          }
+        >
+          {Icon && <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />}
+          {title}
+        </h2>
+        <div
+          className={cn(
+            contentVariant === 'rows'
+              ? 'rounded-xl border border-border bg-card [&>*+*]:border-t [&>*+*]:border-border'
+              : 'grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3',
+          )}
+        >
+          {children}
+        </div>
+      </section>
+    </SectionTitleContext.Provider>
   );
 }
 
@@ -69,6 +100,7 @@ export function SettingsRow({
   description,
   children,
   variant = 'row',
+  layout = 'inline',
   active = false,
 }: {
   className?: string;
@@ -78,41 +110,54 @@ export function SettingsRow({
   description?: ReactNode;
   children: ReactNode;
   variant?: 'row' | 'card';
+  /** `stacked` puts a multi-field form under its title instead of beside it. */
+  layout?: 'inline' | 'stacked';
   active?: boolean;
 }) {
+  const sectionTitle = useContext(SectionTitleContext);
+  const pageTitle = useContext(PageTitleContext);
+  const hideTitle =
+    titleHidden ||
+    (variant === 'row' && (sameTitle(title, sectionTitle) || sameTitle(title, pageTitle)));
   const row = (
     <div
       data-slot="settings-row"
       data-active={active || undefined}
       className={cn(
-        'px-4 py-3',
+        'px-4 py-3.5',
         variant === 'card' &&
-          'glass-panel h-full min-h-40 rounded-xl border border-border/60 bg-card/40 shadow-xs/5 transition-[border-color,background-color,box-shadow] duration-200 hover:border-border data-[active]:border-primary/35 data-[active]:bg-primary/[0.055] data-[active]:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_12%,transparent),0_12px_30px_-24px_var(--primary)] motion-reduce:transition-none',
+          'h-full min-h-40 rounded-xl border border-border bg-card transition-colors duration-150 hover:border-foreground/20 data-[active]:border-primary/55 motion-reduce:transition-none',
         className,
       )}
     >
       <div
         className={cn(
           'flex min-w-0 flex-col items-stretch gap-3',
-          variant === 'row'
-            ? '@2xl:flex-row @2xl:items-center @2xl:justify-between @2xl:gap-x-8'
-            : 'h-full',
+          // Inline rows wrap their controls under the title rather than
+          // squeezing the title to nothing when the controls are wide.
+          variant === 'row' && layout === 'inline'
+            ? '@2xl:flex-row @2xl:flex-wrap @2xl:items-center @2xl:justify-between @2xl:gap-x-8'
+            : variant === 'card'
+              ? 'h-full'
+              : '',
         )}
       >
-        <div className="min-w-0 flex-1 space-y-1">
+        <div
+          className={cn(
+            'min-w-0 flex-1 space-y-1',
+            // A floor for the title beside wide controls; horizontal rows only.
+            variant === 'row' && layout === 'inline' && '@2xl:basis-56',
+          )}
+        >
           <h3
             tabIndex={-1}
             id={id}
-            className={titleHidden ? 'sr-only' : 'min-h-5 text-sm font-medium tracking-[-0.005em]'}
+            className={hideTitle ? 'sr-only' : 'min-h-5 text-sm font-medium tracking-[-0.005em]'}
           >
             {title}
           </h3>
           {description && (
-            <div
-              className={cn(
-                'text-[13px] leading-[1.45] text-muted-foreground/80 [overflow-wrap:anywhere]',
-              )}
-            >
+            <div className="max-w-[62ch] text-[13px] leading-[1.45] text-muted-foreground [overflow-wrap:anywhere]">
               {description}
             </div>
           )}
@@ -125,7 +170,11 @@ export function SettingsRow({
           aria-labelledby={id}
           className={cn(
             'flex min-w-0 max-w-full flex-wrap items-center gap-2 [&>*]:min-w-0 [&>*]:max-w-full [&_input]:max-w-full [&_button]:max-w-full',
-            variant === 'row' ? '@2xl:justify-end' : 'mt-auto justify-start',
+            variant === 'card'
+              ? 'mt-auto justify-start'
+              : layout === 'stacked'
+                ? 'justify-start'
+                : '@2xl:justify-end',
           )}
         >
           {children}
@@ -145,7 +194,7 @@ export function SettingsRow({
 
 export function SettingsRowsSkeleton({ label, rows = 2 }: { label: string; rows?: number }) {
   return (
-    <div role="status" aria-label={label} className="divide-y divide-border/50">
+    <div role="status" aria-label={label} className="divide-y divide-border">
       <span className="sr-only">{label}</span>
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} aria-hidden="true" className="flex min-h-14 items-center gap-6 px-4 py-3">

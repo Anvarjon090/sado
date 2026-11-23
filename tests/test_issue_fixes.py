@@ -1,7 +1,7 @@
 """Tests for the batch issue fixes (PR #47).
 
 Covers:
-  #46 — Discord invite link replacement
+  #46 — Discord invite links (now: no upstream Discord at all)
   #43 — Docker / sys.path fix in backend/main.py
   #42 — IndexTTS is_available() graceful conflict detection
   #45 — install_hint field in list_backends()
@@ -24,42 +24,36 @@ from services import tts_backend
 _REPO = pathlib.Path(__file__).resolve().parent.parent
 
 
-# ── #46 — Discord link ──────────────────────────────────────────────────────
+# ── #46 — Discord links ─────────────────────────────────────────────────────
+#
+# Both invites belong to the upstream VoiceStudio server, not to Sado (Sado
+# owner decision 2026-11-21: community and support go through GitHub). Sending
+# Sado users there hands them to another project's community.
 
-OLD_DISCORD = "discord.gg/aRRdVj3de7"
-NEW_DISCORD = "discord.gg/bzQavDfVV9"
-
-_LINK_FILES = [
-    "README.md",
-    ".github/CONTRIBUTING.md",
-    "electron/src/shared/pages/EnterprisePage.jsx",
-    "electron/src/shared/components/LogsFooter.jsx",
-]
+_UPSTREAM_DISCORD = ("discord.gg/aRRdVj3de7", "discord.gg/bzQavDfVV9")
 
 
-@pytest.mark.parametrize("relpath", _LINK_FILES)
-def test_discord_link_updated(relpath):
-    """Expired Discord invite must not appear anywhere we publish links."""
-    filepath = _REPO / relpath
-    if not filepath.exists():
-        pytest.skip(f"{relpath} not found")
-    content = filepath.read_text(encoding="utf-8")
-    assert OLD_DISCORD not in content, f"{relpath} still contains expired link {OLD_DISCORD}"
-    assert NEW_DISCORD in content, f"{relpath} missing new link {NEW_DISCORD}"
+def test_no_upstream_discord_link_anywhere():
+    """Repo-wide sweep of tracked files: nothing links to upstream's Discord."""
+    import subprocess
 
-
-def test_no_old_discord_link_anywhere():
-    """Repo-wide sweep: no markdown or JSX file should reference the old link."""
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z"], cwd=_REPO, capture_output=True, text=True, check=True
+    ).stdout.split("\0")
     hits = []
-    for ext in ("*.md", "*.jsx", "*.tsx"):
-        for p in _REPO.rglob(ext):
-            # Skip node_modules, .git, research submodules
-            parts = p.relative_to(_REPO).parts
-            if any(skip in parts for skip in ("node_modules", ".git", "research", "dist", "target", "build")):
-                continue
-            if OLD_DISCORD in p.read_text(errors="ignore"):
-                hits.append(str(p.relative_to(_REPO)))
-    assert hits == [], f"Old Discord link still in: {hits}"
+    for rel in filter(None, tracked):
+        # Release history may name past links; this test names them on purpose.
+        if rel in ("CHANGELOG.md", "tests/test_issue_fixes.py"):
+            continue
+        if not rel.endswith((".md", ".jsx", ".tsx", ".ts", ".js", ".mjs", ".yml", ".json", ".py")):
+            continue
+        path = _REPO / rel
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        if any(link in text for link in _UPSTREAM_DISCORD):
+            hits.append(rel)
+    assert hits == [], f"Upstream Discord link still in: {hits}"
 
 
 # ── #43 — Docker / sys.path fix ─────────────────────────────────────────────

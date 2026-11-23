@@ -20,6 +20,7 @@ import { setCloneSetting, useCloneSetting } from '@/lib/store/clone-settings';
 import { useReference } from '@/lib/store/reference';
 import { EngineNotice } from '@/components/engine-notice';
 import { useGenerateClone } from '@/hooks/use-generate';
+import { useKeepTtsWarm } from '@/hooks/use-keep-tts-warm';
 import { ActionBar } from './action-bar';
 import { OutputPanel } from './output-panel';
 import { ReferencePanel, SaveProfileForm } from './reference-panel';
@@ -35,6 +36,7 @@ export function ClonePage() {
   const navigate = useNavigate();
   const selectedTake = useSelectedTake();
   const { generate, isGenerating } = useGenerateClone();
+  useKeepTtsWarm();
   const demo = useCloneDemo();
   const { panel, editingProfileId } = useWorkspace();
   const setPanel = (panel: 'voice' | null) => setWorkspace({ panel });

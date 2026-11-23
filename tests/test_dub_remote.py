@@ -25,7 +25,8 @@ def test_remote_dub_resolution_does_not_load_local_tts(monkeypatch):
     monkeypatch.setattr(dub_generate.gpu_gateway, "preflight", fake_preflight)
     monkeypatch.setattr(dub_generate, "resolve_generation_backend", reject_local_load)
 
-    engine, routed, backend = asyncio.run(dub_generate._resolve_dub_execution())
+    req = SimpleNamespace(language="English", segments=[])  # not an all-Uzbek job
+    engine, routed, backend = asyncio.run(dub_generate._resolve_dub_execution(req))
 
     assert (engine, routed) == ("omnivoice", decision)
     assert isinstance(backend, dub_generate._RemoteDubBackend)
@@ -50,10 +51,11 @@ def test_local_dub_resolution_loads_cloning_backend(monkeypatch):
     monkeypatch.setattr(dub_generate.gpu_gateway, "decide", lambda _op: decision)
     monkeypatch.setattr(dub_generate, "resolve_generation_backend", resolve_backend)
 
-    engine, routed, resolved = asyncio.run(dub_generate._resolve_dub_execution())
+    req = SimpleNamespace(language="English", segments=[])  # not an all-Uzbek job
+    engine, routed, resolved = asyncio.run(dub_generate._resolve_dub_execution(req))
 
     assert (engine, routed, resolved) == ("test", decision, backend)
-    assert calls == [{"require_cloning": True}]
+    assert calls == [{"require_cloning": True, "engine_id": "test"}]
 
 
 @pytest.mark.parametrize("operation", ["dub_segments", "batch_segments"])

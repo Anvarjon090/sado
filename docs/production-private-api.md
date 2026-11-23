@@ -9,7 +9,7 @@ internet.
 ```yaml
 services:
   sado:
-    image: ghcr.io/debpalash/sado:0.5.6
+    image: ghcr.io/anvarjon090/sado:0.5.6
     restart: unless-stopped
     environment:
       OMNIVOICE_API_KEY: ${OMNIVOICE_API_KEY:?set a long random key}

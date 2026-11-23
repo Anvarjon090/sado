@@ -2,7 +2,7 @@ import { LoadingOrb } from '@/components/motion-fx';
 import { BrandMark } from '@/components/brand-mark';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIcon,
@@ -26,7 +26,8 @@ import { getBridge } from '@/components/bridge';
 import { apiJson, describeError } from '@/lib/api/client';
 import type { SystemInfo } from '@/lib/api/types';
 import { SettingsActionError } from './settings-action-error';
-import { SettingsRow, SettingsSection } from './settings-layout';
+import { SettingsSection } from './settings-layout';
+import { SystemPreflight } from './system-preflight';
 import { ReportBug } from '@/components/report-bug';
 
 type CheckStatus = 'ok' | 'warn' | 'fail';
@@ -153,119 +154,107 @@ export function DiagnosticsSettings() {
     }
   };
 
+  const loading = t('common.loading');
+  const aboutItems: {
+    id: string;
+    label: string;
+    Icon?: typeof InfoIcon;
+    value: ReactNode;
+    mono?: boolean;
+  }[] = [
+    {
+      id: 'diagnostics-app',
+      label: t('about.app'),
+      value: (
+        <span className="inline-flex items-center gap-2 font-medium" translate="no">
+          <BrandMark size={18} />
+          Sado{' '}
+          <span className="font-mono text-[13px] font-normal text-muted-foreground">
+            {bridge?.app.version ?? __APP_VERSION__}
+          </span>
+        </span>
+      ),
+    },
+    { id: 'diagnostics-platform', label: t('about.platform'), value: platform, mono: true },
+    {
+      id: 'diagnostics-device',
+      label: t('about.compute_device'),
+      Icon: CpuIcon,
+      value: system ? (
+        <span className="space-y-0.5">
+          <span className="block font-medium uppercase">{system.device}</span>
+          {cpu && <span className="block text-[13px] text-muted-foreground">{cpu}</span>}
+        </span>
+      ) : (
+        loading
+      ),
+    },
+    ...(gpu
+      ? [
+          {
+            id: 'diagnostics-gpu',
+            label: t('about.gpu_active'),
+            Icon: MonitorUpIcon,
+            value: (
+              <span className="space-y-0.5">
+                <span className="block font-medium">
+                  {t(system?.device && system.device !== 'cpu' ? 'about.yes' : 'about.no')}
+                </span>
+                <span className="block text-[13px] text-muted-foreground">{gpu}</span>
+              </span>
+            ),
+          },
+        ]
+      : []),
+    {
+      id: 'diagnostics-memory',
+      label: t('about.ram'),
+      value: system?.ram_total_gb ? `${system.ram_total_gb.toFixed(1)} GB` : loading,
+    },
+    {
+      id: 'diagnostics-python',
+      label: t('about.python'),
+      value: system?.python || loading,
+      mono: true,
+    },
+    {
+      id: 'diagnostics-tts',
+      label: t('engineSidebar.tts'),
+      Icon: AudioLinesIcon,
+      value: system?.model_checkpoint || loading,
+      mono: true,
+    },
+    {
+      id: 'diagnostics-asr',
+      label: t('engineSidebar.asr'),
+      Icon: Mic2Icon,
+      value: system?.asr_model || loading,
+      mono: true,
+    },
+    {
+      id: 'diagnostics-translator',
+      label: t('about.translator'),
+      Icon: LanguagesIcon,
+      value: system?.translate_provider || loading,
+    },
+    {
+      id: 'diagnostics-data-directory',
+      label: t('settings.data_directory'),
+      Icon: FolderOpenIcon,
+      value: system?.data_dir || loading,
+      mono: true,
+    },
+    {
+      id: 'diagnostics-outputs',
+      label: t('settings.storage_child_outputs'),
+      value: system?.outputs_dir || loading,
+      mono: true,
+    },
+  ];
+
   return (
     <>
-      <SettingsSection icon={InfoIcon} title={t('about.title')}>
-        <SettingsRow id="diagnostics-app" title={t('about.app')}>
-          <span className="inline-flex items-center gap-2 text-sm font-medium" translate="no">
-            <BrandMark size={20} />
-            Sado
-          </span>
-        </SettingsRow>
-        <SettingsRow id="diagnostics-version" title={t('about.version')}>
-          <span className="font-mono text-xs">{bridge?.app.version ?? __APP_VERSION__}</span>
-        </SettingsRow>
-        <SettingsRow id="diagnostics-platform" title={t('about.platform')}>
-          <span className="max-w-xl text-right font-mono text-xs">{platform}</span>
-        </SettingsRow>
-        <SettingsRow
-          id="diagnostics-device"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <CpuIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-              {t('about.compute_device')}
-            </span>
-          }
-          description={cpu || undefined}
-        >
-          <span className="max-w-xl text-right font-mono text-xs">
-            {system?.device || t('common.loading')}
-          </span>
-        </SettingsRow>
-        {gpu && (
-          <SettingsRow
-            id="diagnostics-gpu"
-            title={
-              <span className="inline-flex items-center gap-2">
-                <MonitorUpIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-                {t('about.gpu_active')}
-              </span>
-            }
-            description={gpu}
-          >
-            <span className="text-xs font-medium">
-              {t(system?.device && system.device !== 'cpu' ? 'about.yes' : 'about.no')}
-            </span>
-          </SettingsRow>
-        )}
-        <SettingsRow id="diagnostics-memory" title={t('about.ram')}>
-          <span className="font-mono text-xs">
-            {system?.ram_total_gb ? `${system.ram_total_gb.toFixed(1)} GB` : t('common.loading')}
-          </span>
-        </SettingsRow>
-        <SettingsRow id="diagnostics-python" title={t('about.python')}>
-          <span className="font-mono text-xs">{system?.python || t('common.loading')}</span>
-        </SettingsRow>
-        <SettingsRow
-          id="diagnostics-tts"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <AudioLinesIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-              {t('engineSidebar.tts')}
-            </span>
-          }
-        >
-          <span className="max-w-xl break-all text-right font-mono text-xs">
-            {system?.model_checkpoint || t('common.loading')}
-          </span>
-        </SettingsRow>
-        <SettingsRow
-          id="diagnostics-asr"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <Mic2Icon className="size-4 text-muted-foreground" aria-hidden="true" />
-              {t('engineSidebar.asr')}
-            </span>
-          }
-        >
-          <span className="max-w-xl break-all text-right font-mono text-xs">
-            {system?.asr_model || t('common.loading')}
-          </span>
-        </SettingsRow>
-        <SettingsRow
-          id="diagnostics-translator"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <LanguagesIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-              {t('about.translator')}
-            </span>
-          }
-        >
-          <span className="max-w-xl break-all text-right font-mono text-xs">
-            {system?.translate_provider || t('common.loading')}
-          </span>
-        </SettingsRow>
-        <SettingsRow
-          id="diagnostics-data-directory"
-          title={
-            <span className="inline-flex items-center gap-2">
-              <FolderOpenIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-              {t('settings.data_directory')}
-            </span>
-          }
-        >
-          <span className="max-w-xl break-all text-right font-mono text-xs">
-            {system?.data_dir || t('common.loading')}
-          </span>
-        </SettingsRow>
-        <SettingsRow id="diagnostics-outputs" title={t('settings.storage_child_outputs')}>
-          <span className="max-w-xl break-all text-right font-mono text-xs">
-            {system?.outputs_dir || t('common.loading')}
-          </span>
-        </SettingsRow>
-      </SettingsSection>
-
-      <SettingsSection icon={ActivityIcon} title={t('about.diagnostics')}>
+      <SettingsSection icon={ActivityIcon} title={t('settingsNav.diagnostics')}>
         <div className="flex flex-wrap items-center gap-2 p-4">
           <Button size="sm" disabled={action !== null} onClick={() => void runCheck()}>
             {action === 'check' ? <LoadingOrb /> : <ActivityIcon />}
@@ -280,7 +269,12 @@ export function DiagnosticsSettings() {
             {action === 'bundle' ? <LoadingOrb /> : <DownloadIcon />}
             {t('about.save_bundle')}
           </Button>
-          <Button size="sm" variant="ghost" disabled={action !== null} onClick={() => void copy()}>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={action !== null}
+            onClick={() => void copy()}
+          >
             {action === 'copy' ? <LoadingOrb /> : <CopyIcon />}
             {t('about.copy_diagnostics')}
           </Button>
@@ -368,6 +362,31 @@ export function DiagnosticsSettings() {
             </ul>
           </div>
         )}
+      </SettingsSection>
+
+      <SystemPreflight />
+
+      <SettingsSection icon={InfoIcon} title={t('about.title')}>
+        {/* Facts read top to bottom: each value sits beside its label, not
+            across the window. Monospace only for versions, ids and paths. */}
+        <dl className="grid grid-cols-1 gap-x-6 px-4 py-2 @lg:grid-cols-[minmax(8.5rem,12rem)_minmax(0,1fr)]">
+          {aboutItems.map(({ id, label, Icon, value, mono }) => (
+            <div key={id} id={id} className="contents">
+              <dt className="flex items-center gap-2 pt-3 text-[13px] text-muted-foreground @lg:py-2.5">
+                {Icon && <Icon aria-hidden="true" className="size-4 shrink-0" />}
+                {label}
+              </dt>
+              <dd
+                className={
+                  'min-w-0 pb-3 text-sm text-foreground [overflow-wrap:anywhere] @lg:py-2.5 ' +
+                  (mono ? 'font-mono text-[13px]' : '')
+                }
+              >
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </SettingsSection>
     </>
   );

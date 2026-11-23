@@ -52,7 +52,7 @@ The rebrand must not break existing installations. Keep these identifiers until
 a separately tested migration exists:
 
 - `omnivoice` Python imports and package name
-- `omnivoice-studio` binary/package, Docker Hub path, and legacy GHCR alias
+- `omnivoice-studio` binary/package and Compose container names
 - `OMNIVOICE_*` environment variables and `X-OmniVoice-*` API headers
 - existing OmniVoice data/cache directories and uninstall aliases
 - upstream repositories, model IDs, classes, and engine IDs

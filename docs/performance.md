@@ -25,17 +25,17 @@ Before touching any knob, check these — they account for most slowness reports
 3. **Memory pressure.** On a 16 GB unified-memory machine, a browser with 40
    tabs next to a dub means the OS pages the model in and out — or kills the
    backend outright ("Can't reach the local backend"). Check Settings →
-   Models for what's resident, and Settings → Performance for free RAM. See
+   Models for what's resident, and Settings → Device & memory for free RAM. See
    [Flush caches / Unload resident model](#flush-caches--unload-resident-model)
    for freeing memory without a restart.
 4. **You're generating on CPU without realizing it.** A driver update, a
    CUDA/torch mismatch, or simply running on hardware with no supported GPU
    path silently drops you to CPU — everything works, just several times
    slower. Three places tell you the truth:
-   - **Settings → Performance → Device & compute** shows the live compute
+   - **Settings → Device & memory → Compute device** shows the live compute
      device (`cuda` / `mps` / `cpu`), a "GPU active" badge, and RAM/VRAM
      readouts.
-   - **Settings → About → Run self-check** (the `/system/diagnose` endpoint)
+   - **Settings → Diagnostics & About → Run self-check** (the `/system/diagnose` endpoint)
      warns explicitly: *"cpu (no GPU acceleration detected)"* with a hint
      about drivers.
    - **Model Catalogue** shows a routing badge per engine — "GPU active",
@@ -44,7 +44,7 @@ Before touching any knob, check these — they account for most slowness reports
    Note: **PyTorch GPU acceleration on Windows is NVIDIA/CUDA-only** — AMD and
    Intel GPUs run PyTorch engines on the CPU there (audio.cpp can still use a
    Radeon through Vulkan; see [Windows install notes](install/windows.md)).
-   **Settings → Performance → GPU acceleration** (`GET /api/settings/gpu-report`)
+   **Settings → Device & memory → GPU acceleration** (`GET /api/settings/gpu-report`)
    lists, per engine, whether it uses the GPU on this machine and why not
    otherwise — including "your Radeon was found but this PyTorch build is
    NVIDIA-only".
@@ -65,10 +65,24 @@ Before touching any knob, check these — they account for most slowness reports
 For a cloned voice, one generation is: encode the reference clip (~0.4 s,
 measured; cached after the first use for the voices you reuse — a dub's
 per-line clips are each used once, so there's nothing for a cache to save
-there) → synthesize (the bulk; scales with output length) → post-process
-(mastering, watermark; fractions of a second). Long texts are split into
+there) → synthesize (the bulk; scales with output length and linearly with
+sampling steps) → post-process (mastering, watermark; fractions of a second —
+the watermark runs on the GPU when there is one). Long texts are split into
 chunks synthesized sequentially — time scales roughly linearly with text
 length.
+
+Measured on an RTX 2070 SUPER (2026-11-23, Sado Pro): 16 / 32 / 64 steps took
+1.1 / 2.2 / 4.3 s for a 6 s take and 3.1 / 5.9 / 11.6 s for a 30 s take, and
+64 steps sounded no better than 32 by CER, speaker similarity and rhythm. So
+Sado Pro's slider and its Max preset stop at 32; a full 30 s take now returns
+in about 7 s.
+
+The first take after the model loads used to pay extra cold costs (CUDA kernel
+selection, the take check's imports, the watermark model). Loading the model
+now walks that path once in the background. While the speech or voice-design
+screen is open and focused it also keeps the model from idling out, and starts
+reloading it as you type if it was released — leave the screen and the normal
+idle unload frees the GPU again.
 
 For a dub, the stages are: audio extraction + vocal separation (one-time,
 minutes for long videos) → transcription (on the best accelerator available —
@@ -85,11 +99,12 @@ None of them are required — the defaults are chosen for the common case.
 
 | Variable | Default | What it does |
 |---|---|---|
-| `OMNIVOICE_DEVICE` | `auto` | Pin the compute device (`cuda` / `rocm` / `xpu` / `mps` / `cpu`) instead of auto-detect. Same control lives in **Settings → Performance & Device** (the env var wins over the UI pick). Honored only for devices the host actually has — a family that isn't detected is noted and ignored, never obeyed blindly. Applies at the next backend start. |
-| `CUDA_VISIBLE_DEVICES` | all NVIDIA GPUs | On a multi-GPU NVIDIA host, expose only the selected physical adapter to Sado and its engine subprocesses. **Settings → Performance & Device → CUDA** lists adapters by index and name, persists their stable GPU UUID, and applies the choice after restart. An externally supplied environment variable wins over the saved UI choice. |
+| `OMNIVOICE_DEVICE` | `auto` | Pin the compute device (`cuda` / `rocm` / `xpu` / `mps` / `cpu`) instead of auto-detect. Same control lives in **Settings → Device & memory** (the env var wins over the UI pick). Honored only for devices the host actually has — a family that isn't detected is noted and ignored, never obeyed blindly. Applies at the next backend start. |
+| `CUDA_VISIBLE_DEVICES` | all NVIDIA GPUs | On a multi-GPU NVIDIA host, expose only the selected physical adapter to Sado and its engine subprocesses. **Settings → Device & memory → CUDA** lists adapters by index and name, persists their stable GPU UUID, and applies the choice after restart. An externally supplied environment variable wins over the saved UI choice. |
 | `OMNIVOICE_FLASHINFER` | `0` | CUDA-only accelerated decoding for the default engine via [FlashInfer](https://github.com/flashinfer-ai/flashinfer) kernels (packed CFG attention, fused RMSNorm/RoPE/GEMM) — ~2x on upstream's benchmarks. `1` enables it; `graph` also captures CUDA graphs (best when you render one thing at a time). Requires installing the optional `flashinfer-python` package into the backend environment first (`uv pip install flashinfer-python flashinfer-jit-cache --extra-index-url https://flashinfer.ai/whl/cu128/`, matching your CUDA build). Replaces `torch.compile` for that session, pins inference to a single GPU thread (the FlashInfer attention plan is per-generation state), and keeps fused copies of the attention/MLP weights resident (~roughly half the LLM's weight size extra VRAM) — leave it off on tight-VRAM cards. If the package is missing or a FlashInfer/CUDA-graph kernel fails at runtime, the app logs the reason and falls back to the standard path; failures outside those kernels (e.g. a genuine out-of-memory) surface normally. |
 | `OMNIVOICE_PROMPT_DISK_CACHE` | `1` | Persist encoded voice-clone references (`prompt_cache/` in the app data dir, ~10 KB per voice, 32 newest kept) so the first generation with a known voice after a restart skips the reference re-encode and any auto-transcription. Set `0` to keep the cache in memory only. |
-| `OMNIVOICE_IDLE_TIMEOUT_S` | `900` | Seconds of idle before the TTS model unloads to free memory. Raise it (e.g. `3600`) if you generate in bursts and dislike the ~8 s reload; lower it on tight-memory machines. |
+| `OMNIVOICE_IDLE_TIMEOUT_S` | `900` | Seconds of idle before the TTS model unloads to free memory (an open, focused speech or voice-design screen counts as use). Raise it (e.g. `3600`) if you generate in bursts and dislike the ~8 s reload; lower it on tight-memory machines. |
+| `OMNIVOICE_WATERMARK_DEVICE` | auto | `cpu` keeps the invisible watermark on the processor. By default it runs on a CUDA/ROCm GPU when one is usable (3 s → 0.15 s on a 30 s take) and moves to the CPU for good after any GPU error. Same mark either way. |
 | `OMNIVOICE_SIDECAR_IDLE_TIMEOUT_S` | `300` | Same idea for sidecar engines (IndexTTS 2.5 etc.). |
 | `MIOPEN_FIND_MODE` | `FAST` | MIOpen (ROCm) algorithm search. The default exhaustive search costs ~18 s every time it sees a new convolution shape — shape-varying vocoders like IndexTTS's BigVGAN paid it on nearly every chunk. `FAST` finds a near-optimal kernel in well under a second; the backend sets it at startup, only MIOpen reads it (ROCm on Linux or Windows; inert on CUDA/MPS/CPU), and an exported value always wins over the default. |
 | `OMNIVOICE_LLM_CONCURRENCY` | `6` | Parallel LLM translation calls during a dub. Raise for a fast API endpoint, lower if your provider rate-limits. |
@@ -99,8 +114,8 @@ None of them are required — the defaults are chosen for the common case.
 | `OMNIVOICE_UNIFIED_OFFLOAD_HEADROOM_GB` | `6` | On unified memory (Apple Silicon): if free RAM is below this when a dub needs the transcription model, the TTS model is fully released first (it reloads on the next generation). Raise to be more aggressive about freeing, lower on 32 GB+ machines to avoid the reload. |
 | `OMNIVOICE_INDEXTTS_FP16` | `1` | IndexTTS half-precision. Leave on. On ROCm the bfloat16 claim is verified with a tiny test matmul in a child process first: GPUs whose rocBLAS crashes on bf16 load fp32 automatically instead of segfaulting the sidecar. Set `0` to force fp32 outright. |
 | `OMNIVOICE_ASR_VRAM_PREFLIGHT` | `1` | Downgrade transcription precision instead of crashing when VRAM is short (CUDA). Leave on. |
-| `OMNIVOICE_GENERATE_TIMEOUT_S` | `300` | Abandon a generation after this many seconds **of actual compute** on an accelerated (GPU-family) host — the clock starts when a worker picks the job up, never while it waits in line. It's a floor, not a ceiling: the budget grows with the text (+1 s per 40 characters past the first 1200), so long inputs rarely need this raised. A **CUDA or ROCm** GPU with less dedicated VRAM than the engine declares it needs is the exception — it pages to system RAM and renders slower than the same machine's CPU, so it floors at `OMNIVOICE_CPU_GENERATE_TIMEOUT_S` below instead. Apple Silicon (MPS) is not included: its reported VRAM is a heuristic over a *unified* memory pool, not a dedicated one, so there is no comparable floor to measure it against. Setting **this** var explicitly turns that off — an explicit value here is the base on every device, under-provisioned or not, so lowering it to fail fast still works. Also settable from **Settings → Performance & Device → Compute-time budget** (persists to `prefs.json`; takes effect on the next backend restart, same as `OMNIVOICE_DEVICE` above). |
-| `OMNIVOICE_CPU_GENERATE_TIMEOUT_S` | `600` | Same budget, for hosts that render on the CPU — correct CPU synthesis legitimately takes longer than the accelerated floor, so it gets its own, higher one. It is also the floor a CUDA/ROCm GPU below the engine's declared VRAM floor gets, since that is the performance class it actually falls into. An explicit value here always governs CPU-family generation, independent of `OMNIVOICE_GENERATE_TIMEOUT_S` above — that var only doubles as a CPU floor when *this* one is left unset (a legacy shortcut: setting only `OMNIVOICE_GENERATE_TIMEOUT_S` lowers the watchdog everywhere with one var). Also settable from **Settings → Performance & Device**, which flags a row an external env var is already shadowing instead of claiming a save will apply. |
+| `OMNIVOICE_GENERATE_TIMEOUT_S` | `300` | Abandon a generation after this many seconds **of actual compute** on an accelerated (GPU-family) host — the clock starts when a worker picks the job up, never while it waits in line. It's a floor, not a ceiling: the budget grows with the text (+1 s per 40 characters past the first 1200), so long inputs rarely need this raised. A **CUDA or ROCm** GPU with less dedicated VRAM than the engine declares it needs is the exception — it pages to system RAM and renders slower than the same machine's CPU, so it floors at `OMNIVOICE_CPU_GENERATE_TIMEOUT_S` below instead. Apple Silicon (MPS) is not included: its reported VRAM is a heuristic over a *unified* memory pool, not a dedicated one, so there is no comparable floor to measure it against. Setting **this** var explicitly turns that off — an explicit value here is the base on every device, under-provisioned or not, so lowering it to fail fast still works. Also settable from **Settings → Device & memory → Compute-time budget** (persists to `prefs.json`; takes effect on the next backend restart, same as `OMNIVOICE_DEVICE` above). |
+| `OMNIVOICE_CPU_GENERATE_TIMEOUT_S` | `600` | Same budget, for hosts that render on the CPU — correct CPU synthesis legitimately takes longer than the accelerated floor, so it gets its own, higher one. It is also the floor a CUDA/ROCm GPU below the engine's declared VRAM floor gets, since that is the performance class it actually falls into. An explicit value here always governs CPU-family generation, independent of `OMNIVOICE_GENERATE_TIMEOUT_S` above — that var only doubles as a CPU floor when *this* one is left unset (a legacy shortcut: setting only `OMNIVOICE_GENERATE_TIMEOUT_S` lowers the watchdog everywhere with one var). Also settable from **Settings → Device & memory**, which flags a row an external env var is already shadowing instead of claiming a save will apply. |
 | `OMNIVOICE_ENGINE_IMPORT_PROBE_TIMEOUT_S` | `60` | How long to wait while checking that a sidecar engine's virtualenv can import the engine. Only affects how quickly a *broken* venv is ruled out — a probe that runs out of time is treated as "unproven", and the venv is used anyway, so a slow machine is never told its engine is missing. Per-engine override: `OMNIVOICE_INDEXTTS_IMPORT_PROBE_TIMEOUT_S` (and the same shape for `CONFUCIUS4`, `DOTS_TTS`, `MOSS_TTS_V15`). |
 | `OMNIVOICE_GPU_QUEUE_TIMEOUT_S` | `1800` | How long a job may sit in the GPU queue before it's reported as a saturated pool (a retryable condition — nothing ran). Waiting is normal on 1-worker machines; lower this only if you'd rather fail fast than queue. |
 | `OMNIVOICE_PROGRESS_EXTENSION_CAP_S` | `1800` | Extra time a job that keeps reporting progress (a model download heartbeat, a finished chunk) may run past its budget — the larger of this and three times the job's own budget. A job that goes silent still stops at its budget. Replaces the old name `OMNIVOICE_MODEL_LOAD_TIMEOUT_S`, which is still accepted but deprecated; it is unrelated to the cold-load ceiling `OMNIVOICE_MODEL_LOAD_TIMEOUT`. The app waits out the backend's longest default budget before it gives up on a request itself. |
@@ -109,7 +124,7 @@ None of them are required — the defaults are chosen for the common case.
 where the runtime check says it can work (a CUDA device with Triton importable
 and a supported GPU architecture) and skipped automatically everywhere else —
 MPS, CPU, and the typical Windows install (Triton ships no Windows wheel).
-The one user-facing control is Settings → Performance → "Disable
+The one user-facing control is Settings → Speed / quality → \"Disable
 torch.compile", available on every platform, for the setup where the probe
 passes but the compile attempt itself misbehaves — a partial Triton install,
 or a GPU whose compiled kernels crash the engine. Setting
@@ -365,7 +380,7 @@ so a slow client cannot inflate it. The backend log records the same values, so 
 ## Local render diagnostics
 
 For a slow Studio, Stories or Audiobook render, save a diagnostic bundle from
-**Settings → About → Save diagnostic bundle** before restarting the backend.
+**Settings → Diagnostics & About → Save diagnostic bundle** before restarting the backend.
 `render_traces.json` contains the last 32 completed or interrupted render
 requests in this backend process. The same compact records appear in the backend
 log. Nothing is uploaded automatically; you choose whether to share the bundle.

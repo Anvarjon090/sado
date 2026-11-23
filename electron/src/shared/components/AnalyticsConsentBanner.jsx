@@ -13,8 +13,8 @@
  *     never shown again. Dismissal is a choice, not a snooze — nagging users
  *     into consent would be its own kind of dark pattern.
  *   - Backend unreachable / destination-less build / already prompted /
- *     already opted in → renders nothing. (Source builds have a destination
- *     since #1193, so they get this same one-time ask.)
+ *     already opted in → renders nothing. (Sado commits no default token, so
+ *     only builds with a baked or env token ever show this ask.)
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

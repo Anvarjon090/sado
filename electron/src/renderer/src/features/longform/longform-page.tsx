@@ -359,7 +359,10 @@ export function LongformPage({ mode }: { mode: Mode }) {
               </div>
             ))}
         </SecondarySidebar>
-        <section className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        <section
+          data-slot="longform-editor"
+          className="flex min-w-0 flex-1 flex-col overflow-y-auto"
+        >
           <div className="mx-auto flex w-full max-w-6xl min-h-0 flex-1 flex-col gap-4 px-6 py-5">
             <div className="flex items-center justify-between gap-3">
               <div>

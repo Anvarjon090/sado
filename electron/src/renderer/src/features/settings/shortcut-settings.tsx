@@ -11,10 +11,7 @@ import {
   nativeShortcutKey,
   useDictationPreferences,
 } from '@/hooks/use-native-dictation';
-import {
-  keyEventToAccelerator,
-  isPureModifierEvent,
-} from '@shared/utils/shortcutAccelerator';
+import { keyEventToAccelerator, isPureModifierEvent } from '@shared/utils/shortcutAccelerator';
 import { SettingsSection, SettingsRow } from './settings-layout';
 
 export function ShortcutSettings() {
@@ -201,7 +198,12 @@ export function ShortcutSettings() {
               {pending && (
                 <>
                   <kbd className="text-xs">{pending}</kbd>
-                  <Button size="sm" disabled={busy} onClick={() => void save(pending)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={busy}
+                    onClick={() => void save(pending)}
+                  >
                     {t('common.save')}
                   </Button>
                 </>
