@@ -20,6 +20,7 @@ CURATED_REVISIONS: dict[str, str] = {
     "mlx-community/whisper-large-v3-mlx": "49e6aa286ad60c14352c404340ded53710378a11",
     "mlx-community/whisper-large-v3-turbo": "a4aaeec0636e6fef84abdcbe3544cb2bf7e9f6fb",
     "openai/whisper-large-v3": "06f233fe06e710322aca913c1bc4249a0d71fce1",
+    "aisha-org/sado-asr-v1": "66a4c4650c86538cc86a1fa847c16f954766112d",
     "mlx-community/whisper-tiny-mlx": "6caf9c55601caafbe6508a8b0d216bdf4783c4e8",
     "deepdml/faster-whisper-large-v3-turbo-ct2": "4df90f75321148c3a29a9e2351b7ddf8f5b115a8",
     "Systran/faster-distil-whisper-large-v3": "c3058b475261292e64a0412df1d2681c06260fab",
