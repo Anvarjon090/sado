@@ -26,7 +26,8 @@ WARM_TEXT = "Salom, bu sinov."
 WARM_STEPS = 2
 
 _lock = threading.Lock()
-_warmed_model_id: int | None = None
+#: id() of the model the generate path was last warmed for.
+_warmed: dict = {"model_id": None}
 
 
 def warm_generate_path(model) -> bool:
@@ -35,13 +36,12 @@ def warm_generate_path(model) -> bool:
     Blocking — call it on the GPU pool, like any synthesis. A model that was
     already warmed returns False at once, so repeated preloads cost nothing.
     """
-    global _warmed_model_id
     if model is None:
         return False
     with _lock:
-        if _warmed_model_id == id(model):
+        if _warmed["model_id"] == id(model):
             return False
-        _warmed_model_id = id(model)
+        _warmed["model_id"] = id(model)
     started = time.perf_counter()
     try:
         import torch
@@ -72,6 +72,5 @@ def warm_generate_path(model) -> bool:
 
 def forget_model() -> None:
     """Called on unload so the next load of the same object id warms again."""
-    global _warmed_model_id
     with _lock:
-        _warmed_model_id = None
+        _warmed["model_id"] = None

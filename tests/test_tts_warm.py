@@ -30,7 +30,7 @@ def _fresh(monkeypatch):
     generation = importlib.import_module("api.routers.generation")
     model_manager = importlib.import_module("services.model_manager")
     tts_warmup = importlib.import_module("services.tts_warmup")
-    monkeypatch.setattr(generation, "_warm_task", None)
+    monkeypatch.setitem(generation._warm_state, "task", None)
     monkeypatch.setattr(generation, "_routing_decision", lambda: types.SimpleNamespace(remote=False))
     tts_warmup.forget_model()
     yield
@@ -65,7 +65,7 @@ def test_warm_starts_one_background_load_for_an_unloaded_model(monkeypatch):
     async def two_pings():
         first = await generation.warm_tts()
         second = await generation.warm_tts()  # while the first load still runs
-        await generation._warm_task
+        await generation._warm_state["task"]
         return first, second
 
     first, second = asyncio.run(two_pings())
@@ -143,13 +143,13 @@ def test_warmup_failure_is_silent(monkeypatch):
 
 def test_unload_forgets_the_warmed_model(monkeypatch):
     model = FakeModel()
-    monkeypatch.setattr(tts_warmup, "_warmed_model_id", id(model))
+    monkeypatch.setitem(tts_warmup._warmed, "model_id", id(model))
     monkeypatch.setattr(model_manager, "model", model)
     monkeypatch.setattr(model_manager, "free_vram", lambda: None)
     monkeypatch.setattr(model_manager, "release_tts_side_caches", lambda: None)
 
     assert model_manager.unload_shared_model() is True
-    assert tts_warmup._warmed_model_id is None
+    assert tts_warmup._warmed["model_id"] is None
 
 
 def test_preload_walks_the_generate_path_after_loading(monkeypatch):
