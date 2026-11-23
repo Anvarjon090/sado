@@ -61,7 +61,7 @@ jobs:
           - os: windows-latest
             platform: windows-x86_64
             experimental: false
-          - os: macos-14
+          - os: macos-15
             platform: darwin-arm64
             # Apple Silicon Metal build compiles cleanly with -DGGML_METAL=ON
             # at the pinned SHA (#2105); non-experimental to catch regressions.
