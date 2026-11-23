@@ -8,13 +8,17 @@ metadata and the backend fallback mirror it.
 
 ## [Unreleased]
 
+## [0.5.11] — 2026-11-23
+
+Speech comes back two to three times faster, the first take included, and Settings is rebuilt around six clear sections.
+
 **Highlights**
 
-- Sado no longer sends anything to the upstream project: analytics key, Docker images, update feed and links are Sado's own
-- Contributors sign CLA 2.0, which names the Sado maintainer
-- Settings is regrouped into six sections, each setting in one place, with readable values and working search
-- Windows now detects the graphics card, so GPU status and fix-it options are right
 - Speech comes back two to three times faster: a 30-second take in about 7 s instead of 16 s on an RTX 2070 SUPER
+- Settings is regrouped into six sections, each setting in one place, with readable values and working search
+- Sado no longer sends anything to the upstream project: analytics key, Docker images, update feed and links are Sado's own
+- Windows now detects the graphics card, so GPU status and fix-it options are right
+- Contributors sign CLA 2.0, which names the Sado maintainer
 
 ### Changed
 
